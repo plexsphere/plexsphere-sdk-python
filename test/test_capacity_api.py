@@ -14,64 +14,22 @@
 
 import unittest
 
-from plexsphere.api.hooks_api import HooksApi
+from plexsphere.api.capacity_api import CapacityApi
 
 
-class TestHooksApi(unittest.TestCase):
-    """HooksApi unit test stubs"""
+class TestCapacityApi(unittest.TestCase):
+    """CapacityApi unit test stubs"""
 
     def setUp(self) -> None:
-        self.api = HooksApi()
+        self.api = CapacityApi()
 
     def tearDown(self) -> None:
         pass
 
-    def test_delete_managed_push(self) -> None:
-        """Test case for delete_managed_push
+    def test_get_domain_capacity(self) -> None:
+        """Test case for get_domain_capacity
 
-        Detach a Domain's managed-push target.
-        """
-        pass
-
-    def test_get_managed_hook_push(self) -> None:
-        """Test case for get_managed_hook_push
-
-        Read a single recorded managed-hook push.
-        """
-        pass
-
-    def test_get_managed_push(self) -> None:
-        """Test case for get_managed_push
-
-        Read the managed-push target configured for a Domain.
-        """
-        pass
-
-    def test_list_hooks(self) -> None:
-        """Test case for list_hooks
-
-        List discovered hooks across Domains.
-        """
-        pass
-
-    def test_push_managed_hook(self) -> None:
-        """Test case for push_managed_hook
-
-        Apply a PlexdHook to a Domain's managed-push cluster.
-        """
-        pass
-
-    def test_put_managed_push(self) -> None:
-        """Test case for put_managed_push
-
-        Attach or replace a Domain's managed-push target.
-        """
-        pass
-
-    def test_rollback_managed_hook_push(self) -> None:
-        """Test case for rollback_managed_hook_push
-
-        Roll back a recorded managed-hook push.
+        Return the capacity-and-scale snapshot for a Domain.
         """
         pass
 

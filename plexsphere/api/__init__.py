@@ -13,6 +13,7 @@ from plexsphere.api.blueprint_api import BlueprintApi
 from plexsphere.api.bootstrap_tokens_api import BootstrapTokensApi
 from plexsphere.api.bridge_api import BridgeApi
 from plexsphere.api.capabilities_api import CapabilitiesApi
+from plexsphere.api.capacity_api import CapacityApi
 from plexsphere.api.cloud_api import CloudApi
 from plexsphere.api.hooks_api import HooksApi
 from plexsphere.api.integrity_api import IntegrityApi

@@ -20,6 +20,10 @@ from typing import Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from plexsphere.models.hook_list import HookList
+from plexsphere.models.managed_hook_push import ManagedHookPush
+from plexsphere.models.managed_hook_push_request import ManagedHookPushRequest
+from plexsphere.models.managed_push_attach_request import ManagedPushAttachRequest
+from plexsphere.models.managed_push_target import ManagedPushTarget
 
 from plexsphere.api_client import ApiClient, RequestSerialized
 from plexsphere.api_response import ApiResponse
@@ -37,6 +41,857 @@ class HooksApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def delete_managed_push(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Detach a Domain's managed-push target.
+
+        Detaches the managed-push target for a Domain, removing the sealed kubeconfig and disabling further managed pushes. The handler runs the managed-push write ReBAC check on the addressed Domain before the delete, then removes the target and returns 204. A Domain with no managed-push target receives 404 `managed_push_not_configured`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_managed_push_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Detach a Domain's managed-push target.
+
+        Detaches the managed-push target for a Domain, removing the sealed kubeconfig and disabling further managed pushes. The handler runs the managed-push write ReBAC check on the addressed Domain before the delete, then removes the target and returns 204. A Domain with no managed-push target receives 404 `managed_push_not_configured`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_managed_push_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Detach a Domain's managed-push target.
+
+        Detaches the managed-push target for a Domain, removing the sealed kubeconfig and disabling further managed pushes. The handler runs the managed-push write ReBAC check on the addressed Domain before the delete, then removes the target and returns 204. A Domain with no managed-push target receives 404 `managed_push_not_configured`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_managed_push_serialize(
+        self,
+        domain_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v1/domains/{domainId}/managed-push',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_managed_hook_push(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ManagedHookPush:
+        """Read a single recorded managed-hook push.
+
+        Returns the read projection of a single recorded managed-hook push by its identifier. The handler runs the managed-push read ReBAC check on the addressed Domain before the read; a push that does not exist on the Domain receives 404 `push_not_found`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_managed_hook_push_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ManagedHookPush]:
+        """Read a single recorded managed-hook push.
+
+        Returns the read projection of a single recorded managed-hook push by its identifier. The handler runs the managed-push read ReBAC check on the addressed Domain before the read; a push that does not exist on the Domain receives 404 `push_not_found`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_managed_hook_push_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Read a single recorded managed-hook push.
+
+        Returns the read projection of a single recorded managed-hook push by its identifier. The handler runs the managed-push read ReBAC check on the addressed Domain before the read; a push that does not exist on the Domain receives 404 `push_not_found`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_managed_hook_push_serialize(
+        self,
+        domain_id,
+        push_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        if push_id is not None:
+            _path_params['pushId'] = push_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/domains/{domainId}/managed-push/hooks/{pushId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_managed_push(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ManagedPushTarget:
+        """Read the managed-push target configured for a Domain.
+
+        Returns the read projection of the opt-in managed-push target a Domain operator attached for the Domain — the cluster the platform applies PlexdHook objects to on the operator's behalf. The projection is display-only: it carries the target's enabled flag, the API-server URL, a hex SHA-256 fingerprint of the kubeconfig plaintext, and the create/update timestamps. It NEVER carries the kubeconfig ciphertext or plaintext — the plaintext is sealed at rest and never echoed back over the API.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push read ReBAC relation on the addressed      Domain BEFORE reading the target so the endpoint cannot be      used as a Domain-id oracle; an unauthorised caller receives      403.   3. Returns the target projection with 200 when a target is      configured, or 404 `managed_push_not_configured` when the      Domain has no managed-push target.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501 so log scrapers can alert on the deferred-wiring state. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_managed_push_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ManagedPushTarget]:
+        """Read the managed-push target configured for a Domain.
+
+        Returns the read projection of the opt-in managed-push target a Domain operator attached for the Domain — the cluster the platform applies PlexdHook objects to on the operator's behalf. The projection is display-only: it carries the target's enabled flag, the API-server URL, a hex SHA-256 fingerprint of the kubeconfig plaintext, and the create/update timestamps. It NEVER carries the kubeconfig ciphertext or plaintext — the plaintext is sealed at rest and never echoed back over the API.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push read ReBAC relation on the addressed      Domain BEFORE reading the target so the endpoint cannot be      used as a Domain-id oracle; an unauthorised caller receives      403.   3. Returns the target projection with 200 when a target is      configured, or 404 `managed_push_not_configured` when the      Domain has no managed-push target.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501 so log scrapers can alert on the deferred-wiring state. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_managed_push_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Read the managed-push target configured for a Domain.
+
+        Returns the read projection of the opt-in managed-push target a Domain operator attached for the Domain — the cluster the platform applies PlexdHook objects to on the operator's behalf. The projection is display-only: it carries the target's enabled flag, the API-server URL, a hex SHA-256 fingerprint of the kubeconfig plaintext, and the create/update timestamps. It NEVER carries the kubeconfig ciphertext or plaintext — the plaintext is sealed at rest and never echoed back over the API.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push read ReBAC relation on the addressed      Domain BEFORE reading the target so the endpoint cannot be      used as a Domain-id oracle; an unauthorised caller receives      403.   3. Returns the target projection with 200 when a target is      configured, or 404 `managed_push_not_configured` when the      Domain has no managed-push target.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501 so log scrapers can alert on the deferred-wiring state. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_managed_push_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_managed_push_serialize(
+        self,
+        domain_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/domains/{domainId}/managed-push',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -367,6 +1222,935 @@ class HooksApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/hooks',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def push_managed_hook(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_hook_push_request: ManagedHookPushRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ManagedHookPush:
+        """Apply a PlexdHook to a Domain's managed-push cluster.
+
+        Applies one PlexdHook object to the Domain's managed-push cluster on the operator's behalf, recording the push so it can be read back or rolled back. The handler runs the managed-push write ReBAC check on the addressed Domain before any cluster write, validates the PlexdHook spec, then applies it to the target cluster.  The response is the read projection of the recorded push; it NEVER echoes prior object content — only a `had_prior_state` boolean recording whether the apply replaced an existing object, so a subsequent rollback knows whether to restore or delete.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_hook_push_request: (required)
+        :type managed_hook_push_request: ManagedHookPushRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._push_managed_hook_serialize(
+            domain_id=domain_id,
+            managed_hook_push_request=managed_hook_push_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def push_managed_hook_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_hook_push_request: ManagedHookPushRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ManagedHookPush]:
+        """Apply a PlexdHook to a Domain's managed-push cluster.
+
+        Applies one PlexdHook object to the Domain's managed-push cluster on the operator's behalf, recording the push so it can be read back or rolled back. The handler runs the managed-push write ReBAC check on the addressed Domain before any cluster write, validates the PlexdHook spec, then applies it to the target cluster.  The response is the read projection of the recorded push; it NEVER echoes prior object content — only a `had_prior_state` boolean recording whether the apply replaced an existing object, so a subsequent rollback knows whether to restore or delete.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_hook_push_request: (required)
+        :type managed_hook_push_request: ManagedHookPushRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._push_managed_hook_serialize(
+            domain_id=domain_id,
+            managed_hook_push_request=managed_hook_push_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def push_managed_hook_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_hook_push_request: ManagedHookPushRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Apply a PlexdHook to a Domain's managed-push cluster.
+
+        Applies one PlexdHook object to the Domain's managed-push cluster on the operator's behalf, recording the push so it can be read back or rolled back. The handler runs the managed-push write ReBAC check on the addressed Domain before any cluster write, validates the PlexdHook spec, then applies it to the target cluster.  The response is the read projection of the recorded push; it NEVER echoes prior object content — only a `had_prior_state` boolean recording whether the apply replaced an existing object, so a subsequent rollback knows whether to restore or delete.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_hook_push_request: (required)
+        :type managed_hook_push_request: ManagedHookPushRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._push_managed_hook_serialize(
+            domain_id=domain_id,
+            managed_hook_push_request=managed_hook_push_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '422': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _push_managed_hook_serialize(
+        self,
+        domain_id,
+        managed_hook_push_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if managed_hook_push_request is not None:
+            _body_params = managed_hook_push_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/domains/{domainId}/managed-push/hooks',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def put_managed_push(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_push_attach_request: ManagedPushAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ManagedPushTarget:
+        """Attach or replace a Domain's managed-push target.
+
+        Attaches the opt-in managed-push target for a Domain, or replaces the existing target's kubeconfig and enabled flag. The request carries a base64-encoded kubeconfig and the enabled flag; the plaintext is validated, sealed at rest, and NEVER echoed back — the 200 response is the display-only target projection.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push write ReBAC relation on the addressed      Domain BEFORE any persistence write; an unauthorised caller      receives 403.   3. Decodes and validates the kubeconfig. Only embedded, in-band      credentials are accepted: a token, or `client-certificate-data`      / `client-key-data`, with the CA supplied as      `certificate-authority-data`. An oversized payload is rejected      with 413 `kubeconfig_too_large`; a kubeconfig that fails      validation is rejected with 422 `kubeconfig_invalid`. Validation      rejects an `exec` or `auth-provider` credential plugin, any      file-path credential (`tokenFile`, `client-certificate`,      `client-key`), a `certificate-authority` file path, a      `proxy-url`, a non-https server, and `insecure-skip-tls-verify`      — the control plane never reads operator-named local files nor      dials an operator-supplied proxy.   4. Seals the plaintext and persists the target, returning the      display-only projection with 200.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_push_attach_request: (required)
+        :type managed_push_attach_request: ManagedPushAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._put_managed_push_serialize(
+            domain_id=domain_id,
+            managed_push_attach_request=managed_push_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def put_managed_push_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_push_attach_request: ManagedPushAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ManagedPushTarget]:
+        """Attach or replace a Domain's managed-push target.
+
+        Attaches the opt-in managed-push target for a Domain, or replaces the existing target's kubeconfig and enabled flag. The request carries a base64-encoded kubeconfig and the enabled flag; the plaintext is validated, sealed at rest, and NEVER echoed back — the 200 response is the display-only target projection.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push write ReBAC relation on the addressed      Domain BEFORE any persistence write; an unauthorised caller      receives 403.   3. Decodes and validates the kubeconfig. Only embedded, in-band      credentials are accepted: a token, or `client-certificate-data`      / `client-key-data`, with the CA supplied as      `certificate-authority-data`. An oversized payload is rejected      with 413 `kubeconfig_too_large`; a kubeconfig that fails      validation is rejected with 422 `kubeconfig_invalid`. Validation      rejects an `exec` or `auth-provider` credential plugin, any      file-path credential (`tokenFile`, `client-certificate`,      `client-key`), a `certificate-authority` file path, a      `proxy-url`, a non-https server, and `insecure-skip-tls-verify`      — the control plane never reads operator-named local files nor      dials an operator-supplied proxy.   4. Seals the plaintext and persists the target, returning the      display-only projection with 200.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_push_attach_request: (required)
+        :type managed_push_attach_request: ManagedPushAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._put_managed_push_serialize(
+            domain_id=domain_id,
+            managed_push_attach_request=managed_push_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def put_managed_push_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        managed_push_attach_request: ManagedPushAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Attach or replace a Domain's managed-push target.
+
+        Attaches the opt-in managed-push target for a Domain, or replaces the existing target's kubeconfig and enabled flag. The request carries a base64-encoded kubeconfig and the enabled flag; the plaintext is validated, sealed at rest, and NEVER echoed back — the 200 response is the display-only target projection.  The handler:    1. Authenticates the caller and rejects requests without a      resolved Principal with 401.   2. Checks the managed-push write ReBAC relation on the addressed      Domain BEFORE any persistence write; an unauthorised caller      receives 403.   3. Decodes and validates the kubeconfig. Only embedded, in-band      credentials are accepted: a token, or `client-certificate-data`      / `client-key-data`, with the CA supplied as      `certificate-authority-data`. An oversized payload is rejected      with 413 `kubeconfig_too_large`; a kubeconfig that fails      validation is rejected with 422 `kubeconfig_invalid`. Validation      rejects an `exec` or `auth-provider` credential plugin, any      file-path credential (`tokenFile`, `client-certificate`,      `client-key`), a `certificate-authority` file path, a      `proxy-url`, a non-https server, and `insecure-skip-tls-verify`      — the control plane never reads operator-named local files nor      dials an operator-supplied proxy.   4. Seals the plaintext and persists the target, returning the      display-only projection with 200.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param managed_push_attach_request: (required)
+        :type managed_push_attach_request: ManagedPushAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._put_managed_push_serialize(
+            domain_id=domain_id,
+            managed_push_attach_request=managed_push_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedPushTarget",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _put_managed_push_serialize(
+        self,
+        domain_id,
+        managed_push_attach_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if managed_push_attach_request is not None:
+            _body_params = managed_push_attach_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='PUT',
+            resource_path='/v1/domains/{domainId}/managed-push',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def rollback_managed_hook_push(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ManagedHookPush:
+        """Roll back a recorded managed-hook push.
+
+        Rolls back a previously recorded managed-hook push: restores the prior object state when the apply replaced an existing object, or deletes the applied object when it had no prior state. The handler runs the managed-push write ReBAC check on the addressed Domain before the cluster write.  The `:rollback` colon-verb mirrors the `/v1/projects/{project_id}/executions:dispatch` idiom — rollback is a side-effecting cluster operation, not an idempotent field write. A push that has already been rolled back receives 409 `push_already_rolled_back`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rollback_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def rollback_managed_hook_push_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ManagedHookPush]:
+        """Roll back a recorded managed-hook push.
+
+        Rolls back a previously recorded managed-hook push: restores the prior object state when the apply replaced an existing object, or deletes the applied object when it had no prior state. The handler runs the managed-push write ReBAC check on the addressed Domain before the cluster write.  The `:rollback` colon-verb mirrors the `/v1/projects/{project_id}/executions:dispatch` idiom — rollback is a side-effecting cluster operation, not an idempotent field write. A push that has already been rolled back receives 409 `push_already_rolled_back`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rollback_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def rollback_managed_hook_push_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. ")],
+        push_id: Annotated[UUID, Field(description="Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Roll back a recorded managed-hook push.
+
+        Rolls back a previously recorded managed-hook push: restores the prior object state when the apply replaced an existing object, or deletes the applied object when it had no prior state. The handler runs the managed-push write ReBAC check on the addressed Domain before the cluster write.  The `:rollback` colon-verb mirrors the `/v1/projects/{project_id}/executions:dispatch` idiom — rollback is a side-effecting cluster operation, not an idempotent field write. A push that has already been rolled back receives 409 `push_already_rolled_back`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the managed-push service bundle, every request returns 501. 
+
+        :param domain_id: Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  (required)
+        :type domain_id: UUID
+        :param push_id: Recorded managed-hook push identifier (UUIDv7). Bound on `/v1/domains/{domainId}/managed-push/hooks/{pushId}` and its `:rollback` sub-resource for the single-push read and rollback.  (required)
+        :type push_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rollback_managed_hook_push_serialize(
+            domain_id=domain_id,
+            push_id=push_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ManagedHookPush",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '502': "Problem",
+            '500': "Problem",
+            '501': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _rollback_managed_hook_push_serialize(
+        self,
+        domain_id,
+        push_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if domain_id is not None:
+            _path_params['domainId'] = domain_id
+        if push_id is not None:
+            _path_params['pushId'] = push_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/domains/{domainId}/managed-push/hooks/{pushId}:rollback',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -70,6 +70,8 @@ from plexsphere.models.capability_manifest_response import CapabilityManifestRes
 from plexsphere.models.capability_row import CapabilityRow
 from plexsphere.models.capability_row_list import CapabilityRowList
 from plexsphere.models.capability_status import CapabilityStatus
+from plexsphere.models.capacity_dimension import CapacityDimension
+from plexsphere.models.capacity_unit import CapacityUnit
 from plexsphere.models.cloud_child_counts import CloudChildCounts
 from plexsphere.models.cloud_create_request import CloudCreateRequest
 from plexsphere.models.cloud_credential_list import CloudCredentialList
@@ -98,6 +100,8 @@ from plexsphere.models.device_code_response import DeviceCodeResponse
 from plexsphere.models.device_token_request import DeviceTokenRequest
 from plexsphere.models.discovered_hook import DiscoveredHook
 from plexsphere.models.dispatch_execution_request import DispatchExecutionRequest
+from plexsphere.models.domain_capacity_dimension_reading import DomainCapacityDimensionReading
+from plexsphere.models.domain_capacity_snapshot import DomainCapacitySnapshot
 from plexsphere.models.domain_child_counts import DomainChildCounts
 from plexsphere.models.domain_create_request import DomainCreateRequest
 from plexsphere.models.domain_list import DomainList
@@ -167,6 +171,10 @@ from plexsphere.models.label_value_schema import LabelValueSchema
 from plexsphere.models.log_line import LogLine
 from plexsphere.models.lookup_resources_request import LookupResourcesRequest
 from plexsphere.models.lookup_subjects_request import LookupSubjectsRequest
+from plexsphere.models.managed_hook_push import ManagedHookPush
+from plexsphere.models.managed_hook_push_request import ManagedHookPushRequest
+from plexsphere.models.managed_push_attach_request import ManagedPushAttachRequest
+from plexsphere.models.managed_push_target import ManagedPushTarget
 from plexsphere.models.management_cluster_list import ManagementClusterList
 from plexsphere.models.management_cluster_response import ManagementClusterResponse
 from plexsphere.models.mesh_edge import MeshEdge

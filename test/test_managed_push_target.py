@@ -14,10 +14,10 @@
 
 import unittest
 
-from plexsphere.models.problem import Problem
+from plexsphere.models.managed_push_target import ManagedPushTarget
 
-class TestProblem(unittest.TestCase):
-    """Problem unit test stubs"""
+class TestManagedPushTarget(unittest.TestCase):
+    """ManagedPushTarget unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,48 +25,34 @@ class TestProblem(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Problem:
-        """Test Problem
+    def make_instance(self, include_optional) -> ManagedPushTarget:
+        """Test ManagedPushTarget
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Problem`
+        # uncomment below to create an instance of `ManagedPushTarget`
         """
-        model = Problem()
+        model = ManagedPushTarget()
         if include_optional:
-            return Problem(
-                type = '',
-                title = '',
-                status = 56,
-                detail = '',
-                instance = '',
-                code = '',
-                dimension = '',
-                child_counts = plexsphere.models.domain_child_counts.DomainChildCounts(
-                    projects = 0, 
-                    groups = 0, 
-                    identities = 0, 
-                    idp_bindings = 0, 
-                    nodes = 0, ),
-                project_child_counts = plexsphere.models.project_child_counts.ProjectChildCounts(
-                    resources = 0, 
-                    nodes = 0, 
-                    relation_tuples = 0, ),
-                cloud_child_counts = plexsphere.models.cloud_child_counts.CloudChildCounts(
-                    cloud_credentials = 0, )
+            return ManagedPushTarget(
+                enabled = True,
+                api_server_url = '',
+                kubeconfig_sha256 = '',
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )
         else:
-            return Problem(
-                type = '',
-                title = '',
-                status = 56,
-                detail = '',
-                instance = '',
+            return ManagedPushTarget(
+                enabled = True,
+                api_server_url = '',
+                kubeconfig_sha256 = '',
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
         )
         """
 
-    def testProblem(self):
-        """Test Problem"""
+    def testManagedPushTarget(self):
+        """Test ManagedPushTarget"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
