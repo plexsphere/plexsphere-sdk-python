@@ -702,6 +702,7 @@ class AccessApi:
             '403': "PermissionDenied",
             '404': "Problem",
             '409': "Problem",
+            '503': "Problem",
             '501': "Problem",
             '500': "Problem",
         }
@@ -780,6 +781,7 @@ class AccessApi:
             '403': "PermissionDenied",
             '404': "Problem",
             '409': "Problem",
+            '503': "Problem",
             '501': "Problem",
             '500': "Problem",
         }
@@ -858,6 +860,7 @@ class AccessApi:
             '403': "PermissionDenied",
             '404': "Problem",
             '409': "Problem",
+            '503': "Problem",
             '501': "Problem",
             '500': "Problem",
         }
