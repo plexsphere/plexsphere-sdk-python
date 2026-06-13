@@ -1033,6 +1033,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1109,6 +1110,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1185,6 +1187,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1868,6 +1871,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -1939,6 +1943,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
@@ -2010,6 +2015,7 @@ class MeshApi:
             '401': "Problem",
             '403': "Problem",
             '404': "Problem",
+            '503': "Problem",
             '501': "Problem",
         }
         response_data = self.api_client.call_api(
