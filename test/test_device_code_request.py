@@ -37,12 +37,12 @@ class TestDeviceCodeRequest(unittest.TestCase):
             return DeviceCodeRequest(
                 domain_id = '',
                 idp_binding_id = '',
+                idp_binding_alias = '',
                 client_id = ''
             )
         else:
             return DeviceCodeRequest(
                 domain_id = '',
-                idp_binding_id = '',
         )
         """
 

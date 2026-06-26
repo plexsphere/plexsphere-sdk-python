@@ -1,6 +1,6 @@
 # LabelValueSchema
 
-Polymorphic descriptor of a Label Definition's value contract. Callers must set `kind` to one of the five supported values; the sibling fields that accompany each kind are optional on the wire but enforced by the aggregate:   * `string` — optional `max_len` (default 256 bytes).   * `enum` — required `values` (non-empty, unique,     non-blank).   * `numeric` — optional `min` / `max` (int64).   * `boolean` — no extra fields.   * `regex` — required `pattern` (Go regexp). The `kind` property doubles as the OpenAPI discriminator so the generated TypeScript client can fan out into per-kind narrowing. 
+Polymorphic descriptor of a Label Definition's value contract. Callers must set `kind` to one of the five supported values; the sibling fields that accompany each kind are optional on the wire but enforced by the aggregate:   * `string` — optional `max_len` (default 256 bytes).   * `enum` — required `values` (non-empty, unique,     non-blank).   * `numeric` — optional `min` / `max` (int64).   * `boolean` — no extra fields.   * `regex` — required `pattern` (Go regexp). The `kind` property doubles as the OpenAPI discriminator so a generated client can fan out into per-kind narrowing. 
 
 ## Properties
 

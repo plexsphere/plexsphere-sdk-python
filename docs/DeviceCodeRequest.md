@@ -1,13 +1,14 @@
 # DeviceCodeRequest
 
-Body for POST /v1/auth/device-code — initiates RFC 8628 device authorization against the resolved IdP binding. 
+Body for POST /v1/auth/device-code — initiates RFC 8628 device authorization against the resolved IdP binding. Only `domain_id` is required; the router resolves the binding from the Domain when `idp_binding_id` is omitted. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **domain_id** | **UUID** | Domain the caller is authenticating against. | 
-**idp_binding_id** | **UUID** | IdP binding within the Domain. | 
+**idp_binding_id** | **UUID** | Explicit IdP binding within the Domain. Optional: when omitted, the binding is resolved by alias, then the Domain&#39;s primary binding, then its single active binding. A Domain with two or more active bindings and no primary requires this field (or idp_binding_alias) to disambiguate.  | [optional] 
+**idp_binding_alias** | **str** | Human-friendly alias of an IdP binding within the Domain (e.g. &#x60;github&#x60;). Optional. Resolution precedence is explicit id, then alias, then the Domain&#39;s primary binding, then its single active binding. Mutually exclusive with idp_binding_id.  | [optional] 
 **client_id** | **str** | Optional OIDC client identifier override. | [optional] 
 
 ## Example

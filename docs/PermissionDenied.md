@@ -1,6 +1,6 @@
 # PermissionDenied
 
-Specialised RFC 9457 problem-details body returned on 403 from the ReBAC authorizer. Extends `Problem` with a machine-readable denial reason, the traversed relation path, and the correlation id that pairs the response with the matching audit entry emitted by `internal/audit`.  DECISION: the schema is declared as a standalone object rather than via `allOf` against `Problem`. kin-openapi's validator and oapi-codegen both accept `allOf`, but the downstream TypeScript client we generate treats `allOf` members as intersections that collide on optional fields — duplicating the Problem fields in place keeps the generated Go and TS shapes identical and avoids the collision. 
+Specialised RFC 9457 problem-details body returned on 403 from the ReBAC authorizer. Extends `Problem` with a machine-readable denial reason, the traversed relation path, and the correlation id that pairs the response with the matching audit entry emitted by `internal/audit`.  DECISION: the schema is declared as a standalone object rather than via `allOf` against `Problem`. kin-openapi's validator and oapi-codegen both accept `allOf`, but a generated client can treat `allOf` members as intersections that collide on optional fields — duplicating the Problem fields in place keeps the generated Go client shape flat and sidesteps the collision. 
 
 ## Properties
 

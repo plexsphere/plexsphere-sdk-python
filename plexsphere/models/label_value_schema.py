@@ -27,7 +27,7 @@ from pydantic_core import to_jsonable_python
 
 class LabelValueSchema(BaseModel):
     """
-    Polymorphic descriptor of a Label Definition's value contract. Callers must set `kind` to one of the five supported values; the sibling fields that accompany each kind are optional on the wire but enforced by the aggregate:   * `string` — optional `max_len` (default 256 bytes).   * `enum` — required `values` (non-empty, unique,     non-blank).   * `numeric` — optional `min` / `max` (int64).   * `boolean` — no extra fields.   * `regex` — required `pattern` (Go regexp). The `kind` property doubles as the OpenAPI discriminator so the generated TypeScript client can fan out into per-kind narrowing. 
+    Polymorphic descriptor of a Label Definition's value contract. Callers must set `kind` to one of the five supported values; the sibling fields that accompany each kind are optional on the wire but enforced by the aggregate:   * `string` — optional `max_len` (default 256 bytes).   * `enum` — required `values` (non-empty, unique,     non-blank).   * `numeric` — optional `min` / `max` (int64).   * `boolean` — no extra fields.   * `regex` — required `pattern` (Go regexp). The `kind` property doubles as the OpenAPI discriminator so a generated client can fan out into per-kind narrowing. 
     """ # noqa: E501
     kind: ValueSchemaKind
     max_len: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Maximum byte length for `kind=string` (default 256 when omitted; 0 is equivalent to the default). ")

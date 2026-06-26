@@ -26,7 +26,9 @@ __all__ = [
     "AuditApi",
     "AuthApi",
     "AuthzApi",
+    "BackupApi",
     "BlueprintApi",
+    "BlueprintCatalogApi",
     "BootstrapTokensApi",
     "BridgeApi",
     "CapabilitiesApi",
@@ -39,6 +41,7 @@ __all__ = [
     "MeshApi",
     "MetaApi",
     "NodesApi",
+    "ObservabilityApi",
     "PolicyApi",
     "ProvisioningCredentialsApi",
     "ResourceApi",
@@ -58,6 +61,12 @@ __all__ = [
     "APITokenRotateResponse",
     "APITokenSummary",
     "ActionKind",
+    "AlertComparator",
+    "AlertRule",
+    "AlertRuleCreate",
+    "AlertRuleList",
+    "AlertRuleUpdate",
+    "AlertSeverity",
     "Approval",
     "ApprovalList",
     "ApprovalPolicy",
@@ -77,10 +86,17 @@ __all__ = [
     "AuditReason",
     "AuditRequestContext",
     "AuditSubject",
+    "BackupCatalog",
+    "BackupCatalogEntry",
+    "BackupExclusion",
+    "BackupPriority",
+    "BackupTarget",
+    "BlueprintCreateRequest",
     "BlueprintList",
     "BlueprintParameter",
     "BlueprintParameterDefault",
     "BlueprintResponse",
+    "BlueprintVersionCreateRequest",
     "BlueprintVersionResponse",
     "BootstrapTokenIssueRequest",
     "BootstrapTokenIssueResponse",
@@ -112,8 +128,14 @@ __all__ = [
     "CapabilityStatus",
     "CapacityDimension",
     "CapacityUnit",
+    "CatalogBlueprintSummary",
+    "CatalogBrowseResponse",
+    "CatalogSourceCreateRequest",
+    "CatalogSourceList",
+    "CatalogSourceResponse",
     "CloudChildCounts",
     "CloudCreateRequest",
+    "CloudCredentialIssueRequest",
     "CloudCredentialList",
     "CloudCredentialResponse",
     "CloudCredentialRevokeRequest",
@@ -144,6 +166,7 @@ __all__ = [
     "DomainCapacitySnapshot",
     "DomainChildCounts",
     "DomainCreateRequest",
+    "DomainIdPBinding",
     "DomainList",
     "DomainPatchRequest",
     "DomainReachabilityPolicy",
@@ -178,6 +201,14 @@ __all__ = [
     "IdentityKind",
     "IdentityList",
     "IdentitySummary",
+    "ImportOutcome",
+    "ImportRequest",
+    "ImportResult",
+    "Incident",
+    "IncidentList",
+    "IncidentOpenRequest",
+    "IncidentSeverity",
+    "IncidentStatus",
     "IngestReceipt",
     "IntegrityViolationAcknowledgeRequest",
     "IntegrityViolationKind",
@@ -209,6 +240,7 @@ __all__ = [
     "LabelSelectorPreviewResponse",
     "LabelValueSchema",
     "LogLine",
+    "LogsQueryResult",
     "LookupResourcesRequest",
     "LookupSubjectsRequest",
     "ManagedHookPush",
@@ -221,6 +253,7 @@ __all__ = [
     "MeshTopology",
     "MeshTopologyNode",
     "MetricSample",
+    "MetricsQueryResult",
     "NamespacePhase",
     "NodeList",
     "NodeStateBridge",
@@ -237,8 +270,10 @@ __all__ = [
     "NodeStateReports",
     "NodeStateSnapshot",
     "NodeSummary",
+    "OciReference",
     "OutputRef",
     "PermissionDenied",
+    "PlatformIdPBindingRequest",
     "PlexdArtifact",
     "PlexdArtifactArch",
     "PlexdArtifactRef",
@@ -289,6 +324,8 @@ __all__ = [
     "ResourceOrigin",
     "ResourceProvisioning",
     "ResourceResponse",
+    "RestorePlan",
+    "RestoreStep",
     "RevokeReason",
     "RevokeSessionRequest",
     "RotationImpactEdge",
@@ -313,7 +350,12 @@ __all__ = [
     "SignInRequest",
     "SignInResponse",
     "StateEntry",
+    "TimelineEvent",
+    "TimelineEventAppend",
+    "TimelineEventKind",
+    "TrackingPolicy",
     "ValueSchemaKind",
+    "VerificationPolicy",
     "VersionInfo",
     "Whoami",
 ]
@@ -327,7 +369,9 @@ from plexsphere.api.artifacts_api import ArtifactsApi as ArtifactsApi
 from plexsphere.api.audit_api import AuditApi as AuditApi
 from plexsphere.api.auth_api import AuthApi as AuthApi
 from plexsphere.api.authz_api import AuthzApi as AuthzApi
+from plexsphere.api.backup_api import BackupApi as BackupApi
 from plexsphere.api.blueprint_api import BlueprintApi as BlueprintApi
+from plexsphere.api.blueprint_catalog_api import BlueprintCatalogApi as BlueprintCatalogApi
 from plexsphere.api.bootstrap_tokens_api import BootstrapTokensApi as BootstrapTokensApi
 from plexsphere.api.bridge_api import BridgeApi as BridgeApi
 from plexsphere.api.capabilities_api import CapabilitiesApi as CapabilitiesApi
@@ -340,6 +384,7 @@ from plexsphere.api.management_fleet_api import ManagementFleetApi as Management
 from plexsphere.api.mesh_api import MeshApi as MeshApi
 from plexsphere.api.meta_api import MetaApi as MetaApi
 from plexsphere.api.nodes_api import NodesApi as NodesApi
+from plexsphere.api.observability_api import ObservabilityApi as ObservabilityApi
 from plexsphere.api.policy_api import PolicyApi as PolicyApi
 from plexsphere.api.provisioning_credentials_api import ProvisioningCredentialsApi as ProvisioningCredentialsApi
 from plexsphere.api.resource_api import ResourceApi as ResourceApi
@@ -363,6 +408,12 @@ from plexsphere.models.api_token_issue_response import APITokenIssueResponse as 
 from plexsphere.models.api_token_rotate_response import APITokenRotateResponse as APITokenRotateResponse
 from plexsphere.models.api_token_summary import APITokenSummary as APITokenSummary
 from plexsphere.models.action_kind import ActionKind as ActionKind
+from plexsphere.models.alert_comparator import AlertComparator as AlertComparator
+from plexsphere.models.alert_rule import AlertRule as AlertRule
+from plexsphere.models.alert_rule_create import AlertRuleCreate as AlertRuleCreate
+from plexsphere.models.alert_rule_list import AlertRuleList as AlertRuleList
+from plexsphere.models.alert_rule_update import AlertRuleUpdate as AlertRuleUpdate
+from plexsphere.models.alert_severity import AlertSeverity as AlertSeverity
 from plexsphere.models.approval import Approval as Approval
 from plexsphere.models.approval_list import ApprovalList as ApprovalList
 from plexsphere.models.approval_policy import ApprovalPolicy as ApprovalPolicy
@@ -382,10 +433,17 @@ from plexsphere.models.audit_object import AuditObject as AuditObject
 from plexsphere.models.audit_reason import AuditReason as AuditReason
 from plexsphere.models.audit_request_context import AuditRequestContext as AuditRequestContext
 from plexsphere.models.audit_subject import AuditSubject as AuditSubject
+from plexsphere.models.backup_catalog import BackupCatalog as BackupCatalog
+from plexsphere.models.backup_catalog_entry import BackupCatalogEntry as BackupCatalogEntry
+from plexsphere.models.backup_exclusion import BackupExclusion as BackupExclusion
+from plexsphere.models.backup_priority import BackupPriority as BackupPriority
+from plexsphere.models.backup_target import BackupTarget as BackupTarget
+from plexsphere.models.blueprint_create_request import BlueprintCreateRequest as BlueprintCreateRequest
 from plexsphere.models.blueprint_list import BlueprintList as BlueprintList
 from plexsphere.models.blueprint_parameter import BlueprintParameter as BlueprintParameter
 from plexsphere.models.blueprint_parameter_default import BlueprintParameterDefault as BlueprintParameterDefault
 from plexsphere.models.blueprint_response import BlueprintResponse as BlueprintResponse
+from plexsphere.models.blueprint_version_create_request import BlueprintVersionCreateRequest as BlueprintVersionCreateRequest
 from plexsphere.models.blueprint_version_response import BlueprintVersionResponse as BlueprintVersionResponse
 from plexsphere.models.bootstrap_token_issue_request import BootstrapTokenIssueRequest as BootstrapTokenIssueRequest
 from plexsphere.models.bootstrap_token_issue_response import BootstrapTokenIssueResponse as BootstrapTokenIssueResponse
@@ -417,8 +475,14 @@ from plexsphere.models.capability_row_list import CapabilityRowList as Capabilit
 from plexsphere.models.capability_status import CapabilityStatus as CapabilityStatus
 from plexsphere.models.capacity_dimension import CapacityDimension as CapacityDimension
 from plexsphere.models.capacity_unit import CapacityUnit as CapacityUnit
+from plexsphere.models.catalog_blueprint_summary import CatalogBlueprintSummary as CatalogBlueprintSummary
+from plexsphere.models.catalog_browse_response import CatalogBrowseResponse as CatalogBrowseResponse
+from plexsphere.models.catalog_source_create_request import CatalogSourceCreateRequest as CatalogSourceCreateRequest
+from plexsphere.models.catalog_source_list import CatalogSourceList as CatalogSourceList
+from plexsphere.models.catalog_source_response import CatalogSourceResponse as CatalogSourceResponse
 from plexsphere.models.cloud_child_counts import CloudChildCounts as CloudChildCounts
 from plexsphere.models.cloud_create_request import CloudCreateRequest as CloudCreateRequest
+from plexsphere.models.cloud_credential_issue_request import CloudCredentialIssueRequest as CloudCredentialIssueRequest
 from plexsphere.models.cloud_credential_list import CloudCredentialList as CloudCredentialList
 from plexsphere.models.cloud_credential_response import CloudCredentialResponse as CloudCredentialResponse
 from plexsphere.models.cloud_credential_revoke_request import CloudCredentialRevokeRequest as CloudCredentialRevokeRequest
@@ -449,6 +513,7 @@ from plexsphere.models.domain_capacity_dimension_reading import DomainCapacityDi
 from plexsphere.models.domain_capacity_snapshot import DomainCapacitySnapshot as DomainCapacitySnapshot
 from plexsphere.models.domain_child_counts import DomainChildCounts as DomainChildCounts
 from plexsphere.models.domain_create_request import DomainCreateRequest as DomainCreateRequest
+from plexsphere.models.domain_id_p_binding import DomainIdPBinding as DomainIdPBinding
 from plexsphere.models.domain_list import DomainList as DomainList
 from plexsphere.models.domain_patch_request import DomainPatchRequest as DomainPatchRequest
 from plexsphere.models.domain_reachability_policy import DomainReachabilityPolicy as DomainReachabilityPolicy
@@ -483,6 +548,14 @@ from plexsphere.models.identity_detail import IdentityDetail as IdentityDetail
 from plexsphere.models.identity_kind import IdentityKind as IdentityKind
 from plexsphere.models.identity_list import IdentityList as IdentityList
 from plexsphere.models.identity_summary import IdentitySummary as IdentitySummary
+from plexsphere.models.import_outcome import ImportOutcome as ImportOutcome
+from plexsphere.models.import_request import ImportRequest as ImportRequest
+from plexsphere.models.import_result import ImportResult as ImportResult
+from plexsphere.models.incident import Incident as Incident
+from plexsphere.models.incident_list import IncidentList as IncidentList
+from plexsphere.models.incident_open_request import IncidentOpenRequest as IncidentOpenRequest
+from plexsphere.models.incident_severity import IncidentSeverity as IncidentSeverity
+from plexsphere.models.incident_status import IncidentStatus as IncidentStatus
 from plexsphere.models.ingest_receipt import IngestReceipt as IngestReceipt
 from plexsphere.models.integrity_violation_acknowledge_request import IntegrityViolationAcknowledgeRequest as IntegrityViolationAcknowledgeRequest
 from plexsphere.models.integrity_violation_kind import IntegrityViolationKind as IntegrityViolationKind
@@ -514,6 +587,7 @@ from plexsphere.models.label_selector_preview_request import LabelSelectorPrevie
 from plexsphere.models.label_selector_preview_response import LabelSelectorPreviewResponse as LabelSelectorPreviewResponse
 from plexsphere.models.label_value_schema import LabelValueSchema as LabelValueSchema
 from plexsphere.models.log_line import LogLine as LogLine
+from plexsphere.models.logs_query_result import LogsQueryResult as LogsQueryResult
 from plexsphere.models.lookup_resources_request import LookupResourcesRequest as LookupResourcesRequest
 from plexsphere.models.lookup_subjects_request import LookupSubjectsRequest as LookupSubjectsRequest
 from plexsphere.models.managed_hook_push import ManagedHookPush as ManagedHookPush
@@ -526,6 +600,7 @@ from plexsphere.models.mesh_edge import MeshEdge as MeshEdge
 from plexsphere.models.mesh_topology import MeshTopology as MeshTopology
 from plexsphere.models.mesh_topology_node import MeshTopologyNode as MeshTopologyNode
 from plexsphere.models.metric_sample import MetricSample as MetricSample
+from plexsphere.models.metrics_query_result import MetricsQueryResult as MetricsQueryResult
 from plexsphere.models.namespace_phase import NamespacePhase as NamespacePhase
 from plexsphere.models.node_list import NodeList as NodeList
 from plexsphere.models.node_state_bridge import NodeStateBridge as NodeStateBridge
@@ -542,8 +617,10 @@ from plexsphere.models.node_state_report_response import NodeStateReportResponse
 from plexsphere.models.node_state_reports import NodeStateReports as NodeStateReports
 from plexsphere.models.node_state_snapshot import NodeStateSnapshot as NodeStateSnapshot
 from plexsphere.models.node_summary import NodeSummary as NodeSummary
+from plexsphere.models.oci_reference import OciReference as OciReference
 from plexsphere.models.output_ref import OutputRef as OutputRef
 from plexsphere.models.permission_denied import PermissionDenied as PermissionDenied
+from plexsphere.models.platform_id_p_binding_request import PlatformIdPBindingRequest as PlatformIdPBindingRequest
 from plexsphere.models.plexd_artifact import PlexdArtifact as PlexdArtifact
 from plexsphere.models.plexd_artifact_arch import PlexdArtifactArch as PlexdArtifactArch
 from plexsphere.models.plexd_artifact_ref import PlexdArtifactRef as PlexdArtifactRef
@@ -594,6 +671,8 @@ from plexsphere.models.resource_list import ResourceList as ResourceList
 from plexsphere.models.resource_origin import ResourceOrigin as ResourceOrigin
 from plexsphere.models.resource_provisioning import ResourceProvisioning as ResourceProvisioning
 from plexsphere.models.resource_response import ResourceResponse as ResourceResponse
+from plexsphere.models.restore_plan import RestorePlan as RestorePlan
+from plexsphere.models.restore_step import RestoreStep as RestoreStep
 from plexsphere.models.revoke_reason import RevokeReason as RevokeReason
 from plexsphere.models.revoke_session_request import RevokeSessionRequest as RevokeSessionRequest
 from plexsphere.models.rotation_impact_edge import RotationImpactEdge as RotationImpactEdge
@@ -618,7 +697,12 @@ from plexsphere.models.session_target_tcp import SessionTargetTCP as SessionTarg
 from plexsphere.models.sign_in_request import SignInRequest as SignInRequest
 from plexsphere.models.sign_in_response import SignInResponse as SignInResponse
 from plexsphere.models.state_entry import StateEntry as StateEntry
+from plexsphere.models.timeline_event import TimelineEvent as TimelineEvent
+from plexsphere.models.timeline_event_append import TimelineEventAppend as TimelineEventAppend
+from plexsphere.models.timeline_event_kind import TimelineEventKind as TimelineEventKind
+from plexsphere.models.tracking_policy import TrackingPolicy as TrackingPolicy
 from plexsphere.models.value_schema_kind import ValueSchemaKind as ValueSchemaKind
+from plexsphere.models.verification_policy import VerificationPolicy as VerificationPolicy
 from plexsphere.models.version_info import VersionInfo as VersionInfo
 from plexsphere.models.whoami import Whoami as Whoami
 

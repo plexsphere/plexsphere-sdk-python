@@ -52,19 +52,21 @@ class TestIdPBindingResponse(unittest.TestCase):
                     ],
                 jit_policy = 'allow',
                 status = 'active',
+                alias = '',
+                primary = True,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )
         else:
             return IdPBindingResponse(
                 id = '',
-                domain_id = '',
                 issuer = '',
                 client_id = '',
                 client_secret_ref = '',
                 discovery_url = '',
                 jit_policy = 'allow',
                 status = 'active',
+                primary = True,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
         )

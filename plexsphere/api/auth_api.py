@@ -28,6 +28,7 @@ from plexsphere.models.device_approve_response import DeviceApproveResponse
 from plexsphere.models.device_code_request import DeviceCodeRequest
 from plexsphere.models.device_code_response import DeviceCodeResponse
 from plexsphere.models.device_token_request import DeviceTokenRequest
+from plexsphere.models.domain_id_p_binding import DomainIdPBinding
 from plexsphere.models.service_token_request import ServiceTokenRequest
 from plexsphere.models.service_token_response import ServiceTokenResponse
 from plexsphere.models.sign_in_request import SignInRequest
@@ -579,7 +580,7 @@ class AuthApi:
     ) -> None:
         """OIDC redirect callback — exchanges `code` for a session.
 
-        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the SPA root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the SPA can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
+        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the application root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the browser client can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
 
         :param code: Authorization code issued by the IdP. (required)
         :type code: str
@@ -653,7 +654,7 @@ class AuthApi:
     ) -> ApiResponse[None]:
         """OIDC redirect callback — exchanges `code` for a session.
 
-        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the SPA root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the SPA can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
+        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the application root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the browser client can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
 
         :param code: Authorization code issued by the IdP. (required)
         :type code: str
@@ -727,7 +728,7 @@ class AuthApi:
     ) -> RESTResponseType:
         """OIDC redirect callback — exchanges `code` for a session.
 
-        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the SPA root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the SPA can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
+        Receives the OIDC redirect after the end user completes sign-in at the IdP. Validates `state` and `nonce`, exchanges the authorization code for tokens, provisions/updates the user via the JIT policy, issues a plexsphere session cookie, and 303 See Other-redirects the browser to the application root (`/`). The endpoint is invoked exclusively via top-level browser navigation per RFC 6749 §4.1.2; clients that need a machine-readable session shape should call `GET /v1/auth/whoami` once the session cookie is set .  Failure responses are content-negotiated via the `Accept` request header:  - **Browser-leg failure** — when `Accept` is absent, `*/*`, or   includes `text/html`, the server responds with `303 See   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`   so the browser client can render the error inline next to the sign-in   form. No session cookie is issued. - **JSON-leg failure** — when `Accept` includes   `application/json` or `application/problem+json`, the server   returns the original status (`400`, `500`, or `502`) with an   `application/problem+json` body conforming to RFC 7807. 
 
         :param code: Authorization code issued by the IdP. (required)
         :type code: str
@@ -832,6 +833,275 @@ class AuthApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/auth/callback',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_auth_id_p_bindings(
+        self,
+        domain_id: Annotated[UUID, Field(description="Domain whose effective IdP bindings to list.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> List[DomainIdPBinding]:
+        """List a Domain's effective IdP bindings for the sign-in chooser.
+
+        Unauthenticated, display-safe discovery surface the dashboard sign-in page calls once a Domain id is known (typed or supplied via a deep link) so it can render a provider chooser. Returns only the active bindings the Domain can sign in with — its own active bindings, falling back to the platform-scoped shared bindings when the Domain owns none — projected to non-secret fields and ordered primary-first.  The endpoint is intentionally a pre-auth enumeration surface and does not behave as a Domain-existence oracle: a Domain that does not exist returns the same shape (the applicable platform bindings, or an empty list) as a Domain that exists but owns no bindings, so an unauthenticated caller cannot distinguish the two. Responses are marked `Cache-Control: no-store`. 
+
+        :param domain_id: Domain whose effective IdP bindings to list. (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_auth_id_p_bindings_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[DomainIdPBinding]",
+            '400': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_auth_id_p_bindings_with_http_info(
+        self,
+        domain_id: Annotated[UUID, Field(description="Domain whose effective IdP bindings to list.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[List[DomainIdPBinding]]:
+        """List a Domain's effective IdP bindings for the sign-in chooser.
+
+        Unauthenticated, display-safe discovery surface the dashboard sign-in page calls once a Domain id is known (typed or supplied via a deep link) so it can render a provider chooser. Returns only the active bindings the Domain can sign in with — its own active bindings, falling back to the platform-scoped shared bindings when the Domain owns none — projected to non-secret fields and ordered primary-first.  The endpoint is intentionally a pre-auth enumeration surface and does not behave as a Domain-existence oracle: a Domain that does not exist returns the same shape (the applicable platform bindings, or an empty list) as a Domain that exists but owns no bindings, so an unauthenticated caller cannot distinguish the two. Responses are marked `Cache-Control: no-store`. 
+
+        :param domain_id: Domain whose effective IdP bindings to list. (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_auth_id_p_bindings_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[DomainIdPBinding]",
+            '400': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_auth_id_p_bindings_without_preload_content(
+        self,
+        domain_id: Annotated[UUID, Field(description="Domain whose effective IdP bindings to list.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List a Domain's effective IdP bindings for the sign-in chooser.
+
+        Unauthenticated, display-safe discovery surface the dashboard sign-in page calls once a Domain id is known (typed or supplied via a deep link) so it can render a provider chooser. Returns only the active bindings the Domain can sign in with — its own active bindings, falling back to the platform-scoped shared bindings when the Domain owns none — projected to non-secret fields and ordered primary-first.  The endpoint is intentionally a pre-auth enumeration surface and does not behave as a Domain-existence oracle: a Domain that does not exist returns the same shape (the applicable platform bindings, or an empty list) as a Domain that exists but owns no bindings, so an unauthenticated caller cannot distinguish the two. Responses are marked `Cache-Control: no-store`. 
+
+        :param domain_id: Domain whose effective IdP bindings to list. (required)
+        :type domain_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_auth_id_p_bindings_serialize(
+            domain_id=domain_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[DomainIdPBinding]",
+            '400': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_auth_id_p_bindings_serialize(
+        self,
+        domain_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if domain_id is not None:
+            
+            _query_params.append(('domain_id', domain_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/auth/idp-bindings',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

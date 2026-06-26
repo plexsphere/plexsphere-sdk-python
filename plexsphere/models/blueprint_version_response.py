@@ -21,6 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
+from uuid import UUID
 from plexsphere.models.blueprint_parameter import BlueprintParameter
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,13 +31,14 @@ class BlueprintVersionResponse(BaseModel):
     """
     A single version of a Blueprint. A version is keyed by its parent Blueprint and its `version` string and carries the typed `parameter_schema` an operator fills in when provisioning a Resource. The Crossplane XRD and Composition manifests are storage-internal and are deliberately not exposed on this read surface. 
     """ # noqa: E501
+    id: UUID = Field(description="Surrogate identifier of this immutable version (UUIDv7) — the handle a Resource references as `blueprint_version_id` when it is provisioned. The version is keyed for humans by its `version` string within the parent Blueprint; this id is the stable machine handle `resource create` consumes. ")
     version: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Version identifier, unique within the parent Blueprint.")
     provider_kinds: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Closed-set infrastructure substrates this version can target. Non-empty. ")
     injection_strategy: StrictStr = Field(description="Closed-set discriminator naming how this version threads request parameters into the rendered Composite Resource. ")
     parameter_schema: List[BlueprintParameter] = Field(description="Typed parameter declarations an operator fills in when provisioning a Resource from this version. May be empty when the version declares no parameters. ")
     created_at: datetime = Field(description="Version creation timestamp (UTC).")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["version", "provider_kinds", "injection_strategy", "parameter_schema", "created_at"]
+    __properties: ClassVar[List[str]] = ["id", "version", "provider_kinds", "injection_strategy", "parameter_schema", "created_at"]
 
     @field_validator('provider_kinds')
     def provider_kinds_validate_enum(cls, value):
@@ -118,6 +120,7 @@ class BlueprintVersionResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "id": obj.get("id"),
             "version": obj.get("version"),
             "provider_kinds": obj.get("provider_kinds"),
             "injection_strategy": obj.get("injection_strategy"),

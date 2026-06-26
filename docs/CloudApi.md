@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**delete_cloud**](CloudApi.md#delete_cloud) | **DELETE** /v1/clouds/{id} | Delete a Cloud.
 [**get_cloud**](CloudApi.md#get_cloud) | **GET** /v1/clouds/{id} | Fetch a Cloud by identifier.
 [**get_cloud_credential**](CloudApi.md#get_cloud_credential) | **GET** /v1/cloud-credentials/{id} | Fetch a Cloud Credential&#39;s lifecycle metadata.
+[**issue_cloud_credential**](CloudApi.md#issue_cloud_credential) | **POST** /v1/clouds/{id}/cloud-credentials | Issue a new Cloud Credential under a Cloud.
 [**list_cloud_credentials**](CloudApi.md#list_cloud_credentials) | **GET** /v1/clouds/{id}/cloud-credentials | List Cloud Credentials owned by a Cloud.
 [**list_clouds**](CloudApi.md#list_clouds) | **GET** /v1/clouds | List Cloud Inventory entries.
 [**list_credential_assignments**](CloudApi.md#list_credential_assignments) | **GET** /v1/projects/{id}/credential-assignments | List the Credential Assignments owned by a Project.
@@ -430,6 +431,94 @@ No authorization required
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to observe the parent Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Cloud Credential not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_credential_not_found&#x60;.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **issue_cloud_credential**
+> CloudCredentialResponse issue_cloud_credential(id, cloud_credential_issue_request)
+
+Issue a new Cloud Credential under a Cloud.
+
+Issues a new Cloud Credential owned by the Cloud identified by
+`{id}`. The handler runs a `manage` ReBAC check on the parent
+Cloud BEFORE decoding the request body, then delegates to the
+Cloud Credentials Custodian which writes the secret material to
+OpenBao KV-v2, persists the broker row, and appends a
+`CloudCredentialIssued` outbox event in a single transaction.
+
+The response carries the metadata-only projection of the freshly
+issued credential — the same shape the read and revoke surfaces
+return. It NEVER echoes the payload, key-values, KV mount, KV
+path, or KV version: the request material is accepted inbound
+only and the storage location stays storage-internal.
+
+
+### Example
+
+
+```python
+import plexsphere
+from plexsphere.models.cloud_credential_issue_request import CloudCredentialIssueRequest
+from plexsphere.models.cloud_credential_response import CloudCredentialResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. 
+    cloud_credential_issue_request = {"display_name":"Acme AWS provisioner secret","payload":"ZXhhbXBsZS1zZWNyZXQtYnl0ZXM=","key_values":{"role_arn":"arn:aws:iam::123456789012:role/acme-provisioner"}} # CloudCredentialIssueRequest | 
+
+    try:
+        # Issue a new Cloud Credential under a Cloud.
+        api_response = api_instance.issue_cloud_credential(id, cloud_credential_issue_request)
+        print("The response of CloudApi->issue_cloud_credential:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->issue_cloud_credential: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Cloud identifier (UUIDv7). Bound on &#x60;/v1/clouds/{id}&#x60; for the Cloud Inventory CRUD surface.  | 
+ **cloud_credential_issue_request** | [**CloudCredentialIssueRequest**](CloudCredentialIssueRequest.md)|  | 
+
+### Return type
+
+[**CloudCredentialResponse**](CloudCredentialResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Cloud Credential issued. The &#x60;Location&#x60; header carries the canonical URL of the new credential.  |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_display_name&#x60;, &#x60;invalid_payload&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to manage the parent Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**413** | Request body exceeded the 8 KiB Cloud Credentials ceiling.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

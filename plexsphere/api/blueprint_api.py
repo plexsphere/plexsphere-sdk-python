@@ -19,8 +19,11 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from uuid import UUID
+from plexsphere.models.blueprint_create_request import BlueprintCreateRequest
 from plexsphere.models.blueprint_list import BlueprintList
 from plexsphere.models.blueprint_response import BlueprintResponse
+from plexsphere.models.blueprint_version_create_request import BlueprintVersionCreateRequest
+from plexsphere.models.blueprint_version_response import BlueprintVersionResponse
 
 from plexsphere.api_client import ApiClient, RequestSerialized
 from plexsphere.api_response import ApiResponse
@@ -589,6 +592,608 @@ class BlueprintApi:
 
         return self.api_client.param_serialize(
             method='GET',
+            resource_path='/v1/blueprints',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def publish_blueprint_version(
+        self,
+        id: Annotated[UUID, Field(description="Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface. ")],
+        blueprint_version_create_request: BlueprintVersionCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> BlueprintVersionResponse:
+        """Publish a Blueprint version.
+
+        Publishes an immutable version under an existing Blueprint. The service validates the request BEFORE any persistence write: the `provider_kinds` enum members, the `injection_strategy` enum, the `parameter_schema` document, and the structural XRD/Composition manifest pair are each checked, so a malformed payload never appends a `BlueprintVersionPublished` outbox row.  The handler authorises the caller against the `publish` permission on the addressed Blueprint (`blueprint#publish`) BEFORE invoking the service. The registrar of a Blueprint holds `owner`, which grants `publish`; the grant is written asynchronously after registration, so a publish issued in the same instant as the register may be refused until the tuple propagates.  A missing parent Blueprint surfaces as `404 blueprint_not_found`; a re-published `(blueprint, version)` pair surfaces as `409 blueprint_version_exists`. On success the handler emits a `blueprint.publish` audit row and the service appends a `BlueprintVersionPublished` outbox event in the same transaction. 
+
+        :param id: Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface.  (required)
+        :type id: UUID
+        :param blueprint_version_create_request: (required)
+        :type blueprint_version_create_request: BlueprintVersionCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_blueprint_version_serialize(
+            id=id,
+            blueprint_version_create_request=blueprint_version_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintVersionResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def publish_blueprint_version_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface. ")],
+        blueprint_version_create_request: BlueprintVersionCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[BlueprintVersionResponse]:
+        """Publish a Blueprint version.
+
+        Publishes an immutable version under an existing Blueprint. The service validates the request BEFORE any persistence write: the `provider_kinds` enum members, the `injection_strategy` enum, the `parameter_schema` document, and the structural XRD/Composition manifest pair are each checked, so a malformed payload never appends a `BlueprintVersionPublished` outbox row.  The handler authorises the caller against the `publish` permission on the addressed Blueprint (`blueprint#publish`) BEFORE invoking the service. The registrar of a Blueprint holds `owner`, which grants `publish`; the grant is written asynchronously after registration, so a publish issued in the same instant as the register may be refused until the tuple propagates.  A missing parent Blueprint surfaces as `404 blueprint_not_found`; a re-published `(blueprint, version)` pair surfaces as `409 blueprint_version_exists`. On success the handler emits a `blueprint.publish` audit row and the service appends a `BlueprintVersionPublished` outbox event in the same transaction. 
+
+        :param id: Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface.  (required)
+        :type id: UUID
+        :param blueprint_version_create_request: (required)
+        :type blueprint_version_create_request: BlueprintVersionCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_blueprint_version_serialize(
+            id=id,
+            blueprint_version_create_request=blueprint_version_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintVersionResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def publish_blueprint_version_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface. ")],
+        blueprint_version_create_request: BlueprintVersionCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Publish a Blueprint version.
+
+        Publishes an immutable version under an existing Blueprint. The service validates the request BEFORE any persistence write: the `provider_kinds` enum members, the `injection_strategy` enum, the `parameter_schema` document, and the structural XRD/Composition manifest pair are each checked, so a malformed payload never appends a `BlueprintVersionPublished` outbox row.  The handler authorises the caller against the `publish` permission on the addressed Blueprint (`blueprint#publish`) BEFORE invoking the service. The registrar of a Blueprint holds `owner`, which grants `publish`; the grant is written asynchronously after registration, so a publish issued in the same instant as the register may be refused until the tuple propagates.  A missing parent Blueprint surfaces as `404 blueprint_not_found`; a re-published `(blueprint, version)` pair surfaces as `409 blueprint_version_exists`. On success the handler emits a `blueprint.publish` audit row and the service appends a `BlueprintVersionPublished` outbox event in the same transaction. 
+
+        :param id: Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface.  (required)
+        :type id: UUID
+        :param blueprint_version_create_request: (required)
+        :type blueprint_version_create_request: BlueprintVersionCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_blueprint_version_serialize(
+            id=id,
+            blueprint_version_create_request=blueprint_version_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintVersionResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _publish_blueprint_version_serialize(
+        self,
+        id,
+        blueprint_version_create_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if blueprint_version_create_request is not None:
+            _body_params = blueprint_version_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/blueprints/{id}/versions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def register_blueprint(
+        self,
+        blueprint_create_request: BlueprintCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> BlueprintResponse:
+        """Register a Blueprint Catalog entry.
+
+        Registers a new Blueprint — the catalogue entry under which one or more immutable versions are later published. The aggregate enforces every catalogue invariant: kebab-case `slug`, non-empty `display_name`. A freshly registered Blueprint always carries `status: active`.  The handler authorises the caller against the platform-level `manage` relation (`platform#manage`) BEFORE invoking the service so an unauthorised caller never produces a `BlueprintRegistered` outbox row. A duplicate slug surfaces as `409 blueprint_slug_conflict`.  On success the handler emits a `blueprint.register` audit row and the service appends a `BlueprintRegistered` outbox event in the same transaction. The authz-sync consumer maps that event to a `blueprint:<id>#owner@<registrar>` tuple so the registrar gains `publish` on the new Blueprint — the grant is eventually consistent (see the `blueprint` tag description). 
+
+        :param blueprint_create_request: (required)
+        :type blueprint_create_request: BlueprintCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._register_blueprint_serialize(
+            blueprint_create_request=blueprint_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def register_blueprint_with_http_info(
+        self,
+        blueprint_create_request: BlueprintCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[BlueprintResponse]:
+        """Register a Blueprint Catalog entry.
+
+        Registers a new Blueprint — the catalogue entry under which one or more immutable versions are later published. The aggregate enforces every catalogue invariant: kebab-case `slug`, non-empty `display_name`. A freshly registered Blueprint always carries `status: active`.  The handler authorises the caller against the platform-level `manage` relation (`platform#manage`) BEFORE invoking the service so an unauthorised caller never produces a `BlueprintRegistered` outbox row. A duplicate slug surfaces as `409 blueprint_slug_conflict`.  On success the handler emits a `blueprint.register` audit row and the service appends a `BlueprintRegistered` outbox event in the same transaction. The authz-sync consumer maps that event to a `blueprint:<id>#owner@<registrar>` tuple so the registrar gains `publish` on the new Blueprint — the grant is eventually consistent (see the `blueprint` tag description). 
+
+        :param blueprint_create_request: (required)
+        :type blueprint_create_request: BlueprintCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._register_blueprint_serialize(
+            blueprint_create_request=blueprint_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def register_blueprint_without_preload_content(
+        self,
+        blueprint_create_request: BlueprintCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Register a Blueprint Catalog entry.
+
+        Registers a new Blueprint — the catalogue entry under which one or more immutable versions are later published. The aggregate enforces every catalogue invariant: kebab-case `slug`, non-empty `display_name`. A freshly registered Blueprint always carries `status: active`.  The handler authorises the caller against the platform-level `manage` relation (`platform#manage`) BEFORE invoking the service so an unauthorised caller never produces a `BlueprintRegistered` outbox row. A duplicate slug surfaces as `409 blueprint_slug_conflict`.  On success the handler emits a `blueprint.register` audit row and the service appends a `BlueprintRegistered` outbox event in the same transaction. The authz-sync consumer maps that event to a `blueprint:<id>#owner@<registrar>` tuple so the registrar gains `publish` on the new Blueprint — the grant is eventually consistent (see the `blueprint` tag description). 
+
+        :param blueprint_create_request: (required)
+        :type blueprint_create_request: BlueprintCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._register_blueprint_serialize(
+            blueprint_create_request=blueprint_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "BlueprintResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _register_blueprint_serialize(
+        self,
+        blueprint_create_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if blueprint_create_request is not None:
+            _body_params = blueprint_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
             resource_path='/v1/blueprints',
             path_params=_path_params,
             query_params=_query_params,

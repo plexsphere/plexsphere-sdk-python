@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
 from typing import Optional, Set
@@ -37,8 +37,10 @@ class IdPBindingRequest(BaseModel):
     required_acr: Optional[List[StrictStr]] = Field(default=None, description="Required OIDC ACR values.")
     required_amr: Optional[List[StrictStr]] = Field(default=None, description="Required OIDC AMR values.")
     jit_policy: StrictStr = Field(description="Just-in-time user-provisioning policy.")
+    alias: Optional[StrictStr] = Field(default=None, description="Optional human-friendly handle for the binding, unique per Domain among active bindings (e.g. `github`). Normalised to lowercase kebab-case, so an operator may submit mixed case. ")
+    primary: Optional[StrictBool] = Field(default=None, description="Mark this binding as the Domain default a Domain-only login resolves to. At most one active primary per Domain; a second primary is rejected with 409 primary-conflict. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["domain_id", "issuer", "client_id", "client_secret_ref", "discovery_url", "claim_mappings", "required_acr", "required_amr", "jit_policy"]
+    __properties: ClassVar[List[str]] = ["domain_id", "issuer", "client_id", "client_secret_ref", "discovery_url", "claim_mappings", "required_acr", "required_amr", "jit_policy", "alias", "primary"]
 
     @field_validator('jit_policy')
     def jit_policy_validate_enum(cls, value):
@@ -113,7 +115,9 @@ class IdPBindingRequest(BaseModel):
             "claim_mappings": obj.get("claim_mappings"),
             "required_acr": obj.get("required_acr"),
             "required_amr": obj.get("required_amr"),
-            "jit_policy": obj.get("jit_policy")
+            "jit_policy": obj.get("jit_policy"),
+            "alias": obj.get("alias"),
+            "primary": obj.get("primary")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

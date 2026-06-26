@@ -47,6 +47,7 @@ class TestBlueprintList(unittest.TestCase):
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         versions = [
                             plexsphere.models.blueprint_version_response.BlueprintVersionResponse(
+                                id = '', 
                                 version = '0', 
                                 provider_kinds = [
                                     'aws'
@@ -78,6 +79,7 @@ class TestBlueprintList(unittest.TestCase):
                         updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         versions = [
                             plexsphere.models.blueprint_version_response.BlueprintVersionResponse(
+                                id = '', 
                                 version = '0', 
                                 provider_kinds = [
                                     'aws'

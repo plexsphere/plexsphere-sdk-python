@@ -11,6 +11,8 @@ Name | Type | Description | Notes
 **required_acr** | **List[str]** | Required OIDC ACR values. | [optional] 
 **required_amr** | **List[str]** | Required OIDC AMR values. | [optional] 
 **jit_policy** | **str** | Just-in-time user-provisioning policy. | [optional] 
+**alias** | **str** | Set or clear the binding alias. An empty string clears the alias; a non-empty value is normalised to lowercase kebab-case. The alias is unique per Domain among active bindings; a collision is rejected with 409 alias-conflict.  | [optional] 
+**primary** | **bool** | Promote (true) or demote (false) the binding as the Domain default. Promoting a second binding while another is primary returns 409 primary-conflict; demote the current primary first.  | [optional] 
 
 ## Example
 

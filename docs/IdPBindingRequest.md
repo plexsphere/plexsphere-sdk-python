@@ -15,6 +15,8 @@ Name | Type | Description | Notes
 **required_acr** | **List[str]** | Required OIDC ACR values. | [optional] 
 **required_amr** | **List[str]** | Required OIDC AMR values. | [optional] 
 **jit_policy** | **str** | Just-in-time user-provisioning policy. | 
+**alias** | **str** | Optional human-friendly handle for the binding, unique per Domain among active bindings (e.g. &#x60;github&#x60;). Normalised to lowercase kebab-case, so an operator may submit mixed case.  | [optional] 
+**primary** | **bool** | Mark this binding as the Domain default a Domain-only login resolves to. At most one active primary per Domain; a second primary is rejected with 409 primary-conflict.  | [optional] 
 
 ## Example
 
