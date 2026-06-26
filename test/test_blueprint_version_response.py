@@ -35,6 +35,7 @@ class TestBlueprintVersionResponse(unittest.TestCase):
         model = BlueprintVersionResponse()
         if include_optional:
             return BlueprintVersionResponse(
+                id = '',
                 version = '0',
                 provider_kinds = [
                     'aws'
@@ -51,6 +52,7 @@ class TestBlueprintVersionResponse(unittest.TestCase):
             )
         else:
             return BlueprintVersionResponse(
+                id = '',
                 version = '0',
                 provider_kinds = [
                     'aws'

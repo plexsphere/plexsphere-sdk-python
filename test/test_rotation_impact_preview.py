@@ -39,7 +39,7 @@ class TestRotationImpactPreview(unittest.TestCase):
                 peer_id = '',
                 affected_peer_count = 0,
                 affected_edges = [
-                    {peer_node_id=0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a6, current_kid=did:web:plexsphere.dev#psk-2026-04, current_wrap_key_version=7}
+                    {peer_node_id=0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a6, current_kid=did:web:plexsphere.com#psk-2026-04, current_wrap_key_version=7}
                     ],
                 already_pending = True,
                 estimated_duration_seconds = 0
@@ -50,7 +50,7 @@ class TestRotationImpactPreview(unittest.TestCase):
                 peer_id = '',
                 affected_peer_count = 0,
                 affected_edges = [
-                    {peer_node_id=0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a6, current_kid=did:web:plexsphere.dev#psk-2026-04, current_wrap_key_version=7}
+                    {peer_node_id=0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a6, current_kid=did:web:plexsphere.com#psk-2026-04, current_wrap_key_version=7}
                     ],
                 already_pending = True,
                 estimated_duration_seconds = 0,

@@ -40,6 +40,20 @@ class TestBlueprintApi(unittest.TestCase):
         """
         pass
 
+    def test_publish_blueprint_version(self) -> None:
+        """Test case for publish_blueprint_version
+
+        Publish a Blueprint version.
+        """
+        pass
+
+    def test_register_blueprint(self) -> None:
+        """Test case for register_blueprint
+
+        Register a Blueprint Catalog entry.
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

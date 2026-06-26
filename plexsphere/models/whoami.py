@@ -31,7 +31,7 @@ class Whoami(BaseModel):
     principal_type: StrictStr = Field(description="Whether the principal is a human user or a ServiceIdentity.")
     subject: StrictStr = Field(description="Principal identifier (UUIDv7 serialised as a string).")
     domain_id: Optional[UUID] = Field(default=None, description="Domain the principal belongs to.")
-    email: Optional[StrictStr] = Field(default=None, description="Primary email of the principal as projected by the upstream IdP at sign-in. Omitted when the IdP did not supply an `email` claim or the principal is a ServiceIdentity. The dashboard's SignedInBadge renders it as the human-readable identity label. ")
+    email: Optional[StrictStr] = Field(default=None, description="Primary email of the principal as projected by the upstream IdP at sign-in. Omitted when the IdP did not supply an `email` claim or the principal is a ServiceIdentity. A browser client renders it as the human-readable identity label. ")
     acr: Optional[StrictStr] = Field(default=None, description="Authentication Context Class Reference, if available.")
     amr: Optional[List[StrictStr]] = Field(default=None, description="Authentication Methods References (e.g. \"pwd\", \"mfa\").")
     additional_properties: Dict[str, Any] = {}

@@ -6,6 +6,7 @@ A single version of a Blueprint. A version is keyed by its parent Blueprint and 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**id** | **UUID** | Surrogate identifier of this immutable version (UUIDv7) — the handle a Resource references as &#x60;blueprint_version_id&#x60; when it is provisioned. The version is keyed for humans by its &#x60;version&#x60; string within the parent Blueprint; this id is the stable machine handle &#x60;resource create&#x60; consumes.  | 
 **version** | **str** | Version identifier, unique within the parent Blueprint. | 
 **provider_kinds** | **List[str]** | Closed-set infrastructure substrates this version can target. Non-empty.  | 
 **injection_strategy** | **str** | Closed-set discriminator naming how this version threads request parameters into the rendered Composite Resource.  | 

@@ -61,6 +61,13 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_issue_cloud_credential(self) -> None:
+        """Test case for issue_cloud_credential
+
+        Issue a new Cloud Credential under a Cloud.
+        """
+        pass
+
     def test_list_cloud_credentials(self) -> None:
         """Test case for list_cloud_credentials
 

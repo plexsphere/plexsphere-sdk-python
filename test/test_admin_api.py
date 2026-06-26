@@ -89,6 +89,13 @@ class TestAdminApi(unittest.TestCase):
         """
         pass
 
+    def test_get_admin_platform_id_p_list(self) -> None:
+        """Test case for get_admin_platform_id_p_list
+
+        List platform-scoped (shared) IdP bindings.
+        """
+        pass
+
     def test_get_admin_tokens(self) -> None:
         """Test case for get_admin_tokens
 
@@ -135,6 +142,13 @@ class TestAdminApi(unittest.TestCase):
         """Test case for post_admin_id_p
 
         Create an IdP binding for a Domain.
+        """
+        pass
+
+    def test_post_admin_platform_id_p(self) -> None:
+        """Test case for post_admin_platform_id_p
+
+        Create a platform-scoped (shared) IdP binding.
         """
         pass
 

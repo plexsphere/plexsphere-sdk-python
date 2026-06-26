@@ -7,7 +7,7 @@ Response echo of a persisted IdPBinding aggregate. The `client_secret_ref` field
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Binding identifier (UUIDv7). | 
-**domain_id** | **UUID** | Owning Domain. | 
+**domain_id** | **UUID** | Owning Domain, or null for a platform-scoped (shared) binding usable by any Domain.  | [optional] 
 **issuer** | **str** | OIDC issuer URL. | 
 **client_id** | **str** | OIDC client identifier. | 
 **client_secret_ref** | **str** | Opaque reference to the client secret. | 
@@ -17,6 +17,8 @@ Name | Type | Description | Notes
 **required_amr** | **List[str]** |  | [optional] 
 **jit_policy** | **str** |  | 
 **status** | **str** | Aggregate status. | 
+**alias** | **str** | Human-friendly handle, unique per Domain among active bindings. Absent when the binding has no alias.  | [optional] 
+**primary** | **bool** | Whether this binding is the Domain default a Domain-only login resolves to.  | 
 **created_at** | **datetime** |  | 
 **updated_at** | **datetime** |  | 
 

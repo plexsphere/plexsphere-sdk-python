@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
 from typing import Optional, Set
@@ -30,7 +30,7 @@ class IdPBindingResponse(BaseModel):
     Response echo of a persisted IdPBinding aggregate. The `client_secret_ref` field is included because it is an opaque reference, not the secret itself. 
     """ # noqa: E501
     id: UUID = Field(description="Binding identifier (UUIDv7).")
-    domain_id: UUID = Field(description="Owning Domain.")
+    domain_id: Optional[UUID] = Field(default=None, description="Owning Domain, or null for a platform-scoped (shared) binding usable by any Domain. ")
     issuer: StrictStr = Field(description="OIDC issuer URL.")
     client_id: StrictStr = Field(description="OIDC client identifier.")
     client_secret_ref: StrictStr = Field(description="Opaque reference to the client secret.")
@@ -40,10 +40,12 @@ class IdPBindingResponse(BaseModel):
     required_amr: Optional[List[StrictStr]] = None
     jit_policy: StrictStr
     status: StrictStr = Field(description="Aggregate status.")
+    alias: Optional[StrictStr] = Field(default=None, description="Human-friendly handle, unique per Domain among active bindings. Absent when the binding has no alias. ")
+    primary: StrictBool = Field(description="Whether this binding is the Domain default a Domain-only login resolves to. ")
     created_at: datetime
     updated_at: datetime
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "domain_id", "issuer", "client_id", "client_secret_ref", "discovery_url", "claim_mappings", "required_acr", "required_amr", "jit_policy", "status", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "domain_id", "issuer", "client_id", "client_secret_ref", "discovery_url", "claim_mappings", "required_acr", "required_amr", "jit_policy", "status", "alias", "primary", "created_at", "updated_at"]
 
     @field_validator('jit_policy')
     def jit_policy_validate_enum(cls, value):
@@ -128,6 +130,8 @@ class IdPBindingResponse(BaseModel):
             "required_amr": obj.get("required_amr"),
             "jit_policy": obj.get("jit_policy"),
             "status": obj.get("status"),
+            "alias": obj.get("alias"),
+            "primary": obj.get("primary"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })

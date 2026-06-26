@@ -13,6 +13,7 @@ Method | HTTP request | Description
 [**get_admin_group_members**](AdminApi.md#get_admin_group_members) | **GET** /v1/admin/groups/{id}/members | List members of a Group.
 [**get_admin_id_p_list**](AdminApi.md#get_admin_id_p_list) | **GET** /v1/admin/idp | List IdP bindings (optionally filtered by Domain).
 [**get_admin_id_pby_id**](AdminApi.md#get_admin_id_pby_id) | **GET** /v1/admin/idp/{id} | Read an IdP binding by identifier.
+[**get_admin_platform_id_p_list**](AdminApi.md#get_admin_platform_id_p_list) | **GET** /v1/admin/platform-idp | List platform-scoped (shared) IdP bindings.
 [**get_admin_tokens**](AdminApi.md#get_admin_tokens) | **GET** /v1/admin/tokens | List API tokens for any owner (admin).
 [**patch_admin_group**](AdminApi.md#patch_admin_group) | **PATCH** /v1/admin/groups/{id} | Update mutable fields on a Group.
 [**patch_admin_id_p**](AdminApi.md#patch_admin_id_p) | **PATCH** /v1/admin/idp/{id} | Partially update an IdP binding.
@@ -20,6 +21,7 @@ Method | HTTP request | Description
 [**post_admin_group**](AdminApi.md#post_admin_group) | **POST** /v1/admin/groups | Create a Group within a Domain.
 [**post_admin_group_member**](AdminApi.md#post_admin_group_member) | **POST** /v1/admin/groups/{id}/members | Add a principal to a Group.
 [**post_admin_id_p**](AdminApi.md#post_admin_id_p) | **POST** /v1/admin/idp | Create an IdP binding for a Domain.
+[**post_admin_platform_id_p**](AdminApi.md#post_admin_platform_id_p) | **POST** /v1/admin/platform-idp | Create a platform-scoped (shared) IdP binding.
 [**post_admin_token_rotate**](AdminApi.md#post_admin_token_rotate) | **POST** /v1/admin/tokens/{id}/rotate | Rotate any API token (admin).
 [**post_admin_tokens**](AdminApi.md#post_admin_tokens) | **POST** /v1/admin/tokens | Issue an API token on behalf of any principal (admin).
 
@@ -681,6 +683,76 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_admin_platform_id_p_list**
+> List[IdPBindingResponse] get_admin_platform_id_p_list()
+
+List platform-scoped (shared) IdP bindings.
+
+Returns every platform-scoped IdP binding, gated on the platform
+`read` permission. Per-Domain bindings are not included; use
+GET /v1/admin/idp for a Domain's effective set.
+
+
+### Example
+
+
+```python
+import plexsphere
+from plexsphere.models.id_p_binding_response import IdPBindingResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.AdminApi(api_client)
+
+    try:
+        # List platform-scoped (shared) IdP bindings.
+        api_response = api_instance.get_admin_platform_id_p_list()
+        print("The response of AdminApi->get_admin_platform_id_p_list:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AdminApi->get_admin_platform_id_p_list: %s\n" % e)
+```
+
+
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**List[IdPBindingResponse]**](IdPBindingResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | List of platform IdP bindings. |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to read platform IdP bindings. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; that pairs with the audit entry.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_admin_tokens**
 > List[APITokenSummary] get_admin_tokens(identity_ref)
 
@@ -1249,6 +1321,85 @@ No authorization required
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage IdP bindings. Body is a &#x60;PermissionDenied&#x60; RFC 9457 problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; that pairs the response with the audit entry emitted by &#x60;internal/audit&#x60;.  |  -  |
 **409** | Conflict — another active binding exists for the same (domain_id, issuer) pair.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **post_admin_platform_id_p**
+> IdPBindingResponse post_admin_platform_id_p(platform_id_p_binding_request)
+
+Create a platform-scoped (shared) IdP binding.
+
+Creates a platform-scoped IdP binding owned by no Domain and
+usable by any Domain, gated on the platform `manage` permission.
+The response echoes the persisted aggregate with a null
+`domain_id` but never includes the client secret itself — only the
+opaque `client_secret_ref`.
+
+
+### Example
+
+
+```python
+import plexsphere
+from plexsphere.models.id_p_binding_response import IdPBindingResponse
+from plexsphere.models.platform_id_p_binding_request import PlatformIdPBindingRequest
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.AdminApi(api_client)
+    platform_id_p_binding_request = plexsphere.PlatformIdPBindingRequest() # PlatformIdPBindingRequest | 
+
+    try:
+        # Create a platform-scoped (shared) IdP binding.
+        api_response = api_instance.post_admin_platform_id_p(platform_id_p_binding_request)
+        print("The response of AdminApi->post_admin_platform_id_p:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AdminApi->post_admin_platform_id_p: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **platform_id_p_binding_request** | [**PlatformIdPBindingRequest**](PlatformIdPBindingRequest.md)|  | 
+
+### Return type
+
+[**IdPBindingResponse**](IdPBindingResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Platform binding created. |  -  |
+**400** | Invalid binding body. |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to manage platform IdP bindings. Body is a &#x60;PermissionDenied&#x60; RFC 9457 problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; that pairs the response with the audit entry.  |  -  |
+**409** | Conflict — another active platform binding already uses the same issuer or alias.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

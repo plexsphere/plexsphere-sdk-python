@@ -47,6 +47,13 @@ class TestAuthApi(unittest.TestCase):
         """
         pass
 
+    def test_get_auth_id_p_bindings(self) -> None:
+        """Test case for get_auth_id_p_bindings
+
+        List a Domain's effective IdP bindings for the sign-in chooser.
+        """
+        pass
+
     def test_get_auth_tokens(self) -> None:
         """Test case for get_auth_tokens
 

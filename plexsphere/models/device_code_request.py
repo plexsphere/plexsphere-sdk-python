@@ -26,13 +26,14 @@ from pydantic_core import to_jsonable_python
 
 class DeviceCodeRequest(BaseModel):
     """
-    Body for POST /v1/auth/device-code — initiates RFC 8628 device authorization against the resolved IdP binding. 
+    Body for POST /v1/auth/device-code — initiates RFC 8628 device authorization against the resolved IdP binding. Only `domain_id` is required; the router resolves the binding from the Domain when `idp_binding_id` is omitted. 
     """ # noqa: E501
     domain_id: UUID = Field(description="Domain the caller is authenticating against.")
-    idp_binding_id: UUID = Field(description="IdP binding within the Domain.")
+    idp_binding_id: Optional[UUID] = Field(default=None, description="Explicit IdP binding within the Domain. Optional: when omitted, the binding is resolved by alias, then the Domain's primary binding, then its single active binding. A Domain with two or more active bindings and no primary requires this field (or idp_binding_alias) to disambiguate. ")
+    idp_binding_alias: Optional[StrictStr] = Field(default=None, description="Human-friendly alias of an IdP binding within the Domain (e.g. `github`). Optional. Resolution precedence is explicit id, then alias, then the Domain's primary binding, then its single active binding. Mutually exclusive with idp_binding_id. ")
     client_id: Optional[StrictStr] = Field(default=None, description="Optional OIDC client identifier override.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["domain_id", "idp_binding_id", "client_id"]
+    __properties: ClassVar[List[str]] = ["domain_id", "idp_binding_id", "idp_binding_alias", "client_id"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -94,6 +95,7 @@ class DeviceCodeRequest(BaseModel):
         _obj = cls.model_validate({
             "domain_id": obj.get("domain_id"),
             "idp_binding_id": obj.get("idp_binding_id"),
+            "idp_binding_alias": obj.get("idp_binding_alias"),
             "client_id": obj.get("client_id")
         })
         # store additional fields in additional_properties

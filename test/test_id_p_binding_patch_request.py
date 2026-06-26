@@ -45,7 +45,9 @@ class TestIdPBindingPatchRequest(unittest.TestCase):
                 required_amr = [
                     ''
                     ],
-                jit_policy = 'allow'
+                jit_policy = 'allow',
+                alias = '',
+                primary = True
             )
         else:
             return IdPBindingPatchRequest(

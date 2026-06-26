@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**delete_auth_session**](AuthApi.md#delete_auth_session) | **DELETE** /v1/auth/whoami | Sign the current caller out.
 [**delete_auth_token_by_id**](AuthApi.md#delete_auth_token_by_id) | **DELETE** /v1/auth/tokens/{id} | Immediately revoke an API token.
 [**get_auth_callback**](AuthApi.md#get_auth_callback) | **GET** /v1/auth/callback | OIDC redirect callback — exchanges &#x60;code&#x60; for a session.
+[**get_auth_id_p_bindings**](AuthApi.md#get_auth_id_p_bindings) | **GET** /v1/auth/idp-bindings | List a Domain&#39;s effective IdP bindings for the sign-in chooser.
 [**get_auth_tokens**](AuthApi.md#get_auth_tokens) | **GET** /v1/auth/tokens | List the caller&#39;s API tokens (no plaintext).
 [**get_auth_whoami**](AuthApi.md#get_auth_whoami) | **GET** /v1/auth/whoami | Describe the authenticated principal.
 [**post_auth_device_approve**](AuthApi.md#post_auth_device_approve) | **POST** /v1/auth/device/approve | Approve a pending RFC 8628 device-authorization session.
@@ -171,7 +172,7 @@ Receives the OIDC redirect after the end user completes sign-in
 at the IdP. Validates `state` and `nonce`, exchanges the
 authorization code for tokens, provisions/updates the user via
 the JIT policy, issues a plexsphere session
-cookie, and 303 See Other-redirects the browser to the SPA root
+cookie, and 303 See Other-redirects the browser to the application root
 (`/`). The endpoint is invoked exclusively via top-level
 browser navigation per RFC 6749 §4.1.2; clients that need a
 machine-readable session shape should call `GET
@@ -184,7 +185,7 @@ request header:
 - **Browser-leg failure** — when `Accept` is absent, `*/*`, or
   includes `text/html`, the server responds with `303 See
   Other` to `/?auth_error_kind=...&auth_error_status=...&auth_error_detail=...`
-  so the SPA can render the error inline next to the sign-in
+  so the browser client can render the error inline next to the sign-in
   form. No session cookie is issued.
 - **JSON-leg failure** — when `Accept` includes
   `application/json` or `application/problem+json`, the server
@@ -248,10 +249,94 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**303** | Session established; the response carries the &#x60;plexsphere_session&#x60; cookie and a &#x60;Location: /&#x60; redirect so the browser lands on the SPA root. The cookie is issued with &#x60;Path&#x3D;/v1/&#x60;, &#x60;HttpOnly&#x60;, and &#x60;SameSite&#x3D;Strict&#x60;; the &#x60;Secure&#x60; attribute is set when the request was served over TLS or when &#x60;X-Forwarded-Proto: https&#x60; was honoured via &#x60;PLEXSPHERE_AUTH_TRUST_PROXY_HEADERS&#x60;. The same status is also used for browser-leg failure redirects to &#x60;/?auth_error_kind&#x3D;...&amp;auth_error_status&#x3D;...&amp;auth_error_detail&#x3D;...&#x60;, in which case no &#x60;Set-Cookie&#x60; is emitted.  |  * Location - Absolute or root-relative URL the browser must follow. <br>  * Set-Cookie - Issues the &#x60;plexsphere_session&#x60; cookie (success path only). <br>  |
+**303** | Session established; the response carries the &#x60;plexsphere_session&#x60; cookie and a &#x60;Location: /&#x60; redirect so the browser lands on the application root. The cookie is issued with &#x60;Path&#x3D;/v1/&#x60;, &#x60;HttpOnly&#x60;, and &#x60;SameSite&#x3D;Strict&#x60;; the &#x60;Secure&#x60; attribute is set when the request was served over TLS or when &#x60;X-Forwarded-Proto: https&#x60; was honoured via &#x60;PLEXSPHERE_AUTH_TRUST_PROXY_HEADERS&#x60;. The same status is also used for browser-leg failure redirects to &#x60;/?auth_error_kind&#x3D;...&amp;auth_error_status&#x3D;...&amp;auth_error_detail&#x3D;...&#x60;, in which case no &#x60;Set-Cookie&#x60; is emitted.  |  * Location - Absolute or root-relative URL the browser must follow. <br>  * Set-Cookie - Issues the &#x60;plexsphere_session&#x60; cookie (success path only). <br>  |
 **400** | state/nonce mismatch, expired verifier, or token exchange rejected by the IdP. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_kind&#x60; and &#x60;auth_error_status&#x3D;400&#x60; query parameters.  |  -  |
 **500** | Internal server error while completing the callback. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_status&#x3D;500&#x60; .  |  -  |
 **502** | Upstream IdP failure during discovery, token exchange, or id_token verification. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_status&#x3D;502&#x60;.  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_auth_id_p_bindings**
+> List[DomainIdPBinding] get_auth_id_p_bindings(domain_id)
+
+List a Domain's effective IdP bindings for the sign-in chooser.
+
+Unauthenticated, display-safe discovery surface the dashboard
+sign-in page calls once a Domain id is known (typed or supplied
+via a deep link) so it can render a provider chooser. Returns
+only the active bindings the Domain can sign in with — its own
+active bindings, falling back to the platform-scoped shared
+bindings when the Domain owns none — projected to non-secret
+fields and ordered primary-first.
+
+The endpoint is intentionally a pre-auth enumeration surface and
+does not behave as a Domain-existence oracle: a Domain that does
+not exist returns the same shape (the applicable platform
+bindings, or an empty list) as a Domain that exists but owns no
+bindings, so an unauthenticated caller cannot distinguish the
+two. Responses are marked `Cache-Control: no-store`.
+
+
+### Example
+
+
+```python
+import plexsphere
+from plexsphere.models.domain_id_p_binding import DomainIdPBinding
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.AuthApi(api_client)
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain whose effective IdP bindings to list.
+
+    try:
+        # List a Domain's effective IdP bindings for the sign-in chooser.
+        api_response = api_instance.get_auth_id_p_bindings(domain_id)
+        print("The response of AuthApi->get_auth_id_p_bindings:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AuthApi->get_auth_id_p_bindings: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **domain_id** | **UUID**| Domain whose effective IdP bindings to list. | 
+
+### Return type
+
+[**List[DomainIdPBinding]**](DomainIdPBinding.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The Domain&#39;s effective active bindings, display-safe. |  -  |
+**400** | The domain_id query parameter is missing or not a UUID. |  -  |
+**500** | Internal server error while listing the bindings. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
