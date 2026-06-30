@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**create_domain**](TenancyApi.md#create_domain) | **POST** /v1/domains | Create a tenancy Domain.
 [**create_invitation**](TenancyApi.md#create_invitation) | **POST** /v1/domains/{id}/invitations | Stage a pending Invitation on a Domain.
 [**create_project**](TenancyApi.md#create_project) | **POST** /v1/projects | Create a tenancy Project.
+[**create_service_identity**](TenancyApi.md#create_service_identity) | **POST** /v1/domains/{id}/service-identities | Create a service identity on a Domain.
 [**delete_domain**](TenancyApi.md#delete_domain) | **DELETE** /v1/domains/{id} | Delete a Domain.
 [**delete_project**](TenancyApi.md#delete_project) | **DELETE** /v1/projects/{id} | Delete a Project.
 [**get_domain**](TenancyApi.md#get_domain) | **GET** /v1/domains/{id} | Fetch a Domain by identifier.
@@ -297,6 +298,102 @@ No authorization required
 **409** | Conflict — the proposed Project collides with a persisted Project in the same Domain. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;project_slug_conflict&#x60;, &#x60;sub_range_overlap&#x60;, &#x60;parent_domain_missing&#x60; }.  |  -  |
 **413** | Request body exceeded the 8 KiB tenancy ceiling enforced by the handler.  |  -  |
 **500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_service_identity**
+> IdentitySummary create_service_identity(id, service_identity_create_request)
+
+Create a service identity on a Domain.
+
+Provisions a new machine principal — an identity of kind
+`service-identity` — on the addressed Domain. The handler runs the
+`manage` ReBAC check on `domain:<id>` BEFORE the persistence write,
+so an unauthorised caller never produces a
+`ServiceIdentityProvisioned` outbox row. On success the service
+identity and its registration event are written in one transaction;
+the authz projection turns that event into the
+`serviceaccount:<id>#parent@domain:<id>` ReBAC edge that makes the
+new row visible on `GET /v1/domains/{id}/identities`.
+
+Human users are NOT created through this endpoint — they arrive by
+accepting an Invitation (`POST /v1/domains/{id}/invitations`). This
+collection provisions service identities only.
+
+The `201` body is the same `IdentitySummary` projection the listing
+surface returns, with `kind: service-identity` and the per-Domain
+`external_subject_pseudonym` populated, so the client renders the
+new row without a follow-up read. The plaintext `subject` is never
+echoed back.
+
+
+### Example
+
+
+```python
+import plexsphere
+from plexsphere.models.identity_summary import IdentitySummary
+from plexsphere.models.service_identity_create_request import ServiceIdentityCreateRequest
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.TenancyApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
+    service_identity_create_request = plexsphere.ServiceIdentityCreateRequest() # ServiceIdentityCreateRequest | 
+
+    try:
+        # Create a service identity on a Domain.
+        api_response = api_instance.create_service_identity(id, service_identity_create_request)
+        print("The response of TenancyApi->create_service_identity:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TenancyApi->create_service_identity: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
+ **service_identity_create_request** | [**ServiceIdentityCreateRequest**](ServiceIdentityCreateRequest.md)|  | 
+
+### Return type
+
+[**IdentitySummary**](IdentitySummary.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | The service identity was created. |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**400** | Invalid request body — a missing or whitespace-only &#x60;display_name&#x60;, &#x60;subject&#x60;, or &#x60;audience&#x60;, or a &#x60;federation_kind&#x60; outside the closed set {oidc_cc, spiffe_svid, api_token} (&#x60;code: invalid_service_identity&#x60;).  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller lacks the &#x60;manage&#x60; ReBAC relation on the addressed Domain (body is a &#x60;PermissionDenied&#x60; problem).  |  -  |
+**409** | A service identity with the same &#x60;subject&#x60; already exists in this Domain (&#x60;code: service_identity_already_exists&#x60;). The (Domain, subject) pair is unique.  |  -  |
+**413** | Request body exceeded the size cap. |  -  |
+**503** | The authorization backend was unreachable, so the &#x60;manage&#x60; gate could not be evaluated. The condition is transient; retry with backoff.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

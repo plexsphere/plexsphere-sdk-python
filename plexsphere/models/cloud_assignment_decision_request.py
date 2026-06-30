@@ -18,19 +18,18 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, Optional
-from uuid import UUID
+from typing import Any, ClassVar, Dict
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class CredentialAssignmentRequest(BaseModel):
+class CloudAssignmentDecisionRequest(BaseModel):
     """
-    Body for `POST /v1/projects/{id}/credential-assignments`. Names the Cloud Credential to bind to the Project — either directly by `cloud_credential_id`, or indirectly by `cloud_id`, in which case the system auto-selects the most recently issued eligible credential serving that Cloud.  Exactly one of `cloud_credential_id` or `cloud_id` MUST be supplied. Supplying both is rejected with `400 ambiguous_credential_target`; supplying neither is rejected with `400 invalid_body`. The `cloud_id` form additionally requires the Cloud to be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and requires at least one eligible credential serving the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+    Body for `POST /v1/cloud-assignments/{id}/reject` and `POST /v1/cloud-assignments/{id}/revoke`. The `reason` is recorded on the lifecycle outbox event so the decision carries an operator-supplied audit string. 
     """ # noqa: E501
-    cloud_credential_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud Credential to bind directly. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_credential_id`. Mutually exclusive with `cloud_id`. ")
-    cloud_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud whose newest eligible credential the system auto-selects and binds. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. Mutually exclusive with `cloud_credential_id`. ")
-    __properties: ClassVar[List[str]] = ["cloud_credential_id", "cloud_id"]
+    reason: Annotated[str, Field(min_length=1, strict=True, max_length=1024)] = Field(description="Decision rationale. Non-empty — whitespace-only is rejected with `400 invalid_decision_reason`. ")
+    __properties: ClassVar[List[str]] = ["reason"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -50,7 +49,7 @@ class CredentialAssignmentRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a JSON string"""
+        """Create an instance of CloudAssignmentDecisionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +74,7 @@ class CredentialAssignmentRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a dict"""
+        """Create an instance of CloudAssignmentDecisionRequest from a dict"""
         if obj is None:
             return None
 
@@ -83,8 +82,7 @@ class CredentialAssignmentRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "cloud_credential_id": obj.get("cloud_credential_id"),
-            "cloud_id": obj.get("cloud_id")
+            "reason": obj.get("reason")
         })
         return _obj
 

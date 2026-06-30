@@ -14,10 +14,10 @@
 
 import unittest
 
-from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
+from plexsphere.models.service_federation_kind import ServiceFederationKind
 
-class TestCredentialAssignmentRequest(unittest.TestCase):
-    """CredentialAssignmentRequest unit test stubs"""
+class TestServiceFederationKind(unittest.TestCase):
+    """ServiceFederationKind unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,28 +25,9 @@ class TestCredentialAssignmentRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CredentialAssignmentRequest:
-        """Test CredentialAssignmentRequest
-            include_optional is a boolean, when False only required
-            params are included, when True both required and
-            optional params are included """
-        # uncomment below to create an instance of `CredentialAssignmentRequest`
-        """
-        model = CredentialAssignmentRequest()
-        if include_optional:
-            return CredentialAssignmentRequest(
-                cloud_credential_id = '',
-                cloud_id = ''
-            )
-        else:
-            return CredentialAssignmentRequest(
-        )
-        """
-
-    def testCredentialAssignmentRequest(self):
-        """Test CredentialAssignmentRequest"""
-        # inst_req_only = self.make_instance(include_optional=False)
-        # inst_req_and_optional = self.make_instance(include_optional=True)
+    def testServiceFederationKind(self):
+        """Test ServiceFederationKind"""
+        # inst = ServiceFederationKind()
 
 if __name__ == '__main__':
     unittest.main()

@@ -26,10 +26,24 @@ class TestCloudApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+    def test_approve_cloud_assignment(self) -> None:
+        """Test case for approve_cloud_assignment
+
+        Approve a Cloud Assignment request.
+        """
+        pass
+
     def test_approve_credential_assignment(self) -> None:
         """Test case for approve_credential_assignment
 
         Approve a Credential Assignment.
+        """
+        pass
+
+    def test_attach_cloud_credential_cloud(self) -> None:
+        """Test case for attach_cloud_credential_cloud
+
+        Attach a usage Cloud to a Cloud Credential.
         """
         pass
 
@@ -47,6 +61,13 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_detach_cloud_credential_cloud(self) -> None:
+        """Test case for detach_cloud_credential_cloud
+
+        Detach a usage Cloud from a Cloud Credential.
+        """
+        pass
+
     def test_get_cloud(self) -> None:
         """Test case for get_cloud
 
@@ -61,10 +82,31 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_grant_cloud_assignment(self) -> None:
+        """Test case for grant_cloud_assignment
+
+        Grant a Cloud to a Project (operator push).
+        """
+        pass
+
     def test_issue_cloud_credential(self) -> None:
         """Test case for issue_cloud_credential
 
         Issue a new Cloud Credential under a Cloud.
+        """
+        pass
+
+    def test_list_cloud_assignments(self) -> None:
+        """Test case for list_cloud_assignments
+
+        List the Cloud Assignments owned by a Project.
+        """
+        pass
+
+    def test_list_cloud_credential_clouds(self) -> None:
+        """Test case for list_cloud_credential_clouds
+
+        List the Clouds a Cloud Credential serves.
         """
         pass
 
@@ -96,6 +138,13 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_reject_cloud_assignment(self) -> None:
+        """Test case for reject_cloud_assignment
+
+        Reject a Cloud Assignment request.
+        """
+        pass
+
     def test_reject_credential_assignment(self) -> None:
         """Test case for reject_credential_assignment
 
@@ -103,10 +152,24 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_request_cloud_assignment(self) -> None:
+        """Test case for request_cloud_assignment
+
+        Request usage of a Cloud for a Project.
+        """
+        pass
+
     def test_request_credential_assignment(self) -> None:
         """Test case for request_credential_assignment
 
         Request a Credential Assignment for a Project.
+        """
+        pass
+
+    def test_revoke_cloud_assignment(self) -> None:
+        """Test case for revoke_cloud_assignment
+
+        Revoke a Cloud Assignment.
         """
         pass
 

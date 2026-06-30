@@ -18,19 +18,23 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, Optional
-from uuid import UUID
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
+from plexsphere.models.service_federation_kind import ServiceFederationKind
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class CredentialAssignmentRequest(BaseModel):
+class ServiceIdentityCreateRequest(BaseModel):
     """
-    Body for `POST /v1/projects/{id}/credential-assignments`. Names the Cloud Credential to bind to the Project — either directly by `cloud_credential_id`, or indirectly by `cloud_id`, in which case the system auto-selects the most recently issued eligible credential serving that Cloud.  Exactly one of `cloud_credential_id` or `cloud_id` MUST be supplied. Supplying both is rejected with `400 ambiguous_credential_target`; supplying neither is rejected with `400 invalid_body`. The `cloud_id` form additionally requires the Cloud to be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and requires at least one eligible credential serving the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+    Body for `POST /v1/domains/{id}/service-identities`. Provisions a service identity (a machine principal) on the addressed Domain. Every field is validated at the aggregate boundary; an empty or whitespace-only string is rejected with `400 invalid_service_identity`. 
     """ # noqa: E501
-    cloud_credential_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud Credential to bind directly. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_credential_id`. Mutually exclusive with `cloud_id`. ")
-    cloud_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud whose newest eligible credential the system auto-selects and binds. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. Mutually exclusive with `cloud_credential_id`. ")
-    __properties: ClassVar[List[str]] = ["cloud_credential_id", "cloud_id"]
+    display_name: Annotated[str, Field(min_length=1, strict=True, max_length=256)] = Field(description="Operator-facing label for the service identity (for example `CI deploy bot`). Trimmed; must be non-empty. ")
+    subject: Annotated[str, Field(min_length=1, strict=True, max_length=2048)] = Field(description="Upstream workload subject the presented credential must carry — the OIDC `sub` claim or the SPIFFE ID, depending on `federation_kind`. Unique per Domain: a second identity reusing the same subject is rejected with `409`. ")
+    audience: Annotated[str, Field(min_length=1, strict=True, max_length=256)] = Field(description="Expected audience claim for the presented credential. ")
+    federation_kind: ServiceFederationKind
+    additional_properties: Dict[str, Any] = {}
+    __properties: ClassVar[List[str]] = ["display_name", "subject", "audience", "federation_kind"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -50,7 +54,7 @@ class CredentialAssignmentRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a JSON string"""
+        """Create an instance of ServiceIdentityCreateRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -62,8 +66,10 @@ class CredentialAssignmentRequest(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -71,11 +77,16 @@ class CredentialAssignmentRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a dict"""
+        """Create an instance of ServiceIdentityCreateRequest from a dict"""
         if obj is None:
             return None
 
@@ -83,9 +94,16 @@ class CredentialAssignmentRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "cloud_credential_id": obj.get("cloud_credential_id"),
-            "cloud_id": obj.get("cloud_id")
+            "display_name": obj.get("display_name"),
+            "subject": obj.get("subject"),
+            "audience": obj.get("audience"),
+            "federation_kind": obj.get("federation_kind")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

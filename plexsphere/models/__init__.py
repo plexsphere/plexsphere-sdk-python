@@ -90,8 +90,15 @@ from plexsphere.models.catalog_browse_response import CatalogBrowseResponse
 from plexsphere.models.catalog_source_create_request import CatalogSourceCreateRequest
 from plexsphere.models.catalog_source_list import CatalogSourceList
 from plexsphere.models.catalog_source_response import CatalogSourceResponse
+from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest
+from plexsphere.models.cloud_assignment_grant_request import CloudAssignmentGrantRequest
+from plexsphere.models.cloud_assignment_list import CloudAssignmentList
+from plexsphere.models.cloud_assignment_request_body import CloudAssignmentRequestBody
+from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse
 from plexsphere.models.cloud_child_counts import CloudChildCounts
 from plexsphere.models.cloud_create_request import CloudCreateRequest
+from plexsphere.models.cloud_credential_attach_request import CloudCredentialAttachRequest
+from plexsphere.models.cloud_credential_cloud_list import CloudCredentialCloudList
 from plexsphere.models.cloud_credential_issue_request import CloudCredentialIssueRequest
 from plexsphere.models.cloud_credential_list import CloudCredentialList
 from plexsphere.models.cloud_credential_response import CloudCredentialResponse
@@ -101,6 +108,7 @@ from plexsphere.models.cloud_list import CloudList
 from plexsphere.models.cloud_patch_request import CloudPatchRequest
 from plexsphere.models.cloud_provider import CloudProvider
 from plexsphere.models.cloud_response import CloudResponse
+from plexsphere.models.cloud_usage_ref import CloudUsageRef
 from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest
 from plexsphere.models.credential_assignment_list import CredentialAssignmentList
 from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
@@ -290,6 +298,8 @@ from plexsphere.models.rotation_impact_preview import RotationImpactPreview
 from plexsphere.models.rotation_trigger_response import RotationTriggerResponse
 from plexsphere.models.sse_event_session_revoked import SSEEventSessionRevoked
 from plexsphere.models.sse_event_session_setup import SSEEventSessionSetup
+from plexsphere.models.service_federation_kind import ServiceFederationKind
+from plexsphere.models.service_identity_create_request import ServiceIdentityCreateRequest
 from plexsphere.models.service_token_request import ServiceTokenRequest
 from plexsphere.models.service_token_response import ServiceTokenResponse
 from plexsphere.models.session import Session

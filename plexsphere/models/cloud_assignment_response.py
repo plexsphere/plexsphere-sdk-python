@@ -17,21 +17,27 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from uuid import UUID
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class CloudChildCounts(BaseModel):
+class CloudAssignmentResponse(BaseModel):
     """
-    Per-aggregate count of children still attached to a Cloud at the moment a `DeleteCloud` call ran. Returned in the Problem detail of a `409 cloud_not_empty` response so the operator knows what is still attached and what to detach before retrying. 
+    Metadata projection of a Cloud Assignment. The shape is shared by `RequestCloudAssignment`, `ListCloudAssignments`, `GrantCloudAssignment`, `ApproveCloudAssignment`, `RejectCloudAssignment`, and `RevokeCloudAssignment` so clients only need one binding. 
     """ # noqa: E501
-    cloud_credentials: Annotated[int, Field(strict=True, ge=0)] = Field(description="Number of `CloudCredential` rows whose home Cloud is this Cloud (the `cloud_credential.cloud_id` anchor). ")
-    cloud_credential_usages: Annotated[int, Field(strict=True, ge=0)] = Field(description="Number of usage edges that attach a `CloudCredential` homed on another Cloud to this Cloud. A delete blocked solely by usage edges reports `cloud_credentials: 0` here, so a machine consumer keys on this field to know it must detach usage edges rather than home credentials. ")
+    id: UUID = Field(description="Cloud Assignment identifier (UUIDv7).")
+    project_id: UUID = Field(description="Identifier of the consuming Project the Cloud is assigned to. ")
+    cloud_id: UUID = Field(description="Identifier of the Cloud being made usable in the Project — the residency pivot the operator ReBAC gate authorises against. ")
+    state: StrictStr = Field(description="Lifecycle state of a Cloud Assignment, one of `requested`, `approved`, `rejected`, or `revoked`. `requested` is the opening state of a project-initiated request; `approved` materialises the `cloud#uses` binding so the Cloud is usable in the Project; `rejected` closes an unapproved request; `revoked` tears down a previously approved binding. An operator grant creates the assignment directly in the `approved` state. The state is a stored column advanced only by the application service's transition rules. ")
+    materialised: StrictBool = Field(description="Whether the assignment's `cloud#uses` binding is currently live. `true` only while the assignment is in the `approved` state; `false` for `requested`, `rejected`, and `revoked`. ")
+    created_at: datetime = Field(description="Aggregate creation timestamp (UTC).")
+    updated_at: datetime = Field(description="Last-modified timestamp (UTC). Bumped by every lifecycle transition — approve, reject, revoke. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["cloud_credentials", "cloud_credential_usages"]
+    __properties: ClassVar[List[str]] = ["id", "project_id", "cloud_id", "state", "materialised", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +57,7 @@ class CloudChildCounts(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CloudChildCounts from a JSON string"""
+        """Create an instance of CloudAssignmentResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -83,7 +89,7 @@ class CloudChildCounts(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CloudChildCounts from a dict"""
+        """Create an instance of CloudAssignmentResponse from a dict"""
         if obj is None:
             return None
 
@@ -91,8 +97,13 @@ class CloudChildCounts(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "cloud_credentials": obj.get("cloud_credentials"),
-            "cloud_credential_usages": obj.get("cloud_credential_usages")
+            "id": obj.get("id"),
+            "project_id": obj.get("project_id"),
+            "cloud_id": obj.get("cloud_id"),
+            "state": obj.get("state"),
+            "materialised": obj.get("materialised"),
+            "created_at": obj.get("created_at"),
+            "updated_at": obj.get("updated_at")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

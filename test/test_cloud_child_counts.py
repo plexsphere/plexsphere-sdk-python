@@ -35,11 +35,13 @@ class TestCloudChildCounts(unittest.TestCase):
         model = CloudChildCounts()
         if include_optional:
             return CloudChildCounts(
-                cloud_credentials = 0
+                cloud_credentials = 0,
+                cloud_credential_usages = 0
             )
         else:
             return CloudChildCounts(
                 cloud_credentials = 0,
+                cloud_credential_usages = 0,
         )
         """
 

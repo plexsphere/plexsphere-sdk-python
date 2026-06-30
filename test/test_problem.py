@@ -53,7 +53,8 @@ class TestProblem(unittest.TestCase):
                     nodes = 0, 
                     relation_tuples = 0, ),
                 cloud_child_counts = plexsphere.models.cloud_child_counts.CloudChildCounts(
-                    cloud_credentials = 0, )
+                    cloud_credentials = 0, 
+                    cloud_credential_usages = 0, )
             )
         else:
             return Problem(
