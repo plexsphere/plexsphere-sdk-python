@@ -17,20 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, Optional
-from uuid import UUID
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class CredentialAssignmentRequest(BaseModel):
+class CloudAssignmentList(BaseModel):
     """
-    Body for `POST /v1/projects/{id}/credential-assignments`. Names the Cloud Credential to bind to the Project — either directly by `cloud_credential_id`, or indirectly by `cloud_id`, in which case the system auto-selects the most recently issued eligible credential serving that Cloud.  Exactly one of `cloud_credential_id` or `cloud_id` MUST be supplied. Supplying both is rejected with `400 ambiguous_credential_target`; supplying neither is rejected with `400 invalid_body`. The `cloud_id` form additionally requires the Cloud to be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and requires at least one eligible credential serving the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+    Page of Cloud Assignments returned by `GET /v1/projects/{id}/cloud-assignments`. The window is computed by the persistence layer in creation order; every row belongs to the one path Project. 
     """ # noqa: E501
-    cloud_credential_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud Credential to bind directly. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_credential_id`. Mutually exclusive with `cloud_id`. ")
-    cloud_id: Optional[UUID] = Field(default=None, description="Identifier of the Cloud whose newest eligible credential the system auto-selects and binds. Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. Mutually exclusive with `cloud_credential_id`. ")
-    __properties: ClassVar[List[str]] = ["cloud_credential_id", "cloud_id"]
+    items: List[CloudAssignmentResponse] = Field(description="Cloud Assignments in the current page.")
+    next_cursor: Optional[StrictStr] = Field(default=None, description="Continuation token for the next page. `null` or omitted when the iteration has reached end-of-stream. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400` on the next call. ")
+    additional_properties: Dict[str, Any] = {}
+    __properties: ClassVar[List[str]] = ["items", "next_cursor"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -50,7 +51,7 @@ class CredentialAssignmentRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a JSON string"""
+        """Create an instance of CloudAssignmentList from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -62,8 +63,10 @@ class CredentialAssignmentRequest(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
+            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -71,11 +74,23 @@ class CredentialAssignmentRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in items (list)
+        _items = []
+        if self.items:
+            for _item_items in self.items:
+                if _item_items:
+                    _items.append(_item_items.to_dict())
+            _dict['items'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CredentialAssignmentRequest from a dict"""
+        """Create an instance of CloudAssignmentList from a dict"""
         if obj is None:
             return None
 
@@ -83,9 +98,14 @@ class CredentialAssignmentRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "cloud_credential_id": obj.get("cloud_credential_id"),
-            "cloud_id": obj.get("cloud_id")
+            "items": [CloudAssignmentResponse.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
+            "next_cursor": obj.get("next_cursor")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

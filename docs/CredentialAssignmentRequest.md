@@ -1,12 +1,13 @@
 # CredentialAssignmentRequest
 
-Body for `POST /v1/projects/{id}/credential-assignments`. Names the Cloud Credential to bind to the Project. 
+Body for `POST /v1/projects/{id}/credential-assignments`. Names the Cloud Credential to bind to the Project — either directly by `cloud_credential_id`, or indirectly by `cloud_id`, in which case the system auto-selects the most recently issued eligible credential serving that Cloud.  Exactly one of `cloud_credential_id` or `cloud_id` MUST be supplied. Supplying both is rejected with `400 ambiguous_credential_target`; supplying neither is rejected with `400 invalid_body`. The `cloud_id` form additionally requires the Cloud to be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and requires at least one eligible credential serving the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**cloud_credential_id** | **UUID** | Identifier of the Cloud Credential to bind. Must be a non-zero UUID — a malformed value is rejected with &#x60;400 invalid_cloud_credential_id&#x60;.  | 
+**cloud_credential_id** | **UUID** | Identifier of the Cloud Credential to bind directly. Must be a non-zero UUID — a malformed value is rejected with &#x60;400 invalid_cloud_credential_id&#x60;. Mutually exclusive with &#x60;cloud_id&#x60;.  | [optional] 
+**cloud_id** | **UUID** | Identifier of the Cloud whose newest eligible credential the system auto-selects and binds. Must be a non-zero UUID — a malformed value is rejected with &#x60;400 invalid_cloud_id&#x60;. Mutually exclusive with &#x60;cloud_credential_id&#x60;.  | [optional] 
 
 ## Example
 

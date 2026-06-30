@@ -1,12 +1,13 @@
 # CloudChildCounts
 
-Per-aggregate count of children still attached to a Cloud at the moment a `DeleteCloud` call ran. Returned in the Problem detail of a `409 cloud_not_empty` response so the operator knows how many credentials are still attached. 
+Per-aggregate count of children still attached to a Cloud at the moment a `DeleteCloud` call ran. Returned in the Problem detail of a `409 cloud_not_empty` response so the operator knows what is still attached and what to detach before retrying. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**cloud_credentials** | **int** | Number of &#x60;CloudCredential&#x60; rows still attached. | 
+**cloud_credentials** | **int** | Number of &#x60;CloudCredential&#x60; rows whose home Cloud is this Cloud (the &#x60;cloud_credential.cloud_id&#x60; anchor).  | 
+**cloud_credential_usages** | **int** | Number of usage edges that attach a &#x60;CloudCredential&#x60; homed on another Cloud to this Cloud. A delete blocked solely by usage edges reports &#x60;cloud_credentials: 0&#x60; here, so a machine consumer keys on this field to know it must detach usage edges rather than home credentials.  | 
 
 ## Example
 

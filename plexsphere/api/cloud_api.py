@@ -19,7 +19,14 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from uuid import UUID
+from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest
+from plexsphere.models.cloud_assignment_grant_request import CloudAssignmentGrantRequest
+from plexsphere.models.cloud_assignment_list import CloudAssignmentList
+from plexsphere.models.cloud_assignment_request_body import CloudAssignmentRequestBody
+from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse
 from plexsphere.models.cloud_create_request import CloudCreateRequest
+from plexsphere.models.cloud_credential_attach_request import CloudCredentialAttachRequest
+from plexsphere.models.cloud_credential_cloud_list import CloudCredentialCloudList
 from plexsphere.models.cloud_credential_issue_request import CloudCredentialIssueRequest
 from plexsphere.models.cloud_credential_list import CloudCredentialList
 from plexsphere.models.cloud_credential_response import CloudCredentialResponse
@@ -27,6 +34,7 @@ from plexsphere.models.cloud_credential_revoke_request import CloudCredentialRev
 from plexsphere.models.cloud_list import CloudList
 from plexsphere.models.cloud_patch_request import CloudPatchRequest
 from plexsphere.models.cloud_response import CloudResponse
+from plexsphere.models.cloud_usage_ref import CloudUsageRef
 from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest
 from plexsphere.models.credential_assignment_list import CredentialAssignmentList
 from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
@@ -48,6 +56,285 @@ class CloudApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def approve_cloud_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentResponse:
+        """Approve a Cloud Assignment request.
+
+        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._approve_cloud_assignment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def approve_cloud_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentResponse]:
+        """Approve a Cloud Assignment request.
+
+        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._approve_cloud_assignment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def approve_cloud_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Approve a Cloud Assignment request.
+
+        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._approve_cloud_assignment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _approve_cloud_assignment_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/cloud-assignments/{id}/approve',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -314,6 +601,316 @@ class CloudApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v1/credential-assignments/{id}/approve',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def attach_cloud_credential_cloud(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_credential_attach_request: CloudCredentialAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudUsageRef:
+        """Attach a usage Cloud to a Cloud Credential.
+
+        Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_credential_attach_request: (required)
+        :type cloud_credential_attach_request: CloudCredentialAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._attach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_credential_attach_request=cloud_credential_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudUsageRef",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def attach_cloud_credential_cloud_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_credential_attach_request: CloudCredentialAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudUsageRef]:
+        """Attach a usage Cloud to a Cloud Credential.
+
+        Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_credential_attach_request: (required)
+        :type cloud_credential_attach_request: CloudCredentialAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._attach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_credential_attach_request=cloud_credential_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudUsageRef",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def attach_cloud_credential_cloud_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_credential_attach_request: CloudCredentialAttachRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Attach a usage Cloud to a Cloud Credential.
+
+        Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_credential_attach_request: (required)
+        :type cloud_credential_attach_request: CloudCredentialAttachRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._attach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_credential_attach_request=cloud_credential_attach_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudUsageRef",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _attach_cloud_credential_cloud_serialize(
+        self,
+        id,
+        cloud_credential_attach_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if cloud_credential_attach_request is not None:
+            _body_params = cloud_credential_attach_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/cloud-credentials/{id}/clouds',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -897,6 +1494,299 @@ class CloudApi:
 
 
     @validate_call
+    def detach_cloud_credential_cloud(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Detach a usage Cloud from a Cloud Credential.
+
+        Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloudId}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
+        :type cloud_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._detach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_id=cloud_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def detach_cloud_credential_cloud_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Detach a usage Cloud from a Cloud Credential.
+
+        Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloudId}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
+        :type cloud_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._detach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_id=cloud_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def detach_cloud_credential_cloud_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Detach a usage Cloud from a Cloud Credential.
+
+        Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloudId}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
+        :type cloud_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._detach_cloud_credential_cloud_serialize(
+            id=id,
+            cloud_id=cloud_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _detach_cloud_credential_cloud_serialize(
+        self,
+        id,
+        cloud_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if cloud_id is not None:
+            _path_params['cloudId'] = cloud_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v1/cloud-credentials/{id}/clouds/{cloudId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def get_cloud(
         self,
         id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
@@ -1446,6 +2336,310 @@ class CloudApi:
 
 
     @validate_call
+    def grant_cloud_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
+        cloud_assignment_grant_request: CloudAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentResponse:
+        """Grant a Cloud to a Project (operator push).
+
+        Assigns the Cloud identified by `{id}` to the Project named in the body as a single authoritative Platform Operator action. The handler runs an `assign` ReBAC check on the Cloud BEFORE the persistence write, then delegates to the Cloud Assignment application service which creates the assignment already approved AND materialised in one step — the Cloud is immediately usable in the Project — and appends a `CloudAssignmentGranted` outbox event in a single transaction.  The operator grant bypasses the second-party approval rule by design: there is no separate requester to compare against. A second live assignment for the same (Project, Cloud) pair is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_grant_request: (required)
+        :type cloud_assignment_grant_request: CloudAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_grant_request=cloud_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def grant_cloud_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
+        cloud_assignment_grant_request: CloudAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentResponse]:
+        """Grant a Cloud to a Project (operator push).
+
+        Assigns the Cloud identified by `{id}` to the Project named in the body as a single authoritative Platform Operator action. The handler runs an `assign` ReBAC check on the Cloud BEFORE the persistence write, then delegates to the Cloud Assignment application service which creates the assignment already approved AND materialised in one step — the Cloud is immediately usable in the Project — and appends a `CloudAssignmentGranted` outbox event in a single transaction.  The operator grant bypasses the second-party approval rule by design: there is no separate requester to compare against. A second live assignment for the same (Project, Cloud) pair is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_grant_request: (required)
+        :type cloud_assignment_grant_request: CloudAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_grant_request=cloud_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def grant_cloud_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
+        cloud_assignment_grant_request: CloudAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Grant a Cloud to a Project (operator push).
+
+        Assigns the Cloud identified by `{id}` to the Project named in the body as a single authoritative Platform Operator action. The handler runs an `assign` ReBAC check on the Cloud BEFORE the persistence write, then delegates to the Cloud Assignment application service which creates the assignment already approved AND materialised in one step — the Cloud is immediately usable in the Project — and appends a `CloudAssignmentGranted` outbox event in a single transaction.  The operator grant bypasses the second-party approval rule by design: there is no separate requester to compare against. A second live assignment for the same (Project, Cloud) pair is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_grant_request: (required)
+        :type cloud_assignment_grant_request: CloudAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_grant_request=cloud_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _grant_cloud_assignment_serialize(
+        self,
+        id,
+        cloud_assignment_grant_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if cloud_assignment_grant_request is not None:
+            _body_params = cloud_assignment_grant_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/clouds/{id}/cloud-assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def issue_cloud_credential(
         self,
         id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
@@ -1734,6 +2928,623 @@ class CloudApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v1/clouds/{id}/cloud-credentials',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_cloud_assignments(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentList:
+        """List the Cloud Assignments owned by a Project.
+
+        Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_assignments_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_cloud_assignments_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentList]:
+        """List the Cloud Assignments owned by a Project.
+
+        Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_assignments_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_cloud_assignments_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the Cloud Assignments owned by a Project.
+
+        Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the application service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_assignments_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_cloud_assignments_serialize(
+        self,
+        id,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/projects/{id}/cloud-assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_cloud_credential_clouds(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudCredentialCloudList:
+        """List the Clouds a Cloud Credential serves.
+
+        Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_credential_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudCredentialCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_cloud_credential_clouds_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudCredentialCloudList]:
+        """List the Clouds a Cloud Credential serves.
+
+        Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_credential_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudCredentialCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_cloud_credential_clouds_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the Clouds a Cloud Credential serves.
+
+        Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}` and `/v1/cloud-credentials/{id}/revoke` for the operator-facing Cloud Credentials read + revoke surface.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_cloud_credential_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudCredentialCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_cloud_credential_clouds_serialize(
+        self,
+        id,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/cloud-credentials/{id}/clouds',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2963,6 +4774,313 @@ class CloudApi:
 
 
     @validate_call
+    def reject_cloud_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentResponse:
+        """Reject a Cloud Assignment request.
+
+        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._reject_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def reject_cloud_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentResponse]:
+        """Reject a Cloud Assignment request.
+
+        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._reject_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def reject_cloud_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Reject a Cloud Assignment request.
+
+        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._reject_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _reject_cloud_assignment_serialize(
+        self,
+        id,
+        cloud_assignment_decision_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if cloud_assignment_decision_request is not None:
+            _body_params = cloud_assignment_decision_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/cloud-assignments/{id}/reject',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def reject_credential_assignment(
         self,
         id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
@@ -3270,6 +5388,310 @@ class CloudApi:
 
 
     @validate_call
+    def request_cloud_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cloud_assignment_request_body: CloudAssignmentRequestBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentResponse:
+        """Request usage of a Cloud for a Project.
+
+        Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cloud_assignment_request_body: (required)
+        :type cloud_assignment_request_body: CloudAssignmentRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_request_body=cloud_assignment_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def request_cloud_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cloud_assignment_request_body: CloudAssignmentRequestBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentResponse]:
+        """Request usage of a Cloud for a Project.
+
+        Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cloud_assignment_request_body: (required)
+        :type cloud_assignment_request_body: CloudAssignmentRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_request_body=cloud_assignment_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def request_cloud_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
+        cloud_assignment_request_body: CloudAssignmentRequestBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Request usage of a Cloud for a Project.
+
+        Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
+        :type id: UUID
+        :param cloud_assignment_request_body: (required)
+        :type cloud_assignment_request_body: CloudAssignmentRequestBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_request_body=cloud_assignment_request_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _request_cloud_assignment_serialize(
+        self,
+        id,
+        cloud_assignment_request_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if cloud_assignment_request_body is not None:
+            _body_params = cloud_assignment_request_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/projects/{id}/cloud-assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def request_credential_assignment(
         self,
         id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. ")],
@@ -3289,7 +5711,7 @@ class CloudApi:
     ) -> CredentialAssignmentResponse:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds the Cloud Credential named in the body to the Project identified by `{id}`. The handler runs a `manage` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
         :type id: UUID
@@ -3366,7 +5788,7 @@ class CloudApi:
     ) -> ApiResponse[CredentialAssignmentResponse]:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds the Cloud Credential named in the body to the Project identified by `{id}`. The handler runs a `manage` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
         :type id: UUID
@@ -3443,7 +5865,7 @@ class CloudApi:
     ) -> RESTResponseType:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds the Cloud Credential named in the body to the Project identified by `{id}`. The handler runs a `manage` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list.  (required)
         :type id: UUID
@@ -3561,6 +5983,313 @@ class CloudApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v1/projects/{id}/credential-assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def revoke_cloud_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CloudAssignmentResponse:
+        """Revoke a Cloud Assignment.
+
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def revoke_cloud_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CloudAssignmentResponse]:
+        """Revoke a Cloud Assignment.
+
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def revoke_cloud_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Revoke a Cloud Assignment.
+
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :type id: UUID
+        :param cloud_assignment_decision_request: (required)
+        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._revoke_cloud_assignment_serialize(
+            id=id,
+            cloud_assignment_decision_request=cloud_assignment_decision_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CloudAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _revoke_cloud_assignment_serialize(
+        self,
+        id,
+        cloud_assignment_decision_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if cloud_assignment_decision_request is not None:
+            _body_params = cloud_assignment_decision_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/cloud-assignments/{id}/revoke',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

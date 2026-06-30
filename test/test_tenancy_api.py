@@ -47,6 +47,13 @@ class TestTenancyApi(unittest.TestCase):
         """
         pass
 
+    def test_create_service_identity(self) -> None:
+        """Test case for create_service_identity
+
+        Create a service identity on a Domain.
+        """
+        pass
+
     def test_delete_domain(self) -> None:
         """Test case for delete_domain
 

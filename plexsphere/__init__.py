@@ -133,8 +133,15 @@ __all__ = [
     "CatalogSourceCreateRequest",
     "CatalogSourceList",
     "CatalogSourceResponse",
+    "CloudAssignmentDecisionRequest",
+    "CloudAssignmentGrantRequest",
+    "CloudAssignmentList",
+    "CloudAssignmentRequestBody",
+    "CloudAssignmentResponse",
     "CloudChildCounts",
     "CloudCreateRequest",
+    "CloudCredentialAttachRequest",
+    "CloudCredentialCloudList",
     "CloudCredentialIssueRequest",
     "CloudCredentialList",
     "CloudCredentialResponse",
@@ -144,6 +151,7 @@ __all__ = [
     "CloudPatchRequest",
     "CloudProvider",
     "CloudResponse",
+    "CloudUsageRef",
     "CredentialAssignmentDecisionRequest",
     "CredentialAssignmentList",
     "CredentialAssignmentRequest",
@@ -333,6 +341,8 @@ __all__ = [
     "RotationTriggerResponse",
     "SSEEventSessionRevoked",
     "SSEEventSessionSetup",
+    "ServiceFederationKind",
+    "ServiceIdentityCreateRequest",
     "ServiceTokenRequest",
     "ServiceTokenResponse",
     "Session",
@@ -480,8 +490,15 @@ from plexsphere.models.catalog_browse_response import CatalogBrowseResponse as C
 from plexsphere.models.catalog_source_create_request import CatalogSourceCreateRequest as CatalogSourceCreateRequest
 from plexsphere.models.catalog_source_list import CatalogSourceList as CatalogSourceList
 from plexsphere.models.catalog_source_response import CatalogSourceResponse as CatalogSourceResponse
+from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest as CloudAssignmentDecisionRequest
+from plexsphere.models.cloud_assignment_grant_request import CloudAssignmentGrantRequest as CloudAssignmentGrantRequest
+from plexsphere.models.cloud_assignment_list import CloudAssignmentList as CloudAssignmentList
+from plexsphere.models.cloud_assignment_request_body import CloudAssignmentRequestBody as CloudAssignmentRequestBody
+from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse as CloudAssignmentResponse
 from plexsphere.models.cloud_child_counts import CloudChildCounts as CloudChildCounts
 from plexsphere.models.cloud_create_request import CloudCreateRequest as CloudCreateRequest
+from plexsphere.models.cloud_credential_attach_request import CloudCredentialAttachRequest as CloudCredentialAttachRequest
+from plexsphere.models.cloud_credential_cloud_list import CloudCredentialCloudList as CloudCredentialCloudList
 from plexsphere.models.cloud_credential_issue_request import CloudCredentialIssueRequest as CloudCredentialIssueRequest
 from plexsphere.models.cloud_credential_list import CloudCredentialList as CloudCredentialList
 from plexsphere.models.cloud_credential_response import CloudCredentialResponse as CloudCredentialResponse
@@ -491,6 +508,7 @@ from plexsphere.models.cloud_list import CloudList as CloudList
 from plexsphere.models.cloud_patch_request import CloudPatchRequest as CloudPatchRequest
 from plexsphere.models.cloud_provider import CloudProvider as CloudProvider
 from plexsphere.models.cloud_response import CloudResponse as CloudResponse
+from plexsphere.models.cloud_usage_ref import CloudUsageRef as CloudUsageRef
 from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest as CredentialAssignmentDecisionRequest
 from plexsphere.models.credential_assignment_list import CredentialAssignmentList as CredentialAssignmentList
 from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest as CredentialAssignmentRequest
@@ -680,6 +698,8 @@ from plexsphere.models.rotation_impact_preview import RotationImpactPreview as R
 from plexsphere.models.rotation_trigger_response import RotationTriggerResponse as RotationTriggerResponse
 from plexsphere.models.sse_event_session_revoked import SSEEventSessionRevoked as SSEEventSessionRevoked
 from plexsphere.models.sse_event_session_setup import SSEEventSessionSetup as SSEEventSessionSetup
+from plexsphere.models.service_federation_kind import ServiceFederationKind as ServiceFederationKind
+from plexsphere.models.service_identity_create_request import ServiceIdentityCreateRequest as ServiceIdentityCreateRequest
 from plexsphere.models.service_token_request import ServiceTokenRequest as ServiceTokenRequest
 from plexsphere.models.service_token_response import ServiceTokenResponse as ServiceTokenResponse
 from plexsphere.models.session import Session as Session

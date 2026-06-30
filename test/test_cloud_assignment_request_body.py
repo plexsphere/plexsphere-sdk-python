@@ -14,10 +14,10 @@
 
 import unittest
 
-from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
+from plexsphere.models.cloud_assignment_request_body import CloudAssignmentRequestBody
 
-class TestCredentialAssignmentRequest(unittest.TestCase):
-    """CredentialAssignmentRequest unit test stubs"""
+class TestCloudAssignmentRequestBody(unittest.TestCase):
+    """CloudAssignmentRequestBody unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,26 @@ class TestCredentialAssignmentRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CredentialAssignmentRequest:
-        """Test CredentialAssignmentRequest
+    def make_instance(self, include_optional) -> CloudAssignmentRequestBody:
+        """Test CloudAssignmentRequestBody
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CredentialAssignmentRequest`
+        # uncomment below to create an instance of `CloudAssignmentRequestBody`
         """
-        model = CredentialAssignmentRequest()
+        model = CloudAssignmentRequestBody()
         if include_optional:
-            return CredentialAssignmentRequest(
-                cloud_credential_id = '',
+            return CloudAssignmentRequestBody(
                 cloud_id = ''
             )
         else:
-            return CredentialAssignmentRequest(
+            return CloudAssignmentRequestBody(
+                cloud_id = '',
         )
         """
 
-    def testCredentialAssignmentRequest(self):
-        """Test CredentialAssignmentRequest"""
+    def testCloudAssignmentRequestBody(self):
+        """Test CloudAssignmentRequestBody"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

@@ -14,10 +14,10 @@
 
 import unittest
 
-from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
+from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest
 
-class TestCredentialAssignmentRequest(unittest.TestCase):
-    """CredentialAssignmentRequest unit test stubs"""
+class TestCloudAssignmentDecisionRequest(unittest.TestCase):
+    """CloudAssignmentDecisionRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,26 @@ class TestCredentialAssignmentRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CredentialAssignmentRequest:
-        """Test CredentialAssignmentRequest
+    def make_instance(self, include_optional) -> CloudAssignmentDecisionRequest:
+        """Test CloudAssignmentDecisionRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CredentialAssignmentRequest`
+        # uncomment below to create an instance of `CloudAssignmentDecisionRequest`
         """
-        model = CredentialAssignmentRequest()
+        model = CloudAssignmentDecisionRequest()
         if include_optional:
-            return CredentialAssignmentRequest(
-                cloud_credential_id = '',
-                cloud_id = ''
+            return CloudAssignmentDecisionRequest(
+                reason = '0'
             )
         else:
-            return CredentialAssignmentRequest(
+            return CloudAssignmentDecisionRequest(
+                reason = '0',
         )
         """
 
-    def testCredentialAssignmentRequest(self):
-        """Test CredentialAssignmentRequest"""
+    def testCloudAssignmentDecisionRequest(self):
+        """Test CloudAssignmentDecisionRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

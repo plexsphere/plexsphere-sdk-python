@@ -14,10 +14,10 @@
 
 import unittest
 
-from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
+from plexsphere.models.cloud_assignment_grant_request import CloudAssignmentGrantRequest
 
-class TestCredentialAssignmentRequest(unittest.TestCase):
-    """CredentialAssignmentRequest unit test stubs"""
+class TestCloudAssignmentGrantRequest(unittest.TestCase):
+    """CloudAssignmentGrantRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,26 +25,26 @@ class TestCredentialAssignmentRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CredentialAssignmentRequest:
-        """Test CredentialAssignmentRequest
+    def make_instance(self, include_optional) -> CloudAssignmentGrantRequest:
+        """Test CloudAssignmentGrantRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CredentialAssignmentRequest`
+        # uncomment below to create an instance of `CloudAssignmentGrantRequest`
         """
-        model = CredentialAssignmentRequest()
+        model = CloudAssignmentGrantRequest()
         if include_optional:
-            return CredentialAssignmentRequest(
-                cloud_credential_id = '',
-                cloud_id = ''
+            return CloudAssignmentGrantRequest(
+                project_id = ''
             )
         else:
-            return CredentialAssignmentRequest(
+            return CloudAssignmentGrantRequest(
+                project_id = '',
         )
         """
 
-    def testCredentialAssignmentRequest(self):
-        """Test CredentialAssignmentRequest"""
+    def testCloudAssignmentGrantRequest(self):
+        """Test CloudAssignmentGrantRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
