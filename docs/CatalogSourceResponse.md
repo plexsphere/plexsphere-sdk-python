@@ -11,9 +11,9 @@ Name | Type | Description | Notes
 **oci_reference** | [**OciReference**](OciReference.md) |  | 
 **verification** | [**VerificationPolicy**](VerificationPolicy.md) |  | 
 **tracking** | [**TrackingPolicy**](TrackingPolicy.md) |  | 
-**credential_ref** | **str** | &#x60;namespace/name&#x60; reference to the registry-credential Secret, or &#x60;null&#x60; when the source needs none.  | [optional] 
-**domain_id** | **UUID** | Owning Domain, or &#x60;null&#x60; for a catalog-global source.  | [optional] 
-**last_resolved_digest** | **str** | The bundle digest the source last resolved to, or &#x60;null&#x60; before the first resolution.  | [optional] 
+**credential_ref** | **str** | &#x60;namespace/name&#x60; reference to the registry-credential Secret; absent when the source needs none.  | [optional] 
+**domain_id** | **UUID** | Owning Domain; absent for a catalog-global source.  | [optional] 
+**last_resolved_digest** | **str** | The bundle digest the source last resolved to; absent before the first resolution.  | [optional] 
 **status** | **str** | Lifecycle status. | 
 **created_at** | **datetime** | Catalog source creation timestamp (UTC). | 
 **updated_at** | **datetime** | Last-modified timestamp (UTC). | 

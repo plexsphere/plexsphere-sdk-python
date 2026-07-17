@@ -1,6 +1,6 @@
 # BootstrapTokenIssueResponse
 
-Response body for POST /v1/projects/{project_id}/bootstrap-tokens. The plaintext `token` is returned exactly once — subsequent reads (GetBootstrapTokenMetadata, ListBootstrapTokens) NEVER include it because the persistence layer stores only the Argon2id hash. Operators MUST capture the plaintext from this response and hand it to the redeeming Node/Bridge out-of-band . 
+Response body for POST /v1/projects/{project_id}/bootstrap-tokens. The plaintext `token` is returned exactly once — subsequent reads (GetBootstrapTokenMetadata, ListBootstrapTokens) NEVER include it because the persistence layer stores only the Argon2id hash. Operators MUST capture the plaintext from this response and hand it to the redeeming Node/Bridge out-of-band. 
 
 ## Properties
 

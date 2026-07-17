@@ -16,8 +16,8 @@ Name | Type | Description | Notes
 **default_value** | **object** |  | [optional] 
 **immutable** | **bool** |  | [optional] 
 **cloud_tag_propagation** | **bool** |  | [optional] 
-**on_delete** | **str** | On-delete policy. Defaults to &#x60;block&#x60; when omitted .  | [optional] 
-**cardinality** | **int** | Declared per-object cardinality cap for Assignments of this Definition. Defaults to &#x60;1&#x60; when omitted .  | [optional] 
+**on_delete** | **str** | On-delete policy. Defaults to &#x60;block&#x60; when omitted. &#x60;block&#x60; refuses a delete while Assignments exist; &#x60;cascade&#x60; deletes them with the Definition; &#x60;orphan&#x60; detaches them (their &#x60;definition_id&#x60; becomes null) so they remain readable per object but drop from Definition-scoped reads.  | [optional] 
+**cardinality** | **int** | Declared per-object cardinality cap for Assignments of this Definition. Defaults to &#x60;1&#x60; when omitted.  | [optional] 
 
 ## Example
 

@@ -4,13 +4,13 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**erase_identity_from_audit**](AuditApi.md#erase_identity_from_audit) | **POST** /v1/domains/{domainId}/audit/erase-identity | Erase an identity&#39;s PII mapping from the per-Domain audit log.
+[**erase_identity_from_audit**](AuditApi.md#erase_identity_from_audit) | **POST** /v1/domains/{domain_id}/audit/erase-identity | Erase an identity&#39;s PII mapping from the per-Domain audit log.
 [**erase_identity_from_platform_audit**](AuditApi.md#erase_identity_from_platform_audit) | **POST** /v1/platform/audit/erase-identity | Erase an identity&#39;s PII mapping from the platform audit log.
-[**get_audit_entry**](AuditApi.md#get_audit_entry) | **GET** /v1/domains/{domainId}/audit/entries/{seq} | Read a single audit entry with its hash-chain proof.
+[**get_audit_entry**](AuditApi.md#get_audit_entry) | **GET** /v1/domains/{domain_id}/audit/entries/{seq} | Read a single audit entry with its hash-chain proof.
 [**get_platform_audit_entry**](AuditApi.md#get_platform_audit_entry) | **GET** /v1/platform/audit/entries/{seq} | Read a single platform audit entry with its hash-chain proof.
-[**list_audit_entries**](AuditApi.md#list_audit_entries) | **GET** /v1/domains/{domainId}/audit/entries | List entries on the per-Domain audit chain.
+[**list_audit_entries**](AuditApi.md#list_audit_entries) | **GET** /v1/domains/{domain_id}/audit/entries | List entries on the per-Domain audit chain.
 [**list_platform_audit_entries**](AuditApi.md#list_platform_audit_entries) | **GET** /v1/platform/audit/entries | List entries on the platform-residency audit chain.
-[**verify_audit_chain**](AuditApi.md#verify_audit_chain) | **POST** /v1/domains/{domainId}/audit/verify | Verify the per-Domain hash chain or a segment of it.
+[**verify_audit_chain**](AuditApi.md#verify_audit_chain) | **POST** /v1/domains/{domain_id}/audit/verify | Verify the per-Domain hash chain or a segment of it.
 [**verify_platform_audit_chain**](AuditApi.md#verify_platform_audit_chain) | **POST** /v1/platform/audit/verify | Verify the platform-residency hash chain or a segment of it.
 
 
@@ -22,8 +22,8 @@ Erase an identity's PII mapping from the per-Domain audit log.
 Right-to-erasure entry point. Drops the `audit_subject_pii`
 row for the per-Domain pseudonym derived from `identity_id`,
 then appends an `audit.erase-identity` self-audit entry to
-the same chain so the erasure event is itself auditable
-. The hash chain remains verifiable: rows
+the same chain so the erasure event is itself auditable.
+The hash chain remains verifiable: rows
 reference the pseudonym, and the pseudonym is preserved —
 only the plaintext mapping is removed.
 
@@ -31,13 +31,16 @@ The endpoint is IDEMPOTENT on `subject_pseudonym`. A second
 call after a successful erasure is a no-op on the
 `audit_subject_pii` table (the row is already gone) and may
 emit a second self-audit entry; callers MAY safely retry
-after a partial network failure. The 202 status reflects the
-idempotent contract: a successful erasure has been recorded,
-even if the underlying PII row was already absent.
+after a partial network failure. The 200 status reflects the
+synchronous contract: the erasure has been recorded before the
+response is written, even if the underlying PII row was already
+absent.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -52,12 +55,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuditApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain; rows with platform residency live on the separate chain served under `/v1/platform/audit`. 
     audit_erase_identity_request = {"identity_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a0"} # AuditEraseIdentityRequest | 
 
     try:
@@ -76,7 +94,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain; rows with platform residency live on the separate chain served under &#x60;/v1/platform/audit&#x60;.  | 
  **audit_erase_identity_request** | [**AuditEraseIdentityRequest**](AuditEraseIdentityRequest.md)|  | 
 
 ### Return type
@@ -85,7 +103,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -96,10 +114,10 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**202** | Erasure recorded (idempotent on &#x60;subject_pseudonym&#x60;). The response carries the per-Domain pseudonym derived from &#x60;identity_id&#x60; so operators can correlate the self-audit entry without re-deriving it.  |  -  |
+**200** | Erasure recorded — the purge and its self-audit entry committed before this response was written. The response carries the per-Domain pseudonym derived from &#x60;identity_id&#x60; so operators can correlate the self-audit entry without re-deriving it.  |  -  |
 **400** | Invalid erase request (malformed &#x60;identity_id&#x60;, empty body).  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller lacks the &#x60;auditor&#x60; ReBAC relation on the addressed Domain.  |  -  |
+**403** | Caller lacks the &#x60;manage&#x60; ReBAC permission on the addressed Domain. The erasure is a write — the destructive PII purge requires the per-Domain admin grant, NOT the read-side &#x60;auditor&#x60; relation the read/verify surfaces use.  |  -  |
 **404** | Domain id not found. Surfaced only after the authorisation gate has passed.  |  -  |
 **500** | Internal error: persistence-layer failure, authz-check crash, or pseudonym derivation failure on the response leg.  |  -  |
 **501** | Audit erase service / authorizer / pepper resolver not yet provisioned in this build. Body is a Problem with &#x60;code: audit_not_provisioned&#x60;.  |  -  |
@@ -123,13 +141,16 @@ The endpoint is IDEMPOTENT on `subject_pseudonym`. A second
 call after a successful erasure is a no-op on the
 `audit_subject_pii` table (the row is already gone) and may
 emit a second self-audit entry; callers MAY safely retry
-after a partial network failure. The 202 status reflects the
-idempotent contract: a successful erasure has been recorded,
-even if the underlying PII row was already absent.
+after a partial network failure. The 200 status reflects the
+synchronous contract: the erasure has been recorded before the
+response is written, even if the underlying PII row was already
+absent.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -144,6 +165,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -175,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -186,7 +222,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**202** | Erasure recorded (idempotent on &#x60;subject_pseudonym&#x60;). The response carries the platform-residency pseudonym derived from &#x60;identity_id&#x60; so operators can correlate the self-audit entry without re-deriving it.  |  -  |
+**200** | Erasure recorded — the purge and its self-audit entry committed before this response was written. The response carries the platform-residency pseudonym derived from &#x60;identity_id&#x60; so operators can correlate the self-audit entry without re-deriving it.  |  -  |
 **400** | Invalid erase request (malformed &#x60;identity_id&#x60;, empty body).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;manage&#x60; ReBAC permission on the platform object.  |  -  |
@@ -211,8 +247,7 @@ offending row.
 Cross-Domain reads are not allowed: a `seq` that exists on a
 DIFFERENT Domain's chain surfaces as 404 with the same shape
 as a truly-unknown `seq` so the endpoint cannot be used as a
-cross-Domain enumeration oracle. The
-404-after-403 ordering matches the ListAuditEntries gate.
+cross-Domain enumeration oracle.
 
 UNAUTHORISED READS COLLAPSE ONTO 404. Unlike ListAuditEntries
 and VerifyAuditChain, this surface deliberately maps a
@@ -221,12 +256,13 @@ is byte-indistinguishable from "row does not exist on this
 Domain". The seq id is per-Domain monotonic from 1 — a 403
 would otherwise leak chain length and let an attacker probe
 for the existence of arbitrary rows across Domains. The
-same probe-oracle defence applies on cross-tenant reads
-.
+same probe-oracle defence applies on cross-tenant reads.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -240,12 +276,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuditApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain; rows with platform residency live on the separate chain served under `/v1/platform/audit`. 
     seq = 56 # int | Per-Domain monotonic sequence number assigned at append time. Sequences start at 1 (the genesis row) and never reset. 
 
     try:
@@ -264,7 +315,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain; rows with platform residency live on the separate chain served under &#x60;/v1/platform/audit&#x60;.  | 
  **seq** | **int**| Per-Domain monotonic sequence number assigned at append time. Sequences start at 1 (the genesis row) and never reset.  | 
 
 ### Return type
@@ -273,7 +324,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -287,8 +338,8 @@ No authorization required
 **200** | Audit entry plus the canonical-bytes proof needed to recompute its hash.  |  -  |
 **400** | Invalid &#x60;seq&#x60; path parameter (e.g. &#x60;seq &lt; 1&#x60;) or other client-side input fault.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**404** | No entry at this &#x60;(domainId, seq)&#x60;. Returned for unknown sequences, for sequences that exist on a DIFFERENT Domain&#39;s chain (cross-Domain enumeration oracle defence), AND for callers who lack the &#x60;auditor&#x60; ReBAC relation on the addressed Domain — the unauthorised-read leg deliberately collapses onto 404 so the response is byte-indistinguishable from \&quot;row does not exist\&quot;. See the operation description for the full probe-oracle rationale .  |  -  |
-**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the read path .  |  -  |
+**404** | No entry at this &#x60;(domainId, seq)&#x60;. Returned for unknown sequences, for sequences that exist on a DIFFERENT Domain&#39;s chain (cross-Domain enumeration oracle defence), AND for callers who lack the &#x60;auditor&#x60; ReBAC relation on the addressed Domain — the unauthorised-read leg deliberately collapses onto 404 so the response is byte-indistinguishable from \&quot;row does not exist\&quot;. See the operation description for the full probe-oracle rationale.  |  -  |
+**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the read path.  |  -  |
 **501** | Audit chain store / authorizer not yet provisioned in this build. Body is a Problem with &#x60;code: audit_not_provisioned&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -317,6 +368,8 @@ existence of arbitrary rows.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -330,6 +383,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -361,7 +429,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -375,8 +443,8 @@ No authorization required
 **200** | Audit entry plus the canonical-bytes proof needed to recompute its hash.  |  -  |
 **400** | Invalid &#x60;seq&#x60; path parameter (e.g. &#x60;seq &lt; 1&#x60;) or other client-side input fault.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**404** | No entry at this &#x60;seq&#x60;. Returned for unknown sequences AND for callers who lack the &#x60;auditor&#x60; ReBAC relation on the platform object — the unauthorised-read leg deliberately collapses onto 404 so the response is byte-indistinguishable from \&quot;row does not exist\&quot;. See the operation description for the full probe-oracle rationale .  |  -  |
-**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the read path .  |  -  |
+**404** | No entry at this &#x60;seq&#x60;. Returned for unknown sequences AND for callers who lack the &#x60;auditor&#x60; ReBAC relation on the platform object — the unauthorised-read leg deliberately collapses onto 404 so the response is byte-indistinguishable from \&quot;row does not exist\&quot;. See the operation description for the full probe-oracle rationale.  |  -  |
+**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the read path.  |  -  |
 **501** | Audit chain store / authorizer not yet provisioned in this build. Body is a Problem with &#x60;code: audit_not_provisioned&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -398,7 +466,7 @@ Pagination is opaque-cursor based: the `next_cursor` returned
 in the response body is the value to pass back as `cursor` on
 the next call. Cursors are HMAC-signed and bound to the
 addressed Domain — replaying a cursor minted for a different
-Domain surfaces as a 400 with `code: cursor_invalid`. When the page is shorter than the requested `limit`
+Domain surfaces as a 400 with `code: invalid_cursor`. When the page is shorter than the requested `limit`
 the response omits `next_cursor` so callers stop on a single
 condition.
 
@@ -412,6 +480,8 @@ transport layer.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -426,15 +496,30 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuditApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    cursor = 'cursor_example' # str | Opaque pagination cursor — value of `next_cursor` from the previous page, or unset to start at the head of the chain .  (optional)
-    limit = 50 # int | Maximum number of entries to return on this page. Clamped server-side at 200 to protect the read replica from a single auditor issuing an unbounded LIMIT.  (optional) (default to 50)
-    subject = 'subject_example' # str | Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; pseudonymisation is the caller's responsibility and happens at the sink boundary.  (optional)
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain; rows with platform residency live on the separate chain served under `/v1/platform/audit`. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+    subject = 'subject_example' # str | Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; rows are pseudonymised at the sink boundary, so callers filter by the pseudonym as returned on previously read entries.  (optional)
     relation = 'relation_example' # str | SpiceDB relation label to filter on. (optional)
     object_type = 'object_type_example' # str | SpiceDB object type to filter on (e.g. `domain`, `node`). (optional)
     object_id = 'object_id_example' # str | Opaque object identifier within `object_type`. (optional)
@@ -459,10 +544,10 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **cursor** | **str**| Opaque pagination cursor — value of &#x60;next_cursor&#x60; from the previous page, or unset to start at the head of the chain .  | [optional] 
- **limit** | **int**| Maximum number of entries to return on this page. Clamped server-side at 200 to protect the read replica from a single auditor issuing an unbounded LIMIT.  | [optional] [default to 50]
- **subject** | **str**| Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; pseudonymisation is the caller&#39;s responsibility and happens at the sink boundary.  | [optional] 
+ **domain_id** | **UUID**| Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain; rows with platform residency live on the separate chain served under &#x60;/v1/platform/audit&#x60;.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+ **subject** | **str**| Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; rows are pseudonymised at the sink boundary, so callers filter by the pseudonym as returned on previously read entries.  | [optional] 
  **relation** | **str**| SpiceDB relation label to filter on. | [optional] 
  **object_type** | **str**| SpiceDB object type to filter on (e.g. &#x60;domain&#x60;, &#x60;node&#x60;). | [optional] 
  **object_id** | **str**| Opaque object identifier within &#x60;object_type&#x60;. | [optional] 
@@ -477,7 +562,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -489,7 +574,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Page of audit entries for the addressed Domain.  |  -  |
-**400** | Invalid query parameter — typically a malformed cursor (&#x60;code: cursor_invalid&#x60;), a non-hex &#x60;subject&#x60;, or a &#x60;to&#x60; earlier than &#x60;from&#x60;.  |  -  |
+**400** | Invalid query parameter — typically a malformed cursor (&#x60;code: invalid_cursor&#x60;), a non-hex &#x60;subject&#x60;, or a &#x60;to&#x60; earlier than &#x60;from&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;auditor&#x60; ReBAC relation on the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem carrying the denial reason and traversed relation path.  |  -  |
 **404** | Domain id not found. Surfaced only after the authorisation gate has passed so the endpoint cannot be used as a Domain-id oracle.  |  -  |
@@ -517,7 +602,7 @@ in the response body is the value to pass back as `cursor` on
 the next call. Cursors are HMAC-signed and bound to the
 platform-residency chain — replaying a cursor minted against
 a different chain surfaces as a 400 with
-`code: cursor_invalid`. When the page is shorter than the
+`code: invalid_cursor`. When the page is shorter than the
 requested `limit` the response omits `next_cursor` so callers
 stop on a single condition.
 
@@ -532,6 +617,8 @@ request correlation id propagated from the transport layer.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -546,14 +633,29 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuditApi(api_client)
-    cursor = 'cursor_example' # str | Opaque pagination cursor — value of `next_cursor` from the previous page, or unset to start at the head of the chain .  (optional)
-    limit = 50 # int | Maximum number of entries to return on this page. Clamped server-side at 200 to protect the read replica from a single auditor issuing an unbounded LIMIT.  (optional) (default to 50)
-    subject = 'subject_example' # str | Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; pseudonymisation is the caller's responsibility and happens at the sink boundary.  (optional)
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+    subject = 'subject_example' # str | Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; rows are pseudonymised at the sink boundary, so callers filter by the pseudonym as returned on previously read entries.  (optional)
     relation = 'relation_example' # str | SpiceDB relation label to filter on. (optional)
     object_type = 'object_type_example' # str | SpiceDB object type to filter on (e.g. `cloud`, `platform`). (optional)
     object_id = 'object_id_example' # str | Opaque object identifier within `object_type`. (optional)
@@ -578,9 +680,9 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **cursor** | **str**| Opaque pagination cursor — value of &#x60;next_cursor&#x60; from the previous page, or unset to start at the head of the chain .  | [optional] 
- **limit** | **int**| Maximum number of entries to return on this page. Clamped server-side at 200 to protect the read replica from a single auditor issuing an unbounded LIMIT.  | [optional] [default to 50]
- **subject** | **str**| Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; pseudonymisation is the caller&#39;s responsibility and happens at the sink boundary.  | [optional] 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+ **subject** | **str**| Filter by subject pseudonym (64 lowercase hex characters). The query service never accepts plaintext subject ids; rows are pseudonymised at the sink boundary, so callers filter by the pseudonym as returned on previously read entries.  | [optional] 
  **relation** | **str**| SpiceDB relation label to filter on. | [optional] 
  **object_type** | **str**| SpiceDB object type to filter on (e.g. &#x60;cloud&#x60;, &#x60;platform&#x60;). | [optional] 
  **object_id** | **str**| Opaque object identifier within &#x60;object_type&#x60;. | [optional] 
@@ -595,7 +697,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -607,7 +709,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Page of audit entries on the platform-residency chain.  |  -  |
-**400** | Invalid query parameter — typically a malformed cursor (&#x60;code: cursor_invalid&#x60;), a non-hex &#x60;subject&#x60;, or a &#x60;to&#x60; earlier than &#x60;from&#x60;.  |  -  |
+**400** | Invalid query parameter — typically a malformed cursor (&#x60;code: invalid_cursor&#x60;), a non-hex &#x60;subject&#x60;, or a &#x60;to&#x60; earlier than &#x60;from&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;auditor&#x60; ReBAC relation on the platform object. Body is a &#x60;PermissionDenied&#x60; problem carrying the denial reason and traversed relation path.  |  -  |
 **500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the read path. Body is a generic Problem.  |  -  |
@@ -640,6 +742,8 @@ playbook while a 5xx triggers an oncall page.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -654,12 +758,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuditApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain; rows with platform residency live on the separate chain served under `/v1/platform/audit`. 
     audit_chain_verify_request = {"from_seq":1,"to_seq":1000} # AuditChainVerifyRequest |  (optional)
 
     try:
@@ -678,7 +797,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain of the addressed audit chain. The Domain audit log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain; rows with platform residency live on the separate chain served under &#x60;/v1/platform/audit&#x60;.  | 
  **audit_chain_verify_request** | [**AuditChainVerifyRequest**](AuditChainVerifyRequest.md)|  | [optional] 
 
 ### Return type
@@ -687,7 +806,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -703,7 +822,7 @@ No authorization required
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;auditor&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | Domain id not found. Surfaced only after the authorisation gate has passed.  |  -  |
-**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the verifier path. DIVERGENCE IS NOT A 5xx — see the operation description .  |  -  |
+**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the verifier path. DIVERGENCE IS NOT A 5xx — see the operation description.  |  -  |
 **501** | Audit chain store / authorizer not yet provisioned in this build. Body is a Problem with &#x60;code: audit_not_provisioned&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -733,6 +852,8 @@ playbook while a 5xx triggers an oncall page.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -747,6 +868,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -778,7 +914,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -793,7 +929,7 @@ No authorization required
 **400** | Invalid verify request (e.g. &#x60;to_seq&#x60; &lt; &#x60;from_seq&#x60;, negative seq).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;auditor&#x60; ReBAC relation on the platform object.  |  -  |
-**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the verifier path. DIVERGENCE IS NOT A 5xx — see the operation description .  |  -  |
+**500** | Internal error: persistence-layer failure, authz-check crash, or canonical-encode crash on the verifier path. DIVERGENCE IS NOT A 5xx — see the operation description.  |  -  |
 **501** | Audit chain store / authorizer not yet provisioned in this build. Body is a Problem with &#x60;code: audit_not_provisioned&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

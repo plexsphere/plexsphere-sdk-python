@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **status** | [**IncidentStatus**](IncidentStatus.md) |  | 
 **opened_at** | **datetime** | RFC 3339 instant the incident was opened. | 
 **resolved_at** | **datetime** | RFC 3339 instant the incident was resolved, or absent while it is still open.  | [optional] 
-**timeline** | [**List[TimelineEvent]**](TimelineEvent.md) | The incident&#39;s append-only timeline, ordered by &#x60;occurred_at&#x60; ascending. The list projection omits the timeline; the single-incident read includes it.  | 
+**timeline** | [**List[TimelineEvent]**](TimelineEvent.md) | The incident&#39;s append-only timeline, ordered by &#x60;occurred_at&#x60; ascending. Only the single-incident read carries it; the list surface returns &#x60;IncidentHeader&#x60;.  | 
 
 ## Example
 

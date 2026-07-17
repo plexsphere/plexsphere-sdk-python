@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **slug** | **str** | Stable identity of the provider within its Resource. Unique per &#x60;(resource_id, slug)&#x60;; a collision surfaces as &#x60;409 slug_conflict&#x60;.  | 
 **kind** | [**BridgeUserAccessProviderKind**](BridgeUserAccessProviderKind.md) |  | 
 **interface_name** | **str** | Name of the network interface the provider programs on the Node. | 
-**listen_port** | **int** | UDP port the provider listens on. Outside &#x60;1..65535&#x60; the write is rejected with &#x60;400 relay_port_out_of_range&#x60;.  | 
+**listen_port** | **int** | UDP port the provider listens on. Outside &#x60;1..65535&#x60; the write is rejected with &#x60;400 port_out_of_range&#x60;.  | 
 **max_peers** | **int** | Maximum number of peers the provider admits. | 
 **auth_secret_ref** | **str** | Opaque reference to the provider&#39;s authentication material in the form &#x60;secret:&lt;domain&gt;/&lt;project&gt;/&lt;name&gt;(:&lt;version&gt;)?&#x60;. The platform stores the reference, never the material; a malformed reference surfaces as &#x60;400 secret_ref_malformed&#x60;.  | 
 **routing_policy** | **Dict[str, object]** | Free-form JSON routing-policy document, persisted as JSONB. The platform stores it opaquely; the agent-side driver interprets it.  | 

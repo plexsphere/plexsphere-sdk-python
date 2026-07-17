@@ -1,6 +1,6 @@
 # LabelDefinitionUpdateRequest
 
-Body for PATCH /v1/label-definitions/{id}. Only mutable fields may be changed. `scope`, `scope_id`, `local_key`, and `immutable` are frozen after creation. Immutable Definitions reject `value_schema` changes with 409 `immutable-violation` . 
+Body for PATCH /v1/label-definitions/{id}. Only mutable fields may be changed. `scope`, `scope_id`, `local_key`, and `immutable` are frozen after creation. Immutable Definitions reject `value_schema` changes with 409 `immutable_violation`. 
 
 ## Properties
 
@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **required** | **bool** |  | [optional] 
 **default_value** | **object** |  | [optional] 
 **cloud_tag_propagation** | **bool** |  | [optional] 
-**on_delete** | **str** |  | [optional] 
+**on_delete** | **str** | On-delete policy. &#x60;block&#x60; refuses a delete while Assignments exist; &#x60;cascade&#x60; deletes them with the Definition; &#x60;orphan&#x60; detaches them (their &#x60;definition_id&#x60; becomes null) so they remain readable per object but drop from Definition-scoped reads.  | [optional] 
 
 ## Example
 

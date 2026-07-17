@@ -1,6 +1,6 @@
 # ManagedHookPushRequest
 
-Body for `POST /v1/domains/{domainId}/managed-push/hooks`. Applies one PlexdHook object to the Domain's managed-push cluster. The PlexdHook spec fields mirror the discovery-only PlexdHook projection. 
+Body for `POST /v1/domains/{domain_id}/managed-push/hooks`. Applies one PlexdHook object to the Domain's managed-push cluster. The PlexdHook spec fields mirror the discovery-only PlexdHook projection. 
 
 ## Properties
 

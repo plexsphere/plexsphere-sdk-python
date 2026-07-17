@@ -12,8 +12,8 @@ Name | Type | Description | Notes
 **version** | **int** | Monotonic broker-row version. Starts at 1 on issuance and increments on every rotate.  | 
 **status** | [**CloudCredentialStatus**](CloudCredentialStatus.md) |  | 
 **expires_at** | **datetime** | Wall-clock expiry budget (UTC). | 
-**revoked_at** | **datetime** | Revocation timestamp (UTC). &#x60;null&#x60; until the credential is revoked by an operator.  | [optional] 
-**expired_at** | **datetime** | Expiry-observed timestamp (UTC). &#x60;null&#x60; until the sweeper marks the credential expired.  | [optional] 
+**revoked_at** | **datetime** | Revocation timestamp (UTC). Absent until the credential is revoked by an operator.  | [optional] 
+**expired_at** | **datetime** | Expiry-observed timestamp (UTC). Absent until the sweeper marks the credential expired.  | [optional] 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 **updated_at** | **datetime** | Last-modified timestamp (UTC). Bumped by every lifecycle mutator — rotate, revoke, expire.  | 
 

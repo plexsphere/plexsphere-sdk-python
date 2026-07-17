@@ -35,6 +35,8 @@ through the projection layer.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -49,6 +51,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -82,7 +99,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -93,7 +110,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Relation tuple created. |  * Location - Absolute or root-relative URL of the persisted tuple (e.g. &#x60;/v1/authz/relation-tuples/&lt;id&gt;&#x60;).  <br>  |
+**201** | Relation tuple created. |  -  |
 **400** | Aggregate invariant rejected the body — empty subject / relation / resource, malformed object reference, etc. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_relation_tuple&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create relation tuples on the addressed Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -108,8 +125,8 @@ No authorization required
 
 Delete a relation tuple.
 
-Deletes the relation tuple identified by `{id}`. The
-operation is idempotent — a `{id}` that was already deleted
+Deletes the relation tuple identified by `{id}`. A repeated
+delete of the same `{id}` deliberately
 surfaces as `404 relation_tuple_not_found` rather than `204`,
 so a caller racing two deletes can distinguish "I deleted it"
 from "someone else got there first" without leaking existence
@@ -119,6 +136,8 @@ the lookup).
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -131,6 +150,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -160,7 +194,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -195,6 +229,8 @@ pagination mirrors `/v1/projects` exactly.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -208,6 +244,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -215,7 +266,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     api_instance = plexsphere.AuthzApi(api_client)
     project_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Project (UUIDv7). Relation-tuple administration is scoped per Project so every list call resolves to a single Project's tuples. 
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List relation tuples scoped to a Project.
@@ -235,7 +286,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **project_id** | **UUID**| Owning Project (UUIDv7). Relation-tuple administration is scoped per Project so every list call resolves to a single Project&#39;s tuples.  | 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -243,7 +294,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -276,6 +327,8 @@ half-applied state.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -290,6 +343,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -323,7 +391,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -354,9 +422,11 @@ for the addressed (`subject`, `relation`, `resource`) triple
 and returns the decision as data on `200`.
 
 DECISION: a denial surfaces as `200 { decision: denied, reason
-}`, NEVER as `403`. The HTTP layer reserves `403` for transport
-denials (the caller is not even authorised to USE the check
-endpoint). Mixing the two would force callers to disambiguate
+}`, NEVER as `403` — and no 403 is declared on this operation
+at all: an unauthenticated caller is refused with 401 by the
+authn middleware, and every authenticated caller may run
+checks. Mixing policy denials into transport status codes
+would force callers to disambiguate
 infrastructure failures from policy outcomes by parsing the
 Problem body, defeating the point of treating denials as a
 first-class result.
@@ -367,6 +437,8 @@ with the matching audit entry emitted by `internal/audit`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -381,6 +453,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -412,7 +499,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -452,6 +539,8 @@ with the matching audit entry emitted by `internal/audit`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -466,6 +555,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -497,7 +601,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -537,6 +641,8 @@ with the matching audit entry emitted by `internal/audit`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -551,6 +657,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -582,7 +703,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

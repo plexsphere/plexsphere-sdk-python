@@ -8,12 +8,12 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Revision identifier (UUIDv7). | 
 **policy_id** | **UUID** | Parent Policy identifier. | 
-**parent_id** | **UUID** | Predecessor revision identifier. &#x60;null&#x60; on the initial revision of a fresh Policy; non-null on every subsequent revision.  | [optional] 
+**parent_id** | **UUID** | Predecessor revision identifier. Absent on the initial revision of a fresh Policy; non-null on every subsequent revision.  | [optional] 
 **selector** | [**PolicySelector**](PolicySelector.md) |  | 
 **rules** | [**List[PolicyRule]**](PolicyRule.md) | Ordered rule list at this revision. Capped at 1024 entries by the aggregate; the cap is mirrored as a CHECK constraint in the persistence layer so a wire-level oversize is rejected before it reaches the editor.  | 
 **created_at** | **datetime** |  | 
 **created_by** | **UUID** | Identifier of the principal that authored the revision.  | 
-**correlation_id** | **UUID** | Upstream request correlation identifier propagated into the audit row and outbox event. &#x60;null&#x60; when the revision was authored outside an inbound HTTP request.  | [optional] 
+**correlation_id** | **UUID** | Upstream request correlation identifier propagated into the audit row and outbox event. Absent when the revision was authored outside an inbound HTTP request.  | [optional] 
 
 ## Example
 

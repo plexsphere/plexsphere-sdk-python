@@ -41,6 +41,8 @@ outside `{adopted, provisioned}` is rejected with
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -55,6 +57,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -88,7 +105,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -99,13 +116,14 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Adopted Resource created. The response body is the hydrated &#x60;ResourceResponse&#x60;; the &#x60;provisioning&#x60; field is absent because adopted Resources have no broker-owned ProvisionedResource.  |  -  |
-**202** | Provisioned Resource accepted. The broker has minted a Pending &#x60;ProvisionedResource&#x60; and reconcile will drive it toward &#x60;Ready&#x60;. The response body carries the hydrated &#x60;ResourceResponse&#x60; with &#x60;provisioning.phase &#x3D; Pending&#x60;; the &#x60;Location&#x60; header carries the canonical URL of the new Resource.  |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**201** | Adopted Resource created. The response body is the hydrated &#x60;ResourceResponse&#x60;; the &#x60;provisioning&#x60; field is absent because adopted Resources have no broker-owned ProvisionedResource.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**202** | Provisioned Resource accepted. The broker has minted a Pending &#x60;ProvisionedResource&#x60; and reconcile will drive it toward &#x60;Ready&#x60;. The response body carries the hydrated &#x60;ResourceResponse&#x60; with &#x60;provisioning.phase &#x3D; Pending&#x60;; the &#x60;Location&#x60; header carries the canonical URL of the new Resource.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_resource_origin&#x60;, &#x60;invalid_project_id&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create a Resource in this Project (missing Project &#x60;deploy&#x60;) or to use the named Cloud Credential (missing &#x60;cloud_credential#uses&#x60; for the provisioned flow). Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Parent Project not found. Body is a &#x60;Problem&#x60; with &#x60;code: project_not_found&#x60;.  |  -  |
 **413** | Request body exceeded the 8 KiB tenancy ceiling.  |  -  |
+**422** | A referenced row is missing for the requested flow. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;blueprint_not_found&#x60; (the provisioned flow named a Blueprint version that does not exist), &#x60;cloud_credential_not_found&#x60; (the provisioned flow named a Cloud Credential that does not exist) }.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -133,6 +151,8 @@ persistence write. A missing Resource surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -145,6 +165,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -174,7 +209,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -215,6 +250,8 @@ as `404 resource_not_found`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -228,6 +265,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -259,7 +311,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -299,6 +351,8 @@ envelope or unknown version byte stays on `400 invalid_cursor`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -312,6 +366,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -319,7 +388,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     api_instance = plexsphere.ResourceApi(api_client)
     project_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Project (UUIDv7). Bound on `/v1/projects/{project_id}/resources` for the Resource collection — create and list. Reused by the Bridge Orchestrator surface under `/v1/projects/{project_id}/resources/{resource_id}/bridge/...`. 
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List Resources inside a Project.
@@ -339,7 +408,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **project_id** | **UUID**| Owning Project (UUIDv7). Bound on &#x60;/v1/projects/{project_id}/resources&#x60; for the Resource collection — create and list. Reused by the Bridge Orchestrator surface under &#x60;/v1/projects/{project_id}/resources/{resource_id}/bridge/...&#x60;.  | 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -347,7 +416,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

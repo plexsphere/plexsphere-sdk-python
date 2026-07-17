@@ -20,6 +20,7 @@ from plexsphere.api.cloud_api import CloudApi
 from plexsphere.api.hooks_api import HooksApi
 from plexsphere.api.integrity_api import IntegrityApi
 from plexsphere.api.labels_api import LabelsApi
+from plexsphere.api.managed_push_api import ManagedPushApi
 from plexsphere.api.management_fleet_api import ManagementFleetApi
 from plexsphere.api.mesh_api import MeshApi
 from plexsphere.api.meta_api import MetaApi

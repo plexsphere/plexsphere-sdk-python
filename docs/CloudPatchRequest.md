@@ -1,6 +1,6 @@
 # CloudPatchRequest
 
-Body for `PATCH /v1/clouds/{id}`. All properties are optional — but the body MUST set at least one of `display_name`, `endpoint`, or `region_defaults`. An empty body is rejected at the handler with `400 empty_patch`.  x-cloud-slug-immutable: The `slug` is intentionally absent from this schema. The handler rejects any request body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`.  x-cloud-provider-immutable: The `provider` is intentionally absent from this schema. Provider is the validator-routing key for the per-provider validator family — changing it would invalidate every previously-stored endpoint blob. The handler rejects any request body that carries a `provider` key with `400 provider_immutable`.  See the `cloud` tag description and the DECISION block on `cloud.Cloud` for the rationale. 
+Body for `PATCH /v1/clouds/{id}`. All properties are optional — but the body MUST set at least one of `display_name`, `endpoint`, or `region_defaults`. An empty body is rejected at the handler with `400 empty_patch`.  The immutable `slug` and `provider` are intentionally absent from this schema; the handler rejects a body carrying `slug` with `400 slug_immutable` and one carrying `provider` with `400 provider_immutable`. `provider` is the validator-routing key for the per-provider validator family — changing it would invalidate every previously-stored endpoint blob. See the `cloud` tag description and the DECISION on `cloud.Cloud`. 
 
 ## Properties
 

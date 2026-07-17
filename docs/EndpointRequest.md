@@ -6,7 +6,7 @@ Body for PUT /v1/nodes/{id}/endpoint. Carries a single NAT- observed transport e
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**endpoint** | **str** | Canonical &#x60;host:port&#x60; wire form of the observed transport endpoint. The host is an IPv4 dotted quad or an IPv6 address bracketed per RFC 5952 (&#x60;[2001:db8::1]:51820&#x60;); the port is in the RFC 6056 ephemeral range 1..65535. Loopback, link-local, and unspecified addresses are refused with 400 &#x60;endpoint_unparseable&#x60;.  | 
+**endpoint** | **str** | Canonical &#x60;host:port&#x60; wire form of the observed transport endpoint. The host is an IPv4 dotted quad or an IPv6 address bracketed per RFC 5952 (&#x60;[2001:db8::1]:51820&#x60;); the port is in the 1..65535 range. Loopback, link-local, and unspecified addresses are refused with 400 &#x60;endpoint_unparseable&#x60;.  | 
 **nat_type** | **str** | Agent-classified NAT traversal posture. The handler forwards the value verbatim to the Peer aggregate; the controller correlates the value with the per-Domain bridge view in later stories. &#x60;unknown&#x60; is permitted for agents that have not yet completed STUN probing.  | 
 **reported_at** | **datetime** | Agent wall-clock at the moment the observation was made. The handler rejects the request with 400 &#x60;endpoint_clock_skew&#x60; if the value drifts more than 60 seconds from server now.  | 
 

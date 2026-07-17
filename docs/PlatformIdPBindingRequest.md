@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **claim_mappings** | **Dict[str, str]** | Mapping of plexsphere claim name → IdP claim name. An empty map is permitted. The mappings apply uniformly to every Domain that resolves through this shared binding.  | [optional] 
 **required_acr** | **List[str]** | Required OIDC ACR values. | [optional] 
 **required_amr** | **List[str]** | Required OIDC AMR values. | [optional] 
-**jit_policy** | **str** | Just-in-time user-provisioning policy. One of &#x60;allow&#x60; or &#x60;deny&#x60;; the server rejects any other value with 400 &#x60;invalid-jit-policy&#x60;. Declared as a plain string rather than an inline enum so it shares the IdPBinding jit-policy vocabulary without minting a fourth generated enum type.  | 
+**jit_policy** | **str** | Just-in-time user-provisioning policy. One of &#x60;allow&#x60; or &#x60;deny&#x60;; the server rejects any other value with 400 &#x60;invalid_jit_policy&#x60;. Declared as a plain string rather than an inline enum so it shares the IdPBinding jit-policy vocabulary without minting a fourth generated enum type.  | 
 **alias** | **str** | Optional human-friendly handle for the binding, unique among active platform bindings (e.g. &#x60;github&#x60;). Normalised to lowercase kebab-case, so an operator may submit mixed case.  | [optional] 
 
 ## Example

@@ -1,6 +1,6 @@
 # ManagementClusterResponse
 
-Metadata-only projection of a registered management cluster. The shape is shared by `RegisterManagementCluster`, `ListManagementClusters`, and `GetManagementCluster`. It deliberately omits the kubeconfig Secret reference contents — only the operator-supplied reference name is a storage-internal detail the surface has no reason to expose. 
+Metadata-only projection of a registered management cluster. The shape is shared by `RegisterManagementCluster`, `ListManagementClusters`, and `GetManagementCluster`. It deliberately omits the kubeconfig Secret reference entirely — even the operator-supplied reference name is a storage-internal detail the surface has no reason to expose. 
 
 ## Properties
 

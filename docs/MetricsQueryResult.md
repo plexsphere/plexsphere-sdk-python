@@ -1,12 +1,12 @@
 # MetricsQueryResult
 
-Result of a metrics query, projected from the metrics backend's response. `status_code` is the backend's HTTP status and `body` is the backend's verbatim JSON payload so the Dashboard can render the series without the platform re-encoding them. 
+Result of a metrics query, projected from the metrics backend's response. This envelope is only ever returned on a platform `200`: the pass-through boundary maps a backend 2xx to this body, a backend 4xx to a platform `400`, and a backend 429/5xx or an unreachable/timed-out backend to a platform `502`/`504`. So `status_code` is always a backend 2xx here; a backend error never rides inside a `200`. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**status_code** | **int** | HTTP status the metrics backend returned. | 
+**status_code** | **int** | The backend&#39;s 2xx HTTP status (a non-2xx backend response is mapped to a platform 4xx/5xx and never reaches this body).  | 
 **body** | **str** | The metrics backend&#39;s verbatim response body, carried as an opaque JSON string so the platform does not re-shape the backend&#39;s series envelope.  | 
 
 ## Example

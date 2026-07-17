@@ -1,13 +1,13 @@
 # AuditEntry
 
-Single audit chain row exposed on the read surface. Mirrors the `internal/audit.Entry` aggregate plus the per-row provenance (`entry_hash`, `prev_hash`) the verifier consumes. `archive_etag` and `archived_at` are populated once the object-store mirror worker has uploaded the row to the per-Domain bucket; both are `null` on rows still in flight from the append path. 
+Single audit chain row exposed on the read surface — served by both the per-Domain chain (`/v1/domains/{domain_id}/audit`) and the platform-residency chain (`/v1/platform/audit`). Mirrors the `internal/audit.Entry` aggregate plus the per-row provenance (`entry_hash`, `prev_hash`) the verifier consumes. `archive_etag` and `archived_at` are populated once the object-store mirror worker has uploaded the row to the owning chain's bucket; both are absent on rows still in flight from the append path. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**seq** | **int** | Per-Domain monotonic sequence number assigned at append time.  | 
-**domain_id** | **UUID** | Owning Domain. | 
+**seq** | **int** | Per-chain monotonic sequence number assigned at append time.  | 
+**domain_id** | **UUID** | Scope anchor of the owning chain — the owning Domain id on Domain-chain rows, the platform chain&#39;s anchor id on platform-residency rows.  | 
 **occurred_at** | **datetime** | Server-side timestamp the decision was reached (RFC 3339, UTC).  | 
 **reason** | [**AuditReason**](AuditReason.md) |  | 
 **subject** | [**AuditSubject**](AuditSubject.md) |  | 
@@ -18,8 +18,8 @@ Name | Type | Description | Notes
 **request_context** | [**AuditRequestContext**](AuditRequestContext.md) |  | 
 **entry_hash** | **str** | &#x60;sha256(prev_hash || sha256(canonical_bytes))&#x60; for this row, lowercase hex.  | 
 **prev_hash** | **str** | &#x60;entry_hash&#x60; of the preceding row, or 64 zero hex characters on the genesis row (&#x60;seq&#x3D;1&#x60;).  | 
-**archive_etag** | **str** | Object-store ETag of the per-Domain mirror copy, or &#x60;null&#x60; until the drain worker has uploaded the row.  | [optional] 
-**archived_at** | **datetime** | Server-side timestamp the mirror upload completed, or &#x60;null&#x60; while the row is still in flight.  | [optional] 
+**archive_etag** | **str** | Object-store ETag of the per-Domain mirror copy; absent until the drain worker has uploaded the row.  | [optional] 
+**archived_at** | **datetime** | Server-side timestamp the mirror upload completed; absent while the row is still in flight.  | [optional] 
 
 ## Example
 

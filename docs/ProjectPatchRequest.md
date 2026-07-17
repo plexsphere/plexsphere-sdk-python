@@ -1,6 +1,6 @@
 # ProjectPatchRequest
 
-Body for `PATCH /v1/projects/{id}`. All properties are optional — but the body MUST set at least one of `name`, `description`, `sub_range_cidr`, or `release_sub_range`. An empty body is rejected at the handler with `400 empty_patch`.  x-project-slug-immutable: The `slug` is intentionally absent from this schema. The handler rejects any request body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`. See the `tenancy` tag description for the rationale. 
+Body for `PATCH /v1/projects/{id}`. All properties are optional — but the body MUST set at least one of `name`, `description`, `sub_range_cidr`, or `release_sub_range`. An empty body is rejected at the handler with `400 empty_patch`.  The immutable `slug` is intentionally absent from this schema; the handler rejects any body carrying a `slug` key (even with the same value) at decode time with `400 slug_immutable`. See the `tenancy` tag description for the rationale. 
 
 ## Properties
 

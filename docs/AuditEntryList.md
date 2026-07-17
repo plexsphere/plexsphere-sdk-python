@@ -1,13 +1,13 @@
 # AuditEntryList
 
-Cursor-paginated page returned by `ListAuditEntries`. The `next_cursor` field is the value to pass back as the `cursor` query parameter on the next call; it is `null` (or absent) when the page is short — that is the end-of-stream signal callers stop on. 
+Cursor-paginated page returned by `ListAuditEntries`. The `next_cursor` field is the value to pass back as the `cursor` query parameter on the next call; it is absent when the page is short — that is the end-of-stream signal callers stop on. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**entries** | [**List[AuditEntry]**](AuditEntry.md) | Audit rows in ascending &#x60;seq&#x60; order. | 
-**next_cursor** | **str** | Opaque, HMAC-signed cursor scoped to the addressed Domain. Replaying a cursor minted for a different Domain surfaces as 400 with &#x60;code: cursor_invalid&#x60;.  | [optional] 
+**items** | [**List[AuditEntry]**](AuditEntry.md) | Audit rows in ascending &#x60;seq&#x60; order. | 
+**next_cursor** | **str** | Opaque, HMAC-signed cursor scoped to the addressed chain. Replaying a cursor minted for a different chain surfaces as 400 with &#x60;code: invalid_cursor&#x60;.  | [optional] 
 
 ## Example
 

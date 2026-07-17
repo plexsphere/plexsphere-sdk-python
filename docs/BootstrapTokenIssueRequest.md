@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **kind** | **str** | Discriminates the redemption surface — &#x60;node&#x60; tokens are redeemed at the Node bootstrap endpoint, &#x60;bridge&#x60; tokens at the Bridge bootstrap endpoint.  | 
 **env_prefix** | **str** | Lowercase ASCII letter run encoded as the environment segment of the plaintext. Same regex enforced by the aggregate and the parser, so the surface and the storage layer agree on the allowed alphabet.  | 
-**ttl_seconds** | **int** | Lifetime of the BootstrapToken in seconds. Bounded by the aggregate&#39;s &#x60;[MinTTL&#x3D;5m, MaxTTL&#x3D;24h]&#x60; window so a forgotten token cannot become a long-lived bearer credential .  | 
+**ttl_seconds** | **int** | Lifetime of the BootstrapToken in seconds. Bounded by the aggregate&#39;s &#x60;[MinTTL&#x3D;5m, MaxTTL&#x3D;24h]&#x60; window so a forgotten token cannot become a long-lived bearer credential.  | 
 
 ## Example
 

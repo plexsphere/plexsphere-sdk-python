@@ -1,6 +1,6 @@
 # PolicyUpdateRequest
 
-Body for patching a Policy. Any field set lands a new revision carrying the updated values; unset fields inherit from the current head revision. `expected_revision_id` enables optimistic concurrency — a stale value loses the partial-unique-head race and surfaces as `409 revision_conflict`, giving the caller the opportunity to re-fetch the current head and rebase the edit. 
+Body for patching a Policy. Every revision carries a full `selector` + `rules` pair, so both are REQUIRED — the aggregate does not support a partial revision that inherits the head's selector or rules, and a body missing either surfaces as `400 empty_patch`. `display_name` is the only optional field. selector and rules are NOT marked `required` in this schema on purpose: the plain server needs to distinguish an ABSENT field (inherit nothing, reject as empty) from a zero-value one, which a required non-nullable field would erase — so the both-present invariant is enforced by the handler, which answers `400 empty_patch` when either is missing. Optimistic concurrency is ALWAYS enforced: the handler and the append-and-advance CAS predicate gate on the head revision, so two concurrent PATCHes deterministically produce one winner and one `409 revision_conflict`. `expected_revision_id` is the editor's \"I observed this head\" hint; omitting it does not disable the CAS — the server falls back to its own freshly observed head. 
 
 ## Properties
 
@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **display_name** | **str** |  | [optional] 
 **selector** | [**PolicySelector**](PolicySelector.md) |  | [optional] 
 **rules** | [**List[PolicyRule]**](PolicyRule.md) |  | [optional] 
-**expected_revision_id** | **UUID** | Revision identifier the client believes is current. When present, the PATCH only succeeds if the persisted head still matches; otherwise the call surfaces as &#x60;409 revision_conflict&#x60;.  | [optional] 
+**expected_revision_id** | **UUID** | Revision identifier the client believes is current. When present the handler also rejects a stale value up front; with or without it the append-and-advance CAS still forces a losing concurrent writer onto &#x60;409 revision_conflict&#x60;.  | [optional] 
 
 ## Example
 

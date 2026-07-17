@@ -1,6 +1,6 @@
 # LabelDefinition
 
-Response shape echoing a persisted Label Definition aggregate . 
+Response shape echoing a persisted Label Definition aggregate. 
 
 ## Properties
 
@@ -12,10 +12,10 @@ Name | Type | Description | Notes
 **local_key** | **str** | Unqualified key token (for example &#x60;env&#x60;, &#x60;cost-center&#x60;).  | 
 **qualified_key** | **str** | Fully namespaced key (for example &#x60;platform/env&#x60;, &#x60;acme:checkout/owner&#x60;). Unique across the platform.  | 
 **value_schema** | [**LabelValueSchema**](LabelValueSchema.md) |  | 
-**applicable_kinds** | **List[str]** | Lowercase object-kind whitelist (resource, node, project, domain, workload, network, …). Assignments whose &#x60;object.kind&#x60; is not in this set are rejected with &#x60;scope-mismatch&#x60;.  | 
-**on_delete** | **str** | Policy applied when the Definition is deleted while Assignments still exist.  | 
+**applicable_kinds** | **List[str]** | Lowercase object-kind whitelist (resource, node, project, domain, workload, network, …). Assignments whose &#x60;object.kind&#x60; is not in this set are rejected with &#x60;scope_mismatch&#x60;.  | 
+**on_delete** | **str** | Policy applied when the Definition is deleted while Assignments still exist. &#x60;block&#x60; refuses the delete (409 &#x60;assignments_exist&#x60;); &#x60;cascade&#x60; deletes every referencing Assignment in the same transaction; &#x60;orphan&#x60; detaches the Assignments (their &#x60;definition_id&#x60; becomes null) so they stay readable per object but drop from Definition-scoped reads, then deletes the Definition.  | 
 **cardinality** | **int** | Declared per-object cardinality cap for Assignments of this Definition. &#x60;1&#x60; means at most one Assignment per object; &#x60;0&#x60; means unlimited (bounded only by the global 64-per-object ceiling).  | [default to 1]
-**immutable** | **bool** | When &#x60;true&#x60;, the value schema is frozen and Assignments of this Definition may not have their value replaced .  | 
+**immutable** | **bool** | When &#x60;true&#x60;, the value schema is frozen and Assignments of this Definition may not have their value replaced.  | 
 **cloud_tag_propagation** | **bool** | When &#x60;true&#x60;, matching cloud tags are synchronised onto cloud resources by the Provisioning Broker.  | 
 **description** | **str** | Optional human description (at most 512 chars). | [optional] 
 **created_by** | **str** | Provenance of the aggregate. &#x60;system&#x60; is reserved for seed Definitions owned by the platform itself.  | 

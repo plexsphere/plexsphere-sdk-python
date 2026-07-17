@@ -6,7 +6,7 @@ Body for `POST /v1/projects`. Field set mirrors the Project aggregate's `NewProj
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**domain_id** | **UUID** | Parent Domain identifier (UUIDv7). The handler authorises &#x60;manage&#x60; on &#x60;domain:&lt;id&gt;&#x60; BEFORE invoking the service .  | 
+**domain_id** | **UUID** | Parent Domain identifier (UUIDv7). The handler authorises &#x60;manage&#x60; on &#x60;domain:&lt;id&gt;&#x60; BEFORE invoking the service.  | 
 **name** | **str** | Human-readable Project name. Whitespace-only is rejected. | 
 **slug** | **str** | Kebab-case URL handle. The aggregate&#39;s &#x60;ParseSlug&#x60; enforces the same regex; surfacing the pattern here lets the generated client validate before the round-trip.  | 
 **description** | **str** | Optional free-form description. Whitespace-only strings are rejected by the aggregate (the operator most likely fat-fingered the field instead of meaning to clear it).  | [optional] 

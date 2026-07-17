@@ -7,7 +7,7 @@ Full replacement of the per-Resource relay configuration. The relay is a singlet
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **enabled** | **bool** | Whether the relay is active. A disabled relay keeps its configuration but programs no listener on the Node.  | 
-**listen_port** | **int** | UDP port the relay listens on. Outside &#x60;1..65535&#x60; the write is rejected with &#x60;400 relay_port_out_of_range&#x60;.  | 
+**listen_port** | **int** | UDP port the relay listens on. Outside &#x60;1..65535&#x60; the write is rejected with &#x60;400 port_out_of_range&#x60;.  | 
 
 ## Example
 

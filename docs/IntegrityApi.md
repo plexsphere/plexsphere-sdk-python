@@ -30,6 +30,8 @@ A blank or whitespace-only `reason` is rejected with
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -44,6 +46,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -77,7 +94,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -113,12 +130,14 @@ the subset the caller is authorised to see.
 The pagination cursor is HMAC-signed and bound to the
 per-(caller, pepper) pseudonym; a cross-caller replay surfaces
 as `403 cursor_binding_mismatch`, and a tampered or malformed
-cursor surfaces as `400 invalid_cursor`. `limit` is clamped to
-`[1, 200]` rather than rejected.
+cursor surfaces as `400 invalid_cursor`. An out-of-range
+`limit` is rejected with `400`.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -134,6 +153,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -144,8 +178,8 @@ with plexsphere.ApiClient(configuration) as api_client:
     node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional Node filter. When present, only violations reported by the named Node are returned.  (optional)
     kind = plexsphere.IntegrityViolationKind() # IntegrityViolationKind | Optional violation-kind filter. Composes with the other filters.  (optional)
     status = plexsphere.IntegrityViolationStatus() # IntegrityViolationStatus | Optional lifecycle-status filter. Composes with the other filters.  (optional)
-    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List integrity violations across Domains.
@@ -168,8 +202,8 @@ Name | Type | Description  | Notes
  **node_id** | **UUID**| Optional Node filter. When present, only violations reported by the named Node are returned.  | [optional] 
  **kind** | [**IntegrityViolationKind**](.md)| Optional violation-kind filter. Composes with the other filters.  | [optional] 
  **status** | [**IntegrityViolationStatus**](.md)| Optional lifecycle-status filter. Composes with the other filters.  | [optional] 
- **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  | [optional] [default to 50]
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -177,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

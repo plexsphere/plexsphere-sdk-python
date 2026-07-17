@@ -7,11 +7,12 @@ Method | HTTP request | Description
 [**create_domain**](TenancyApi.md#create_domain) | **POST** /v1/domains | Create a tenancy Domain.
 [**create_invitation**](TenancyApi.md#create_invitation) | **POST** /v1/domains/{id}/invitations | Stage a pending Invitation on a Domain.
 [**create_project**](TenancyApi.md#create_project) | **POST** /v1/projects | Create a tenancy Project.
+[**create_service_identity**](TenancyApi.md#create_service_identity) | **POST** /v1/domains/{id}/service-identities | Create a service identity on a Domain.
 [**delete_domain**](TenancyApi.md#delete_domain) | **DELETE** /v1/domains/{id} | Delete a Domain.
 [**delete_project**](TenancyApi.md#delete_project) | **DELETE** /v1/projects/{id} | Delete a Project.
 [**get_domain**](TenancyApi.md#get_domain) | **GET** /v1/domains/{id} | Fetch a Domain by identifier.
-[**get_identity**](TenancyApi.md#get_identity) | **GET** /v1/domains/{id}/identities/{principalId} | Fetch a single Domain principal by identifier.
-[**get_invitation**](TenancyApi.md#get_invitation) | **GET** /v1/domains/{id}/invitations/{invitationId} | Fetch a single Invitation by identifier.
+[**get_identity**](TenancyApi.md#get_identity) | **GET** /v1/domains/{id}/identities/{principal_id} | Fetch a single Domain principal by identifier.
+[**get_invitation**](TenancyApi.md#get_invitation) | **GET** /v1/domains/{id}/invitations/{invitation_id} | Fetch a single Invitation by identifier.
 [**get_project**](TenancyApi.md#get_project) | **GET** /v1/projects/{id} | Fetch a Project by identifier.
 [**list_domains**](TenancyApi.md#list_domains) | **GET** /v1/domains | List tenancy Domains.
 [**list_identities**](TenancyApi.md#list_identities) | **GET** /v1/domains/{id}/identities | List principals (users + service identities) on a Domain.
@@ -19,7 +20,7 @@ Method | HTTP request | Description
 [**list_projects**](TenancyApi.md#list_projects) | **GET** /v1/projects | List tenancy Projects.
 [**patch_domain**](TenancyApi.md#patch_domain) | **PATCH** /v1/domains/{id} | Patch mutable fields on a Domain.
 [**patch_project**](TenancyApi.md#patch_project) | **PATCH** /v1/projects/{id} | Patch mutable fields on a Project.
-[**revoke_invitation**](TenancyApi.md#revoke_invitation) | **DELETE** /v1/domains/{id}/invitations/{invitationId} | Revoke a pending Invitation.
+[**revoke_invitation**](TenancyApi.md#revoke_invitation) | **DELETE** /v1/domains/{id}/invitations/{invitation_id} | Revoke a pending Invitation.
 
 
 # **create_domain**
@@ -38,12 +39,13 @@ mesh_cidr non-overlap is policed by the SQL GIST exclusion on
 `409 domain_slug_conflict`.
 
 On success the handler emits a `domain.create` audit row and
-appends a `DomainCreated` outbox event in the same transaction
-.
+appends a `DomainCreated` outbox event in the same transaction.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -58,6 +60,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -89,7 +106,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -100,7 +117,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Domain created. |  -  |
+**201** | Domain created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Aggregate invariant rejected the body — empty Name, malformed Slug, malformed &#x60;mesh_cidr&#x60;, partial &#x60;reachability&#x60; policy, or otherwise. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_domain&#x60;, &#x60;invalid_reachability_policy&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create Domains. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60;.  |  -  |
@@ -142,6 +159,8 @@ the same transaction.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -156,6 +175,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -189,7 +223,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -200,12 +234,12 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Invitation staged. |  -  |
+**201** | Invitation staged. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Aggregate or handler invariant rejected the body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_body&#x60;, &#x60;invalid_ttl&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;manage&#x60; ReBAC relation on the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Domain not found. Surfaced only after the authorisation gate has passed.  |  -  |
-**409** | A pending invitation already exists for the &#x60;(domain_id, external_subject)&#x60; pair. Body is a &#x60;Problem&#x60; with &#x60;code: invitation_already_pending&#x60;; the existing invitation&#39;s id is carried in the Problem detail so the operator can revoke-and-reissue without listing the table .  |  -  |
+**409** | A pending invitation already exists for the &#x60;(domain_id, external_subject)&#x60; pair. Body is a &#x60;Problem&#x60; with &#x60;code: invitation_already_pending&#x60;; the existing invitation&#39;s id is carried in the Problem detail so the operator can revoke-and-reissue without listing the table.  |  -  |
 **413** | Request body exceeded the 8 KiB tenancy ceiling enforced by the handler.  |  -  |
 **422** | Body parsed but a structural invariant rejected it. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;too_many_initial_tuples&#x60;, &#x60;invitation_object_out_of_scope&#x60;, &#x60;invalid_caveat_context&#x60; }.  |  -  |
 **500** | Internal server error. |  -  |
@@ -228,12 +262,13 @@ parent Domain is policed by the SQL GIST exclusion on
 as `409 project_slug_conflict`.
 
 On success the handler emits a `project.create` audit row and
-appends a `ProjectCreated` outbox event in the same transaction
-.
+appends a `ProjectCreated` outbox event in the same transaction.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -248,6 +283,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -279,7 +329,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -290,13 +340,129 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Project created. |  -  |
+**201** | Project created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Aggregate invariant rejected the body — empty Name, malformed Slug, malformed &#x60;sub_range_cidr&#x60;, etc. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_project&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create Projects under the parent Domain. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60;.  |  -  |
 **409** | Conflict — the proposed Project collides with a persisted Project in the same Domain. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;project_slug_conflict&#x60;, &#x60;sub_range_overlap&#x60;, &#x60;parent_domain_missing&#x60; }.  |  -  |
 **413** | Request body exceeded the 8 KiB tenancy ceiling enforced by the handler.  |  -  |
 **500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_service_identity**
+> IdentitySummary create_service_identity(id, service_identity_create_request)
+
+Create a service identity on a Domain.
+
+Provisions a new machine principal — an identity of kind
+`service-identity` — on the addressed Domain. The handler runs the
+`manage` ReBAC check on `domain:<id>` BEFORE the persistence write,
+so an unauthorised caller never produces a
+`ServiceIdentityProvisioned` outbox row. On success the service
+identity and its registration event are written in one transaction;
+the authz projection turns that event into the
+`serviceaccount:<id>#parent@domain:<id>` ReBAC edge that makes the
+new row visible on `GET /v1/domains/{id}/identities`.
+
+Human users are NOT created through this endpoint — they arrive by
+accepting an Invitation staged via `POST /v1/domains/{id}/invitations`;
+acceptance itself completes during the OIDC sign-in callback, not
+through a dedicated API operation. This collection provisions
+service identities only.
+
+The `201` body is the same `IdentitySummary` projection the listing
+surface returns, with `kind: service-identity` and the per-Domain
+`external_subject_pseudonym` populated, so the client renders the
+new row without a follow-up read. The plaintext `subject` is never
+echoed back.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.identity_summary import IdentitySummary
+from plexsphere.models.service_identity_create_request import ServiceIdentityCreateRequest
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.TenancyApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
+    service_identity_create_request = plexsphere.ServiceIdentityCreateRequest() # ServiceIdentityCreateRequest | 
+
+    try:
+        # Create a service identity on a Domain.
+        api_response = api_instance.create_service_identity(id, service_identity_create_request)
+        print("The response of TenancyApi->create_service_identity:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling TenancyApi->create_service_identity: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
+ **service_identity_create_request** | [**ServiceIdentityCreateRequest**](ServiceIdentityCreateRequest.md)|  | 
+
+### Return type
+
+[**IdentitySummary**](IdentitySummary.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | The service identity was created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**400** | Invalid request body — a missing or whitespace-only &#x60;display_name&#x60;, &#x60;subject&#x60;, or &#x60;audience&#x60;, or a &#x60;federation_kind&#x60; outside the closed set {oidc_cc, spiffe_svid, api_token} (&#x60;code: invalid_service_identity&#x60;).  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller lacks the &#x60;manage&#x60; ReBAC relation on the addressed Domain (body is a &#x60;PermissionDenied&#x60; problem).  |  -  |
+**409** | A service identity with the same &#x60;subject&#x60; already exists in this Domain (&#x60;code: service_identity_already_exists&#x60;). The (Domain, subject) pair is unique.  |  -  |
+**413** | Request body exceeded the size cap. |  -  |
+**503** | The authorization backend was unreachable, so the &#x60;manage&#x60; gate could not be evaluated. The condition is transient; retry with backoff.  |  -  |
+**500** | Internal server error. Body is a &#x60;Problem&#x60; with &#x60;code: internal&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -318,6 +484,8 @@ same `409` so the caller never observes a half-deleted Domain.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -330,6 +498,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -359,7 +542,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -371,6 +554,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | Domain deleted. |  -  |
+**400** | The path &#x60;{id}&#x60; is not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_domain_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to delete the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Domain not found. Body is a &#x60;Problem&#x60; with &#x60;code: domain_not_found&#x60;.  |  -  |
@@ -398,6 +582,8 @@ Project.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -410,12 +596,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
 
     try:
         # Delete a Project.
@@ -431,7 +632,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface and on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
 
 ### Return type
 
@@ -439,7 +640,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -474,6 +675,8 @@ leak. A missing aggregate surfaces as `404 domain_not_found`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -487,6 +690,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -518,7 +736,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -530,6 +748,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Domain found. |  -  |
+**400** | The path &#x60;{id}&#x60; is not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_domain_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to read the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Domain not found. Body is a &#x60;Problem&#x60; with &#x60;code: domain_not_found&#x60;.  |  -  |
@@ -542,7 +761,7 @@ No authorization required
 
 Fetch a single Domain principal by identifier.
 
-Returns the principal identified by `{principalId}` inside the
+Returns the principal identified by `{principal_id}` inside the
 Domain identified by `{id}`. The handler
 runs the `read` ReBAC check on `domain:<id>` BEFORE the
 persistence read; an unauthorised caller therefore receives
@@ -559,12 +778,13 @@ on the addressed Domain (`domain:<id>#auditor`). A
 fields elided so a client cannot escalate by reading the wire
 bytes.
 
-Every served byte is paired with an `identity.read` audit row
-.
+Every served byte is paired with an `identity.read` audit row.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -578,13 +798,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
-    principal_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Principal identifier (UUIDv7). Bound on `/v1/domains/{id}/identities/{principalId}` for the per-Domain identity-read surface. 
+    principal_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Principal identifier (UUIDv7). Bound on `/v1/domains/{id}/identities/{principal_id}` for the per-Domain identity-read surface. 
 
     try:
         # Fetch a single Domain principal by identifier.
@@ -603,7 +838,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
- **principal_id** | **UUID**| Principal identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/identities/{principalId}&#x60; for the per-Domain identity-read surface.  | 
+ **principal_id** | **UUID**| Principal identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/identities/{principal_id}&#x60; for the per-Domain identity-read surface.  | 
 
 ### Return type
 
@@ -611,7 +846,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -623,10 +858,10 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Principal found. |  -  |
-**400** | Path &#x60;{principalId}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_principal_id&#x60;.  |  -  |
+**400** | Path &#x60;{principal_id}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_principal_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;read&#x60; ReBAC relation on the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
-**404** | Principal does not exist or belongs to a different Domain. Body is a &#x60;Problem&#x60; with &#x60;code: identity_not_found&#x60; .  |  -  |
+**404** | Principal does not exist or belongs to a different Domain. Body is a &#x60;Problem&#x60; with &#x60;code: identity_not_found&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -636,7 +871,7 @@ No authorization required
 
 Fetch a single Invitation by identifier.
 
-Returns the Invitation identified by `{invitationId}` inside
+Returns the Invitation identified by `{invitation_id}` inside
 the Domain identified by `{id}`. The
 handler runs the `read` ReBAC check on `domain:<id>` BEFORE
 the persistence read; an unauthorised caller receives `403`
@@ -652,6 +887,8 @@ row.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -665,13 +902,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
-    invitation_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Invitation identifier (UUIDv7). Bound on `/v1/domains/{id}/invitations/{invitationId}` for the per- Domain invitation read / revoke surface. 
+    invitation_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Invitation identifier (UUIDv7). Bound on `/v1/domains/{id}/invitations/{invitation_id}` for the per- Domain invitation read / revoke surface. 
 
     try:
         # Fetch a single Invitation by identifier.
@@ -690,7 +942,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
- **invitation_id** | **UUID**| Invitation identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/invitations/{invitationId}&#x60; for the per- Domain invitation read / revoke surface.  | 
+ **invitation_id** | **UUID**| Invitation identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/invitations/{invitation_id}&#x60; for the per- Domain invitation read / revoke surface.  | 
 
 ### Return type
 
@@ -698,7 +950,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -710,7 +962,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Invitation found. |  -  |
-**400** | Path &#x60;{invitationId}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_invitation_id&#x60;.  |  -  |
+**400** | Path &#x60;{invitation_id}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_invitation_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;read&#x60; ReBAC relation on the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Invitation does not exist or belongs to a different Domain. Body is a &#x60;Problem&#x60; with &#x60;code: invitation_not_found&#x60;.  |  -  |
@@ -732,6 +984,8 @@ leak. A missing aggregate surfaces as `404 project_not_found`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -745,12 +999,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
 
     try:
         # Fetch a Project by identifier.
@@ -768,7 +1037,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface and on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
 
 ### Return type
 
@@ -776,7 +1045,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -816,6 +1085,8 @@ envelope or unknown version byte stays on `400 invalid_cursor`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -829,13 +1100,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List tenancy Domains.
@@ -854,7 +1140,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -862,7 +1148,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -897,8 +1183,7 @@ to page across both kinds in the same Domain.
 
 The summary projection NEVER carries plaintext
 `external_subject` or `email`. Auditor-only fields are reachable
-only via `GET /v1/domains/{id}/identities/{principalId}`
-.
+only via `GET /v1/domains/{id}/identities/{principal_id}`.
 
 The pagination cursor is HMAC-signed and bound to the
 per-(caller, pepper) pseudonym, so a cursor minted by one
@@ -912,6 +1197,8 @@ On every served page the handler emits one
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -926,14 +1213,29 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
-    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400 invalid_cursor` .  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
     kind = plexsphere.IdentityKind() # IdentityKind | Optional principal-kind filter. Values outside the closed set surface as `400 invalid_kind`.  (optional)
 
     try:
@@ -953,8 +1255,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
- **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400 invalid_cursor&#x60; .  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
  **kind** | [**IdentityKind**](.md)| Optional principal-kind filter. Values outside the closed set surface as &#x60;400 invalid_kind&#x60;.  | [optional] 
 
 ### Return type
@@ -963,7 +1265,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -989,8 +1291,8 @@ No authorization required
 List Invitations on a Domain.
 
 Returns a cursor-paginated page of Invitations attached to the
-Domain identified by `{id}`, optionally filtered by status
-. The handler runs the `read` ReBAC check on
+Domain identified by `{id}`, optionally filtered by status.
+The handler runs the `read` ReBAC check on
 `domain:<id>` BEFORE the persistence read so an unauthorised
 caller receives `403` without the existence side-channel a
 "load-then-check" flow would leak. The optional `status` query
@@ -1010,6 +1312,8 @@ page.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1023,15 +1327,30 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
-    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400 invalid_cursor` .  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
-    status = 'status_example' # str | Optional status filter. Values outside the closed set surface as `400 invalid_status`. Defaults to `all` .  (optional)
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+    status = 'status_example' # str | Optional status filter. Values outside the closed set surface as `400 invalid_status`. Defaults to `all`.  (optional)
 
     try:
         # List Invitations on a Domain.
@@ -1050,9 +1369,9 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
- **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400 invalid_cursor&#x60; .  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
- **status** | **str**| Optional status filter. Values outside the closed set surface as &#x60;400 invalid_status&#x60;. Defaults to &#x60;all&#x60; .  | [optional] 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+ **status** | **str**| Optional status filter. Values outside the closed set surface as &#x60;400 invalid_status&#x60;. Defaults to &#x60;all&#x60;.  | [optional] 
 
 ### Return type
 
@@ -1060,7 +1379,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1072,7 +1391,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Page of Invitations. |  -  |
-**400** | Invalid query parameter — &#x60;code&#x60; ∈ { &#x60;invalid_cursor&#x60;, &#x60;invalid_limit&#x60;, &#x60;invalid_status&#x60; } .  |  -  |
+**400** | Invalid query parameter — &#x60;code&#x60; ∈ { &#x60;invalid_cursor&#x60;, &#x60;invalid_limit&#x60;, &#x60;invalid_status&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;read&#x60; ReBAC relation on the addressed Domain (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
 **404** | Domain not found. Surfaced only after the authorisation gate has passed.  |  -  |
@@ -1101,6 +1420,8 @@ envelope or unknown version byte stays on `400 invalid_cursor`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1114,13 +1435,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
     domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional filter scoping the page to a single parent Domain. Omit to page across every Domain the caller is authorised to see.  (optional)
 
     try:
@@ -1140,7 +1476,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
  **domain_id** | **UUID**| Optional filter scoping the page to a single parent Domain. Omit to page across every Domain the caller is authorised to see.  | [optional] 
 
 ### Return type
@@ -1149,7 +1485,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1197,6 +1533,8 @@ orphan an existing `project_mesh_ip_reservations.sub_range`
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1211,6 +1549,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1244,7 +1597,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1260,8 +1613,8 @@ No authorization required
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Domain not found. Body is a &#x60;Problem&#x60; with &#x60;code: domain_not_found&#x60;.  |  -  |
-**409** | mesh_cidr retarget collides with another Domain&#39;s mesh pool. Body is a &#x60;Problem&#x60; with &#x60;code: mesh_cidr_overlap&#x60; .  |  -  |
-**413** | Request body exceeded the 8 KiB tenancy ceiling .  |  -  |
+**409** | mesh_cidr retarget collides with another Domain&#39;s mesh pool. Body is a &#x60;Problem&#x60; with &#x60;code: mesh_cidr_overlap&#x60;.  |  -  |
+**413** | Request body exceeded the 8 KiB tenancy ceiling.  |  -  |
 **422** | Mesh CIDR retarget would orphan an existing project sub-range. Body is a &#x60;Problem&#x60; with &#x60;code: mesh_cidr_invalidates_subrange&#x60; carrying the offending &#x60;project_id&#x60; in &#x60;detail&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
@@ -1292,6 +1645,8 @@ would overlap a sibling Project's reservation surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1306,12 +1661,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface and on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
     project_patch_request = {"description":"Acme Web — Q3 reorg.","sub_range_cidr":"10.42.8.0/22"} # ProjectPatchRequest | 
 
     try:
@@ -1330,7 +1700,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface and on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
  **project_patch_request** | [**ProjectPatchRequest**](ProjectPatchRequest.md)|  | 
 
 ### Return type
@@ -1339,7 +1709,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1356,8 +1726,8 @@ No authorization required
 **403** | Caller is not authorized to manage the addressed Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Project not found. Body is a &#x60;Problem&#x60; with &#x60;code: project_not_found&#x60;.  |  -  |
 **409** | sub_range_cidr retarget collides with another Project&#39;s reservation in the same Domain. Body is a &#x60;Problem&#x60; with &#x60;code: sub_range_overlap&#x60;.  |  -  |
-**413** | Request body exceeded the 8 KiB tenancy ceiling .  |  -  |
-**422** | sub_range_cidr retarget would invalidate an existing allocation inside the parent Domain. Body is a &#x60;Problem&#x60; with &#x60;code: sub_range_invalidates_allocation&#x60; carrying the offending &#x60;project_id&#x60; and &#x60;sub_range&#x60; in &#x60;detail&#x60; .  |  -  |
+**413** | Request body exceeded the 8 KiB tenancy ceiling.  |  -  |
+**422** | sub_range_cidr retarget would invalidate an existing allocation inside the parent Domain. Body is a &#x60;Problem&#x60; with &#x60;code: sub_range_invalidates_allocation&#x60; carrying the offending &#x60;project_id&#x60; and &#x60;sub_range&#x60; in &#x60;detail&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1367,7 +1737,7 @@ No authorization required
 
 Revoke a pending Invitation.
 
-Revokes the Invitation identified by `{invitationId}` inside
+Revokes the Invitation identified by `{invitation_id}` inside
 the Domain identified by `{id}`. The
 handler authorises the call against the parent Domain's
 `manage` ReBAC relation BEFORE invoking the service so an
@@ -1385,12 +1755,13 @@ status walk surfaces as:
 A second revoke on a row that is already revoked is treated
 as a no-op (`204`). A successful revoke emits an
 `invitation.revoke` audit row and appends an
-`InvitationRevoked` outbox event in the same transaction
-.
+`InvitationRevoked` outbox event in the same transaction.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1403,13 +1774,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.TenancyApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain identifier (UUIDv7). Bound on `/v1/domains/{id}` for the tenancy CRUD surface. 
-    invitation_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Invitation identifier (UUIDv7). Bound on `/v1/domains/{id}/invitations/{invitationId}` for the per- Domain invitation read / revoke surface. 
+    invitation_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Invitation identifier (UUIDv7). Bound on `/v1/domains/{id}/invitations/{invitation_id}` for the per- Domain invitation read / revoke surface. 
 
     try:
         # Revoke a pending Invitation.
@@ -1426,7 +1812,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Domain identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}&#x60; for the tenancy CRUD surface.  | 
- **invitation_id** | **UUID**| Invitation identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/invitations/{invitationId}&#x60; for the per- Domain invitation read / revoke surface.  | 
+ **invitation_id** | **UUID**| Invitation identifier (UUIDv7). Bound on &#x60;/v1/domains/{id}/invitations/{invitation_id}&#x60; for the per- Domain invitation read / revoke surface.  | 
 
 ### Return type
 
@@ -1434,7 +1820,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1446,7 +1832,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | Invitation revoked (or was already revoked). |  -  |
-**400** | Path &#x60;{invitationId}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_invitation_id&#x60;.  |  -  |
+**400** | Path &#x60;{invitation_id}&#x60; was not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_invitation_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;manage&#x60; ReBAC relation on the addressed Domain. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Invitation does not exist or belongs to a different Domain. Body is a &#x60;Problem&#x60; with &#x60;code: invitation_not_found&#x60;.  |  -  |

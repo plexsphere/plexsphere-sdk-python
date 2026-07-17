@@ -1,6 +1,6 @@
 # ValueSchemaKind
 
-Discriminator for the five supported Label value-schema kinds . 
+Discriminator for the five supported Label value-schema kinds. 
 
 ## Enum
 

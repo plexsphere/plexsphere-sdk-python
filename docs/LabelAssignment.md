@@ -1,12 +1,12 @@
 # LabelAssignment
 
-Response shape echoing a persisted Label Assignment aggregate . 
+Response shape echoing a persisted Label Assignment aggregate. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**definition_id** | **UUID** | Parent Label Definition identifier (UUIDv7). | 
+**definition_id** | **UUID** | Parent Label Definition identifier (UUIDv7). Absent for an orphaned Assignment whose parent Definition was deleted under the &#x60;on_delete&#x3D;orphan&#x60; policy — the denormalised &#x60;qualified_key&#x60; still records what the label is.  | [optional] 
 **qualified_key** | **str** | Fully-qualified Label key (denormalised). | 
 **object_kind** | **str** | Lowercase object-kind discriminator. | 
 **object_id** | **UUID** | Object identifier (UUIDv7). | 

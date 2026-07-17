@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **client_now** | **datetime** | Client wall-clock timestamp at the moment the heartbeat was assembled. The handler rejects the request with 400 &#x60;clock_skew&#x60; if the value drifts more than 60 seconds from server now.  | 
 **binary_checksum** | **bytes** | SHA-256 digest of the running plexd binary. The wire form is the 32-byte raw digest encoded as either lowercase hex (64 characters) or base64 with standard padding (44 characters); the handler decodes both forms and rejects anything else with 400 &#x60;binary_checksum_empty&#x60;.  | 
 **binary_version** | **str** | Human-readable plexd version string (e.g. &#x60;plexd-v0.4.2-ge5f3a1c&#x60;). Non-empty per the application- boundary invariants — the handler rejects an empty value with 400 &#x60;binary_version_empty&#x60;.  | 
-**nat_summary** | **Dict[str, object]** | Free-form NAT discovery summary produced by plexd. Empty object is permitted — later stories define the schema once the per-Domain bridge orchestrator lands .  | 
+**nat_summary** | **Dict[str, object]** | Free-form NAT discovery summary produced by plexd. Empty object is permitted — later stories define the schema once the per-Domain bridge orchestrator lands.  | 
 
 ## Example
 

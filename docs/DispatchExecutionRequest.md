@@ -1,6 +1,6 @@
 # DispatchExecutionRequest
 
-Body for `POST /v1/projects/{project_id}/executions:dispatch`. It names the action to dispatch, the parameters to pass, and the target set. The target is EXACTLY ONE of a single `node_id` or an opaque label `selector` — supplying both, or neither, is rejected. 
+Body for `POST /v1/projects/{project_id}/executions/dispatch`. It names the action to dispatch, the parameters to pass, and the target set. The target is EXACTLY ONE of a single `node_id` or an opaque label `selector` — supplying both, or neither, is rejected. 
 
 ## Properties
 

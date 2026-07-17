@@ -4,10 +4,10 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**dispatch_execution**](ActionsApi.md#dispatch_execution) | **POST** /v1/projects/{project_id}/executions:dispatch | Dispatch an action to a single Node or a label-selected cohort.
+[**dispatch_execution**](ActionsApi.md#dispatch_execution) | **POST** /v1/projects/{project_id}/executions/dispatch | Dispatch an action to a single Node or a label-selected cohort.
 [**get_execution**](ActionsApi.md#get_execution) | **GET** /v1/projects/{project_id}/executions/{execution_id} | Inspect a single action Execution.
 [**list_executions**](ActionsApi.md#list_executions) | **GET** /v1/projects/{project_id}/executions | List action Executions for a Project.
-[**post_node_execution_callback**](ActionsApi.md#post_node_execution_callback) | **POST** /v1/nodes/{id}/executions/{exec_id} | Report an action-execution status advance from a Node.
+[**post_node_execution_callback**](ActionsApi.md#post_node_execution_callback) | **POST** /v1/nodes/{id}/executions/{execution_id} | Report an action-execution status advance from a Node.
 
 
 # **dispatch_execution**
@@ -23,7 +23,7 @@ Project BEFORE any persistence write, resolves the target cohort
 `selector`), gates the dispatch on capability availability and
 hook integrity, then mints one Execution that fans out to one
 per-Node invocation. Each invocation carries a unique callback
-URL under `/v1/nodes/{id}/executions/{exec_id}` the Node reports
+URL under `/v1/nodes/{id}/executions/{execution_id}` the Node reports
 progress back to.
 
 The request body supplies the `action` name, the action `type`
@@ -35,6 +35,8 @@ or neither, is rejected.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -49,6 +51,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -82,7 +99,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -93,7 +110,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Execution dispatched. Body is the metadata-only Execution projection with one target per resolved Node.  |  -  |
+**201** | Execution dispatched. Body is the metadata-only Execution projection with one target per resolved Node.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Invalid request — typically a malformed body, a malformed label selector (&#x60;code: malformed_selector&#x60;), an action the target has not declared (&#x60;code: action_not_declared&#x60;), or a target specification that is not exactly one of &#x60;node_id&#x60; or &#x60;selector&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to dispatch actions in the owning Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -119,6 +136,8 @@ persistence read.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -132,6 +151,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -165,7 +199,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -205,6 +239,8 @@ a tampered cursor surfaces as `400` on the next call.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -219,6 +255,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -228,7 +279,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     status = plexsphere.ExecutionStatus() # ExecutionStatus | Optional aggregate-status filter. When present, only Executions whose aggregate status equals the named value are returned.  (optional)
     action_name = 'action_name_example' # str | Optional action-name filter. When present, only Executions for the named action are returned.  (optional)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List action Executions for a Project.
@@ -250,7 +301,7 @@ Name | Type | Description  | Notes
  **status** | [**ExecutionStatus**](.md)| Optional aggregate-status filter. When present, only Executions whose aggregate status equals the named value are returned.  | [optional] 
  **action_name** | **str**| Optional action-name filter. When present, only Executions for the named action are returned.  | [optional] 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -258,7 +309,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -280,7 +331,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **post_node_execution_callback**
-> ExecutionCallbackResponse post_node_execution_callback(id, exec_id, authorization, execution_callback_request)
+> ExecutionCallbackResponse post_node_execution_callback(id, execution_id, execution_callback_request)
 
 Report an action-execution status advance from a Node.
 
@@ -295,11 +346,15 @@ state machine. The handler:
      path `id`, refusing cross-Node use with 403
      `nsk_node_mismatch` so a leaked NSK cannot be replayed
      against a sibling Node's invocation.
-  3. Drives the invocation addressed by `{exec_id}` to the
+  3. Drives the invocation addressed by `{execution_id}` to the
      reported `status` through a server-side compare-and-set
-     against the closed state machine
-     (`ack → started → (succeeded | failed | cancelled |
-     timeout)`). An illegal advance returns 409
+     against the closed state machine. A Node reports
+     `ack → started → (succeeded | failed | cancelled)` — the
+     `cancelled` terminal is a Node-side cancellation of its own
+     invocation (there is no operator cancel endpoint). `timeout`
+     is NOT reportable here: it is set server-side by the
+     background reconciler when a Node never reports a terminal
+     result. An illegal advance returns 409
      `invalid_state_transition`; a re-post onto an already-settled
      invocation returns 409 `execution_already_terminal`.
   4. Collects the reported output. A bounded inline `output`
@@ -320,6 +375,7 @@ the deferred-wiring state.
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 
 ```python
 import plexsphere
@@ -334,19 +390,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ActionsApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) — the callback scope.
-    exec_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Execution identifier (UUIDv7) the callback settles.
-    authorization = 'authorization_example' # str | `Bearer <NSK plaintext>` — the per-Node Node Secret Key issued at registration time. The NSK is bound to the Node addressed by the path `id`; a credential belonging to a different Node surfaces as 403 `nsk_node_mismatch`. 
+    execution_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Execution identifier (UUIDv7) the callback settles.
     execution_callback_request = {"status":"succeeded","exit_code":0,"output":{"inline":"aGVsbG8gd29ybGQ="}} # ExecutionCallbackRequest | 
 
     try:
         # Report an action-execution status advance from a Node.
-        api_response = api_instance.post_node_execution_callback(id, exec_id, authorization, execution_callback_request)
+        api_response = api_instance.post_node_execution_callback(id, execution_id, execution_callback_request)
         print("The response of ActionsApi->post_node_execution_callback:\n")
         pprint(api_response)
     except Exception as e:
@@ -361,8 +425,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Node identifier (UUIDv7) — the callback scope. | 
- **exec_id** | **UUID**| Execution identifier (UUIDv7) the callback settles. | 
- **authorization** | **str**| &#x60;Bearer &lt;NSK plaintext&gt;&#x60; — the per-Node Node Secret Key issued at registration time. The NSK is bound to the Node addressed by the path &#x60;id&#x60;; a credential belonging to a different Node surfaces as 403 &#x60;nsk_node_mismatch&#x60;.  | 
+ **execution_id** | **UUID**| Execution identifier (UUIDv7) the callback settles. | 
  **execution_callback_request** | [**ExecutionCallbackRequest**](ExecutionCallbackRequest.md)|  | 
 
 ### Return type
@@ -371,7 +434,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[nskBearer](../README.md#nskBearer)
 
 ### HTTP request headers
 
@@ -384,7 +447,7 @@ No authorization required
 |-------------|-------------|------------------|
 **200** | Callback accepted. The invocation has been advanced and the response carries the new status. On the first over-ceiling callback it also carries the presigned object-store PUT URL the Node uploads the full output to.  |  -  |
 **400** | Callback body failed structural validation — an invalid JSON envelope or a &#x60;status&#x60; that is not a member of the closed status set.  |  -  |
-**401** | NSK in the &#x60;Authorization: Bearer&#x60; header is missing, malformed, or has been revoked. The Problem body&#39;s &#x60;code&#x60; field is &#x60;nsk_revoked&#x60; so log scrapers can distinguish credential revocation from generic auth failures.  |  -  |
+**401** | The NSK credential in the &#x60;Authorization: Bearer&#x60; header was rejected. The Problem body&#39;s &#x60;code&#x60; field disambiguates the cause: &#x60;unauthorized&#x60; when the header is missing or malformed, &#x60;nsk_invalid&#x60; when the presented NSK cannot be resolved, and &#x60;nsk_revoked&#x60; when it resolves to a revoked NSK.  |  -  |
 **403** | The NSK in the &#x60;Authorization: Bearer&#x60; header authenticates successfully but belongs to a different Node than the path &#x60;id&#x60;. The PermissionDenied body&#39;s &#x60;code&#x60; field is &#x60;nsk_node_mismatch&#x60; so a leaked NSK cannot be replayed against a sibling Node&#39;s invocation.  |  -  |
 **404** | No invocation resolves for the addressed &#x60;(id, exec_id)&#x60; pair. Body is a &#x60;Problem&#x60; with &#x60;code: execution_not_found&#x60;.  |  -  |
 **409** | The reported status advance is not legal. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_state_transition&#x60; (the advance is not a legal edge of the state machine), &#x60;execution_already_terminal&#x60; (the invocation has already settled into a terminal status) }.  |  -  |

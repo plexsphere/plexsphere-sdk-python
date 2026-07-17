@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Blueprint identifier (UUIDv7). | 
 **slug** | **str** | Kebab-case URL handle, unique across the catalogue. | 
-**domain_id** | **UUID** | Owning Domain when the Blueprint is scoped to a single Domain. &#x60;null&#x60; when the entry is catalogue-wide.  | [optional] 
+**domain_id** | **UUID** | Owning Domain when the Blueprint is scoped to a single Domain. Absent when the entry is catalogue-wide.  | [optional] 
 **display_name** | **str** | Human-readable Blueprint name. | 
 **description** | **str** | Optional free-form Blueprint description. Empty when the catalogue entry declares none.  | [optional] 
 **status** | **str** | Lifecycle status. &#x60;active&#x60; entries are offerable; &#x60;retired&#x60; entries remain readable but are no longer offered for new Resources.  | 

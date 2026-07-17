@@ -15,8 +15,8 @@ Name | Type | Description | Notes
 **accepted_at** | **datetime** | Timestamp the invitation transitioned to &#x60;accepted&#x60;. Populated only when &#x60;status &#x3D;&#x3D; accepted&#x60;.  | [optional] 
 **accepted_user_id** | **UUID** | Identifier of the User aggregate the OIDC sign-in callback resolved when accepting the invitation. Populated only when &#x60;status &#x3D;&#x3D; accepted&#x60;.  | [optional] 
 **revoked_at** | **datetime** | Timestamp the invitation transitioned to &#x60;revoked&#x60;. Populated only when &#x60;status &#x3D;&#x3D; revoked&#x60;.  | [optional] 
-**expired_at** | **datetime** | Timestamp the expiry sweeper flipped the row to &#x60;expired&#x60;. Populated only when &#x60;status &#x3D;&#x3D; expired&#x60; .  | [optional] 
-**initial_tuples** | [**List[InvitationInitialTuple]**](InvitationInitialTuple.md) | Bounded list of relation tuples staged on the invitation. Returned verbatim from the persistence layer so the operator can preview which tuples will land on Accept .  | [optional] 
+**expired_at** | **datetime** | Timestamp the expiry sweeper flipped the row to &#x60;expired&#x60;. Populated only when &#x60;status &#x3D;&#x3D; expired&#x60;.  | [optional] 
+**initial_tuples** | [**List[InvitationInitialTuple]**](InvitationInitialTuple.md) | Bounded list of relation tuples staged on the invitation. Returned verbatim from the persistence layer so the operator can preview which tuples will land on Accept.  | [optional] 
 
 ## Example
 

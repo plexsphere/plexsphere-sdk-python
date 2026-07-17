@@ -1,6 +1,6 @@
 # DomainChildCounts
 
-Per-aggregate count of children still attached to a Domain at the moment a `DeleteDomain` call ran. Returned in the Problem detail of a `409 domain_not_empty` response so the operator knows exactly which sub-aggregate is blocking the delete . 
+Per-aggregate count of children still attached to a Domain at the moment a `DeleteDomain` call ran. Returned in the Problem detail of a `409 domain_not_empty` response so the operator knows exactly which sub-aggregate is blocking the delete. 
 
 ## Properties
 

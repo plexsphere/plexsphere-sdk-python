@@ -7,7 +7,7 @@ Response echo of a persisted IdPBinding aggregate. The `client_secret_ref` field
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Binding identifier (UUIDv7). | 
-**domain_id** | **UUID** | Owning Domain, or null for a platform-scoped (shared) binding usable by any Domain.  | [optional] 
+**domain_id** | **UUID** | Owning Domain; absent for a platform-scoped (shared) binding usable by any Domain.  | [optional] 
 **issuer** | **str** | OIDC issuer URL. | 
 **client_id** | **str** | OIDC client identifier. | 
 **client_secret_ref** | **str** | Opaque reference to the client secret. | 

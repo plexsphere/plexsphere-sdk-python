@@ -1,6 +1,6 @@
 # ManagedPushAttachRequest
 
-Body for `PUT /v1/domains/{domainId}/managed-push`. Attaches or replaces the Domain's managed-push target. The kubeconfig plaintext carried here is base64-encoded, sealed at rest, and is NEVER echoed back over the API — the read projection exposes only a hex fingerprint of the plaintext. 
+Body for `PUT /v1/domains/{domain_id}/managed-push`. Attaches or replaces the Domain's managed-push target. The kubeconfig plaintext carried here is base64-encoded, sealed at rest, and is NEVER echoed back over the API — the read projection exposes only a hex fingerprint of the plaintext. 
 
 ## Properties
 

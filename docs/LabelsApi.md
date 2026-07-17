@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**list_object_labels**](LabelsApi.md#list_object_labels) | **GET** /v1/objects/{kind}/{id}/labels | List Label Assignments attached to an object.
 [**preview_label_selector**](LabelsApi.md#preview_label_selector) | **POST** /v1/labels/selectors/preview | Parse a label selector and return its AST or errors inline.
 [**put_object_label**](LabelsApi.md#put_object_label) | **PUT** /v1/objects/{kind}/{id}/labels | Upsert a Label Assignment on an object.
+[**search_objects_by_label**](LabelsApi.md#search_objects_by_label) | **POST** /v1/objects/search | Search objects by Label selector, filtered to the caller&#39;s access.
 [**update_label_definition**](LabelsApi.md#update_label_definition) | **PATCH** /v1/label-definitions/{id} | Update mutable fields on a Label Definition.
 
 
@@ -28,6 +29,8 @@ outcome.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -42,6 +45,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -73,7 +91,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -84,7 +102,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Label Definition created. |  -  |
+**201** | Label Definition created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Invalid body or scope mismatch. |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create Label Definitions in the requested scope. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60;.  |  -  |
@@ -101,12 +119,19 @@ Delete a Label Definition.
 
 Deletes the Label Definition identified by `{id}` subject to its
 `on_delete` policy (block / cascade / orphan). A `block` policy
-with outstanding Assignments returns 409 `assignments-exist`
-.
+with outstanding Assignments returns 409 `assignments_exist`. A
+`cascade` policy deletes every referencing Assignment in the same
+transaction. An `orphan` policy detaches the Assignments — they
+stay readable per object via
+`GET /v1/objects/{kind}/{id}/labels` without a `definition_id`,
+but drop out of every Definition-scoped read — then deletes the
+Definition. All three policies return 204 on success.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -119,6 +144,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -148,7 +188,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -181,6 +221,8 @@ Assignment was physically removed.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -193,6 +235,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -226,7 +283,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -251,8 +308,7 @@ No authorization required
 
 Fetch a Label Definition by identifier.
 
-Returns the Label Definition identified by `{id}`
-.
+Returns the Label Definition identified by `{id}`.
 
 The handler deliberately omits a ReBAC `Check` call. Visibility
 is enforced at the repo layer: Definitions the caller cannot
@@ -262,6 +318,8 @@ this endpoint never emits 403.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -275,6 +333,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -306,7 +379,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -325,22 +398,23 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_label_definitions**
-> LabelDefinitionListResponse list_label_definitions(scope, cursor=cursor, limit=limit)
+> LabelDefinitionList list_label_definitions(scope, cursor=cursor, limit=limit)
 
 List Label Definitions in a scope.
 
 Returns Label Definitions in deterministic order with cursor
 pagination. The scope discriminator names the scope the listing
-targets — platform, a specific Domain, or a specific Project
-.
+targets — platform, a specific Domain, or a specific Project.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
-from plexsphere.models.label_definition_list_response import LabelDefinitionListResponse
+from plexsphere.models.label_definition_list import LabelDefinitionList
 from plexsphere.rest import ApiException
 from pprint import pprint
 
@@ -350,14 +424,29 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.LabelsApi(api_client)
-    scope = 'scope_example' # str | Scope selector. Accepts the literal `platform`, or `domain:<uuid>`, or `project:<uuid>`. DECISION: scope is a single string rather than a pair of query params because the three forms are mutually exclusive and the SpiceDB scope-object derivation treats them as a single coordinate . 
-    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page .  (optional) (default to 50)
+    scope = 'scope_example' # str | Scope selector. Accepts the literal `platform`, or `domain:<uuid>`, or `project:<uuid>`. DECISION: scope is a single string rather than a pair of query params because the three forms are mutually exclusive and the SpiceDB scope-object derivation treats them as a single coordinate. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List Label Definitions in a scope.
@@ -375,17 +464,17 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **scope** | **str**| Scope selector. Accepts the literal &#x60;platform&#x60;, or &#x60;domain:&lt;uuid&gt;&#x60;, or &#x60;project:&lt;uuid&gt;&#x60;. DECISION: scope is a single string rather than a pair of query params because the three forms are mutually exclusive and the SpiceDB scope-object derivation treats them as a single coordinate .  | 
- **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page .  | [optional] [default to 50]
+ **scope** | **str**| Scope selector. Accepts the literal &#x60;platform&#x60;, or &#x60;domain:&lt;uuid&gt;&#x60;, or &#x60;project:&lt;uuid&gt;&#x60;. DECISION: scope is a single string rather than a pair of query params because the three forms are mutually exclusive and the SpiceDB scope-object derivation treats them as a single coordinate.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
-[**LabelDefinitionListResponse**](LabelDefinitionListResponse.md)
+[**LabelDefinitionList**](LabelDefinitionList.md)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -399,7 +488,7 @@ No authorization required
 **200** | Page of Label Definitions. |  -  |
 **400** | Invalid query parameters. |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to read Definitions in this scope. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60; (e.g. &#x60;insufficient_relation&#x60;), the traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; .  |  -  |
+**403** | Caller is not authorized to read Definitions in this scope. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60; (e.g. &#x60;insufficient_relation&#x60;), the traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -411,12 +500,15 @@ List Label Assignments attached to an object.
 
 Returns every Label Assignment attached to the object
 identified by `(kind, id)`. Orphaned Assignments (parent
-Definition deleted with `on_delete=orphan`) are excluded
-.
+Definition deleted with `on_delete=orphan`) are INCLUDED, each
+without a `definition_id`; they are excluded only from the
+selector and effective-set reads.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -430,6 +522,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -463,7 +570,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -496,6 +603,8 @@ distinguishing HTTP status codes.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -510,6 +619,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -541,7 +665,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -568,12 +692,13 @@ Upsert a Label Assignment on an object.
 Upserts the Label Assignment linking the object to the supplied
 Definition with the supplied value. The services layer performs
 a dual ReBAC check — `assign` on the Definition AND `maintainer`
-on the target object — and emits a single audit entry
-.
+on the target object — and emits a single audit entry.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -588,6 +713,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -623,7 +763,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -645,6 +785,125 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **search_objects_by_label**
+> ObjectSearchResponse search_objects_by_label(object_search_request)
+
+Search objects by Label selector, filtered to the caller's access.
+
+Resolves a Label `selector` to the objects that carry the
+matching Labels within `scope`, then filters each match by a
+ReBAC `relation` check for the authenticated principal — the
+direct answer to "which objects carry Label X=Y that I can
+access?". It is the browser/API counterpart of `plexctl label
+object search` and combines the Label axis (the selector) with
+the access axis (the relation) that previously required a manual
+`lookup-resources | jq` intersection.
+
+Scope is mandatory: `scope` names the tenancy universe
+(`platform`, `domain`, or `project`) and `scope_id` carries the
+Domain/Project UUID (omitted for `platform`). The result is
+mixed-kind unless narrowed by the optional `kind` filter.
+
+DECISION: pagination is filter-after-page. `limit` bounds the
+PRE-filter page read from the selector index; the ReBAC filter
+then drops matches the caller cannot access, so a returned page
+may hold FEWER than `limit` items even when `next_cursor` is
+present. Callers paginate until `next_cursor` is absent rather
+than until a short page. Over-fetch-to-fill is intentionally not
+implemented.
+
+DECISION: per-object denials are silent — a match the caller
+cannot reach via `relation` is omitted from `items`, never
+surfaced as a 403. This mirrors `/v1/authz/lookup-resources`:
+the enumeration is data, and an empty `items` is a normal
+answer. There is no endpoint-level relation gate; the per-match
+check IS the gate, so the search cannot enumerate objects the
+caller has no access to.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.object_search_request import ObjectSearchRequest
+from plexsphere.models.object_search_response import ObjectSearchResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.LabelsApi(api_client)
+    object_search_request = {"selector":"env=production","relation":"read","scope":"domain","scope_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0a1","kind":"project"} # ObjectSearchRequest | 
+
+    try:
+        # Search objects by Label selector, filtered to the caller's access.
+        api_response = api_instance.search_objects_by_label(object_search_request)
+        print("The response of LabelsApi->search_objects_by_label:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling LabelsApi->search_objects_by_label: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **object_search_request** | [**ObjectSearchRequest**](ObjectSearchRequest.md)|  | 
+
+### Return type
+
+[**ObjectSearchResponse**](ObjectSearchResponse.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Materialised page of object references the selector matched AND the caller can reach via &#x60;relation&#x60;. An empty &#x60;items&#x60; array is a normal answer.  |  -  |
+**400** | Body could not be decoded, the selector failed to parse, or the (scope, scope_id) pair is invalid. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_body&#x60;, &#x60;selector_syntax&#x60;, &#x60;scope_mismatch&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**413** | Request body exceeded the 64 KiB ceiling enforced by the handler.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **update_label_definition**
 > LabelDefinition update_label_definition(id, label_definition_update_request)
 
@@ -652,11 +911,13 @@ Update mutable fields on a Label Definition.
 
 Updates the Label Definition identified by `{id}`. Immutable
 Definitions reject value-schema changes with 409
-`immutable-violation`.
+`immutable_violation`.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -671,6 +932,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -704,7 +980,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -720,7 +996,7 @@ No authorization required
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the Definition&#39;s scope. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Label Definition not found. |  -  |
-**409** | Immutable Definition rejected a value-schema change .  |  -  |
+**409** | Immutable Definition rejected a value-schema change.  |  -  |
 **422** | Aggregate invariant violated. |  -  |
 **500** | Internal server error. |  -  |
 

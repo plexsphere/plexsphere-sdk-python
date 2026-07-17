@@ -1,6 +1,6 @@
 # APITokenIssueRequest
 
-Body for POST /v1/auth/tokens. `env_prefix` is the environment segment embedded in the psk-shaped plaintext; the aggregate accepts any lowercase ASCII letter run but the public API is restricted to the three plexsphere-supported environments . 
+Body for POST /v1/auth/tokens. `env_prefix` is the environment segment embedded in the psk-shaped plaintext; the aggregate accepts any lowercase ASCII letter run but the public API is restricted to the three plexsphere-supported environments. 
 
 ## Properties
 

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **subject** | **str** | Object reference of the subject side. | 
 **relation** | **str** | Relation name (e.g. &#x60;maintainer&#x60;, &#x60;read&#x60;). | 
 **resource** | **str** | Object reference of the resource side. | 
-**caveat_context** | **Dict[str, object]** | Optional set of caveat field NAMES the tuple binds. NAMES only — values never cross the contract boundary.  | [optional] 
+**caveat_context** | **Dict[str, object]** | Optional CEL caveat evaluation context — a map from caveat field NAME to VALUE — bound to the tuple and evaluated by SpiceDB at every Check. Values DO cross this boundary; only the audit row this mutation emits is names-only.  | [optional] 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 
 ## Example

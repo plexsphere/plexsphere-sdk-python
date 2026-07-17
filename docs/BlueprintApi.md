@@ -30,6 +30,8 @@ flow would leak. A missing Blueprint surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -43,12 +45,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.BlueprintApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the Blueprint Catalog read surface and on `/v1/blueprints/{id}/versions` for the version-publishing authorship surface. 
 
     try:
         # Fetch a Blueprint by identifier.
@@ -66,7 +83,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Blueprint identifier (UUIDv7). Bound on &#x60;/v1/blueprints/{id}&#x60; for the read-only Blueprint Catalog surface.  | 
+ **id** | **UUID**| Blueprint identifier (UUIDv7). Bound on &#x60;/v1/blueprints/{id}&#x60; for the Blueprint Catalog read surface and on &#x60;/v1/blueprints/{id}/versions&#x60; for the version-publishing authorship surface.  | 
 
 ### Return type
 
@@ -74,7 +91,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -120,6 +137,8 @@ envelope or unknown version byte stays on `400 invalid_cursor`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -133,13 +152,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.BlueprintApi(api_client)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List the Blueprint Catalog.
@@ -158,7 +192,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -166,7 +200,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -214,6 +248,8 @@ a re-published `(blueprint, version)` pair surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -228,12 +264,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.BlueprintApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the read-only Blueprint Catalog surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Blueprint identifier (UUIDv7). Bound on `/v1/blueprints/{id}` for the Blueprint Catalog read surface and on `/v1/blueprints/{id}/versions` for the version-publishing authorship surface. 
     blueprint_version_create_request = {"version":"1.0.0","provider_kinds":["aws"],"injection_strategy":"helm-values","xrd":{"kind":"CompositeResourceDefinition"},"composition":{"kind":"Composition"},"parameter_schema":{"parameters":[{"name":"storage_gb","type":"integer","required":true}]}} # BlueprintVersionCreateRequest | 
 
     try:
@@ -252,7 +303,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Blueprint identifier (UUIDv7). Bound on &#x60;/v1/blueprints/{id}&#x60; for the read-only Blueprint Catalog surface.  | 
+ **id** | **UUID**| Blueprint identifier (UUIDv7). Bound on &#x60;/v1/blueprints/{id}&#x60; for the Blueprint Catalog read surface and on &#x60;/v1/blueprints/{id}/versions&#x60; for the version-publishing authorship surface.  | 
  **blueprint_version_create_request** | [**BlueprintVersionCreateRequest**](BlueprintVersionCreateRequest.md)|  | 
 
 ### Return type
@@ -261,7 +312,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -272,7 +323,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Version published. |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**201** | Version published. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | The request was rejected before any write — a malformed &#x60;version&#x60;, an unknown &#x60;provider_kind&#x60;, an invalid &#x60;injection_strategy&#x60;, a structurally invalid &#x60;parameter_schema&#x60;, an invalid XRD/Composition manifest pair, an invalid path &#x60;{id}&#x60;, or an undecodable body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_kind&#x60;, &#x60;invalid_injection_strategy&#x60;, &#x60;invalid_parameter_schema&#x60;, &#x60;invalid_manifest&#x60;, &#x60;invalid_blueprint&#x60;, &#x60;invalid_blueprint_id&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to publish versions of the addressed Blueprint. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -310,6 +361,8 @@ consistent (see the `blueprint` tag description).
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -324,6 +377,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -355,7 +423,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -366,7 +434,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Blueprint registered. |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**201** | Blueprint registered. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Aggregate rejected the body — malformed &#x60;slug&#x60;, empty &#x60;display_name&#x60;, or an undecodable request body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_blueprint&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to register Blueprints. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

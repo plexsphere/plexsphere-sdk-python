@@ -1,6 +1,6 @@
 # ProjectChildCounts
 
-Per-aggregate count of children still attached to a Project at the moment a `DeleteProject` call ran. Returned in the Problem detail of a `409 project_not_empty` response so the operator knows exactly which sub-aggregate is blocking the delete . 
+Per-aggregate count of children still attached to a Project at the moment a `DeleteProject` call ran. Returned in the Problem detail of a `409 project_not_empty` response so the operator knows exactly which sub-aggregate is blocking the delete. 
 
 ## Properties
 

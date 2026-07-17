@@ -4,9 +4,9 @@ Closed-set discriminator naming the upstream cloud provider for a Cloud aggregat
 
 ## Enum
 
-* `AWS` (value: `'aws'`)
+* `CloudProviderAws` (value: `'aws'`)
 
-* `AZURE` (value: `'azure'`)
+* `CloudProviderAzure` (value: `'azure'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
