@@ -4,7 +4,7 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_domain_capacity**](CapacityApi.md#get_domain_capacity) | **GET** /v1/domains/{domainId}/capacity | Return the capacity-and-scale snapshot for a Domain.
+[**get_domain_capacity**](CapacityApi.md#get_domain_capacity) | **GET** /v1/domains/{domain_id}/capacity | Return the capacity-and-scale snapshot for a Domain.
 
 
 # **get_domain_capacity**
@@ -39,6 +39,8 @@ on the deferred-wiring state.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -52,12 +54,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CapacityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
 
     try:
         # Return the capacity-and-scale snapshot for a Domain.
@@ -75,7 +92,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
 
 ### Return type
 
@@ -83,7 +100,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -95,7 +112,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Capacity snapshot for the addressed Domain.  |  -  |
-**400** | The path &#x60;{domainId}&#x60; was not a non-zero UUID. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60;.  |  -  |
+**400** | The path &#x60;{domain_id}&#x60; was not a non-zero UUID. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain. Surfaced before the snapshot read so the endpoint cannot be used as a Domain-id oracle.  |  -  |
 **500** | Internal server error: a snapshot-read fault or an authorization-check fault surfaces here.  |  -  |

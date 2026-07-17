@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **sni_host** | **str** | TLS SNI host the rule terminates. | 
 **target_node_id** | **UUID** | Node the rule forwards to. | 
 **target_port** | **int** | TCP port on the target Node. | 
-**acme_account_ref** | **str** | Opaque reference to the ACME account used to issue the rule&#39;s certificate. &#x60;null&#x60; when the operator supplies certificates out of band.  | [optional] 
+**acme_account_ref** | **str** | Opaque reference to the ACME account used to issue the rule&#39;s certificate. Absent when the operator supplies certificates out of band.  | [optional] 
 **created_at** | **datetime** | Rule creation timestamp (UTC). | 
 **updated_at** | **datetime** | Last-modified timestamp (UTC). | 
 

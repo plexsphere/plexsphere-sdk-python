@@ -7,9 +7,9 @@ Outcome of a verify run. DIVERGENCE IS NOT AN ERROR — a tampered chain surface
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ok** | **bool** | &#x60;true&#x60; when every row in the inspected segment hashes correctly and chains to its predecessor; &#x60;false&#x60; when the verifier observed a divergence at &#x60;divergent_seq&#x60;.  | 
-**divergent_seq** | **int** | Seq of the first row whose recomputed hash did not match the stored value, or whose &#x60;prev_hash&#x60; did not match the previous row&#39;s &#x60;entry_hash&#x60;. &#x60;null&#x60; on a clean run.  | [optional] 
-**expected_hash** | **str** | Hash the verifier computed for &#x60;divergent_seq&#x60;, lowercase hex. &#x60;null&#x60; on a clean run.  | [optional] 
-**observed_hash** | **str** | Hash actually stored at &#x60;divergent_seq&#x60;, lowercase hex. &#x60;null&#x60; on a clean run.  | [optional] 
+**divergent_seq** | **int** | Seq of the first row whose recomputed hash did not match the stored value, or whose &#x60;prev_hash&#x60; did not match the previous row&#39;s &#x60;entry_hash&#x60;. Absent on a clean run.  | [optional] 
+**expected_hash** | **str** | Hash the verifier computed for &#x60;divergent_seq&#x60;, lowercase hex. Absent on a clean run.  | [optional] 
+**observed_hash** | **str** | Hash actually stored at &#x60;divergent_seq&#x60;, lowercase hex. Absent on a clean run.  | [optional] 
 **segment_from** | **int** | Inclusive lower bound the verifier actually walked. | 
 **segment_to** | **int** | Inclusive upper bound the verifier actually walked. | 
 

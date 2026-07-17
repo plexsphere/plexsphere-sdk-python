@@ -7,8 +7,8 @@ Body for POST /v1/admin/groups/{id}/members. The Membership's `source` MUST matc
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **principal_id** | **UUID** | Principal identifier (UUIDv7). | 
-**principal_kind** | **str** | Principal discriminator. The repo uses this to target the correct XOR column on &#x60;group_memberships&#x60; .  | 
-**source** | **str** | Provenance of the Membership. MUST equal the parent Group&#39;s &#x60;source&#x60;; a mismatch returns 409 source-conflict .  | 
+**principal_kind** | **str** | Principal discriminator. The repo uses this to target the correct XOR column on &#x60;group_memberships&#x60;.  | 
+**source** | **str** | Provenance of the Membership. MUST equal the parent Group&#39;s &#x60;source&#x60;; a mismatch returns 409 source-conflict.  | 
 
 ## Example
 

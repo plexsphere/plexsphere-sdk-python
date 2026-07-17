@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **status** | **str** | Lifecycle status of the push. &#x60;applied&#x60; is the initial state after the object lands on the cluster; &#x60;rolled_back&#x60; is the terminal state after a successful rollback.  | 
 **had_prior_state** | **bool** | Whether the apply replaced an existing object. When &#x60;true&#x60; a rollback restores the prior object; when &#x60;false&#x60; a rollback deletes the applied object.  | 
 **pushed_at** | **datetime** | Timestamp the object was applied. | 
-**rolled_back_at** | **datetime** | Timestamp the push was rolled back, or &#x60;null&#x60; when the push has not been rolled back.  | [optional] 
+**rolled_back_at** | **datetime** | Timestamp the push was rolled back; absent when the push has not been rolled back.  | [optional] 
 
 ## Example
 

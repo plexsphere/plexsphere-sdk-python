@@ -1,6 +1,6 @@
 # APITokenSummary
 
-Plaintext-free summary entry for GET /v1/auth/tokens. Matches the persisted APIToken aggregate minus any secret material . 
+Plaintext-free summary entry for GET /v1/auth/tokens. Matches the persisted APIToken aggregate minus any secret material. 
 
 ## Properties
 

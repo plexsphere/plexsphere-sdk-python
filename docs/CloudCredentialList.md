@@ -7,7 +7,7 @@ Page of Cloud Credentials returned by `GET /v1/clouds/{id}/cloud-credentials`. T
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **items** | [**List[CloudCredentialResponse]**](CloudCredentialResponse.md) | Cloud Credentials in the current page. | 
-**next_cursor** | **str** | Continuation token for the next page. &#x60;null&#x60; or omitted when the iteration has reached end-of-stream. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60; on the next call.  | [optional] 
+**next_cursor** | **str** | Continuation token for the next page. Absent when the iteration has reached end-of-stream. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60; on the next call.  | [optional] 
 
 ## Example
 

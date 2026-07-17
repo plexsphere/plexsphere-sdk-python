@@ -6,7 +6,7 @@ Site-to-site tunnels on a bridge Resource, returned by `ListBridgeSiteToSiteTunn
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**tunnels** | [**List[BridgeSiteToSiteTunnelResponse]**](BridgeSiteToSiteTunnelResponse.md) | Tunnels ordered by slug ascending. | 
+**items** | [**List[BridgeSiteToSiteTunnelResponse]**](BridgeSiteToSiteTunnelResponse.md) | Tunnels ordered by slug ascending. | 
 
 ## Example
 

@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**delete_auth_session**](AuthApi.md#delete_auth_session) | **DELETE** /v1/auth/whoami | Sign the current caller out.
 [**delete_auth_token_by_id**](AuthApi.md#delete_auth_token_by_id) | **DELETE** /v1/auth/tokens/{id} | Immediately revoke an API token.
 [**get_auth_callback**](AuthApi.md#get_auth_callback) | **GET** /v1/auth/callback | OIDC redirect callback — exchanges &#x60;code&#x60; for a session.
-[**get_auth_id_p_bindings**](AuthApi.md#get_auth_id_p_bindings) | **GET** /v1/auth/idp-bindings | List a Domain&#39;s effective IdP bindings for the sign-in chooser.
+[**get_auth_id_p_bindings**](AuthApi.md#get_auth_id_p_bindings) | **GET** /v1/auth/idp-bindings | List the IdP bindings available to the sign-in chooser.
 [**get_auth_tokens**](AuthApi.md#get_auth_tokens) | **GET** /v1/auth/tokens | List the caller&#39;s API tokens (no plaintext).
 [**get_auth_whoami**](AuthApi.md#get_auth_whoami) | **GET** /v1/auth/whoami | Describe the authenticated principal.
 [**post_auth_device_approve**](AuthApi.md#post_auth_device_approve) | **POST** /v1/auth/device/approve | Approve a pending RFC 8628 device-authorization session.
@@ -35,11 +35,13 @@ handler treats every caller as a successful 204 by design (the
 four behaviour scenarios are documented on
 `internal/transport/http/v1/auth/signout.go`), this operation
 advertises only the 204 response — no 401 or 500 path is
-reachable from the handler (-1 Q4).
+reachable from the handler.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -52,6 +54,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -77,7 +94,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -97,13 +114,15 @@ No authorization required
 
 Immediately revoke an API token.
 
-Revokes the token identified by `id` with no grace period
-. Subsequent authentications with the
+Revokes the token identified by `id` with no grace period.
+Subsequent authentications with the
 plaintext fail closed.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -116,6 +135,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -145,7 +179,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -176,8 +210,7 @@ cookie, and 303 See Other-redirects the browser to the application root
 (`/`). The endpoint is invoked exclusively via top-level
 browser navigation per RFC 6749 §4.1.2; clients that need a
 machine-readable session shape should call `GET
-/v1/auth/whoami` once the session cookie is set
-.
+/v1/auth/whoami` once the session cookie is set.
 
 Failure responses are content-negotiated via the `Accept`
 request header:
@@ -251,23 +284,30 @@ No authorization required
 |-------------|-------------|------------------|
 **303** | Session established; the response carries the &#x60;plexsphere_session&#x60; cookie and a &#x60;Location: /&#x60; redirect so the browser lands on the application root. The cookie is issued with &#x60;Path&#x3D;/v1/&#x60;, &#x60;HttpOnly&#x60;, and &#x60;SameSite&#x3D;Strict&#x60;; the &#x60;Secure&#x60; attribute is set when the request was served over TLS or when &#x60;X-Forwarded-Proto: https&#x60; was honoured via &#x60;PLEXSPHERE_AUTH_TRUST_PROXY_HEADERS&#x60;. The same status is also used for browser-leg failure redirects to &#x60;/?auth_error_kind&#x3D;...&amp;auth_error_status&#x3D;...&amp;auth_error_detail&#x3D;...&#x60;, in which case no &#x60;Set-Cookie&#x60; is emitted.  |  * Location - Absolute or root-relative URL the browser must follow. <br>  * Set-Cookie - Issues the &#x60;plexsphere_session&#x60; cookie (success path only). <br>  |
 **400** | state/nonce mismatch, expired verifier, or token exchange rejected by the IdP. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_kind&#x60; and &#x60;auth_error_status&#x3D;400&#x60; query parameters.  |  -  |
-**500** | Internal server error while completing the callback. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_status&#x3D;500&#x60; .  |  -  |
+**500** | Internal server error while completing the callback. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_status&#x3D;500&#x60;.  |  -  |
 **502** | Upstream IdP failure during discovery, token exchange, or id_token verification. Returned only on the JSON-leg; the browser-leg surfaces this as a 303 redirect carrying &#x60;auth_error_status&#x3D;502&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_auth_id_p_bindings**
-> List[DomainIdPBinding] get_auth_id_p_bindings(domain_id)
+> List[DomainIdPBinding] get_auth_id_p_bindings(domain_id=domain_id, scope=scope)
 
-List a Domain's effective IdP bindings for the sign-in chooser.
+List the IdP bindings available to the sign-in chooser.
 
 Unauthenticated, display-safe discovery surface the dashboard
-sign-in page calls once a Domain id is known (typed or supplied
-via a deep link) so it can render a provider chooser. Returns
-only the active bindings the Domain can sign in with — its own
-active bindings, falling back to the platform-scoped shared
-bindings when the Domain owns none — projected to non-secret
-fields and ordered primary-first.
+sign-in page calls so it can render a provider chooser. Callers
+supply either `domain_id` OR `scope=platform`.
+
+With `domain_id`, returns only the active bindings the Domain
+can sign in with — its own active bindings, falling back to the
+platform-scoped shared bindings when the Domain owns none —
+projected to non-secret fields and ordered primary-first.
+
+With `scope=platform` (and no `domain_id`), returns the active
+platform-scoped shared bindings a Platform Operator can start a
+Domain-independent sign-in against. The platform set is the
+same shared fall-back set any `domain_id` request may already
+receive, so listing it discloses nothing new.
 
 The endpoint is intentionally a pre-auth enumeration surface and
 does not behave as a Domain-existence oracle: a Domain that does
@@ -297,11 +337,12 @@ configuration = plexsphere.Configuration(
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.AuthApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain whose effective IdP bindings to list.
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Domain whose effective IdP bindings to list. Mutually exclusive with `scope=platform`; when both are supplied the scope takes precedence. Omitting both yields an empty list.  (optional)
+    scope = 'scope_example' # str | Set to `platform` to list the platform-scoped shared bindings for a Domain-independent platform-operator sign-in instead of a Domain's effective set.  (optional)
 
     try:
-        # List a Domain's effective IdP bindings for the sign-in chooser.
-        api_response = api_instance.get_auth_id_p_bindings(domain_id)
+        # List the IdP bindings available to the sign-in chooser.
+        api_response = api_instance.get_auth_id_p_bindings(domain_id=domain_id, scope=scope)
         print("The response of AuthApi->get_auth_id_p_bindings:\n")
         pprint(api_response)
     except Exception as e:
@@ -315,7 +356,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Domain whose effective IdP bindings to list. | 
+ **domain_id** | **UUID**| Domain whose effective IdP bindings to list. Mutually exclusive with &#x60;scope&#x3D;platform&#x60;; when both are supplied the scope takes precedence. Omitting both yields an empty list.  | [optional] 
+ **scope** | **str**| Set to &#x60;platform&#x60; to list the platform-scoped shared bindings for a Domain-independent platform-operator sign-in instead of a Domain&#39;s effective set.  | [optional] 
 
 ### Return type
 
@@ -346,12 +388,13 @@ No authorization required
 List the caller's API tokens (no plaintext).
 
 Returns the caller's API-token summaries. Plaintext is never
-included — it is only available at issuance time
-.
+included — it is only available at issuance time.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -365,6 +408,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -392,7 +450,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -421,6 +479,8 @@ Returns the resolved principal metadata for the current request
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -434,6 +494,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -461,7 +536,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -491,19 +566,21 @@ mints a token bound to that user.
 Authentication: requires the `plexsphere_session` cookie minted
 by the OIDC callback. The CSRF middleware additionally requires
 the `X-Plexsphere-CSRF` header to echo the `plexsphere_csrf`
-cookie value (issue #181).
+cookie value.
 
 Errors use the RFC 8628-adjacent taxonomy in `Problem.code`:
-`device-code-not-found` (404 — unknown user_code),
-`device-code-expired` (409 — session past `expires_at`),
-`device-code-already-approved` (409 — already approved by an
-earlier request), `csrf-token-mismatch` /
-`csrf-origin-mismatch` (403 — see /v1/auth/sign-in for the
-taxonomy).
+`device_code_not_found` (404 — unknown user_code),
+`device_code_expired` (409 — session past `expires_at`),
+`device_code_already_approved` (409 — already approved by an
+earlier request), `csrf_token_mismatch` /
+`csrf_origin_mismatch` (403 — see the CSRF defence-in-depth
+note in the API description for the taxonomy).
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -518,6 +595,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -549,7 +641,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -563,9 +655,9 @@ No authorization required
 **200** | Device session approved; the polling client now mints a token. |  -  |
 **400** | Invalid request body (missing or malformed user_code). |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | CSRF check failed — Problem.code carries the &#x60;csrf-token-mismatch&#x60; / &#x60;csrf-origin-mismatch&#x60; / &#x60;csrf-origin-not-configured&#x60; taxonomy.  |  -  |
-**404** | No device session matches the supplied &#x60;user_code&#x60; (Problem.code &#x3D; &#x60;device-code-not-found&#x60;).  |  -  |
-**409** | Session is already approved or expired (Problem.code &#x3D; &#x60;device-code-already-approved&#x60; / &#x60;device-code-expired&#x60;).  |  -  |
+**403** | CSRF check failed — Problem.code carries the &#x60;csrf_token_mismatch&#x60; / &#x60;csrf_origin_mismatch&#x60; / &#x60;csrf_origin_not_configured&#x60; taxonomy.  |  -  |
+**404** | No device session matches the supplied &#x60;user_code&#x60; (Problem.code &#x3D; &#x60;device_code_not_found&#x60;).  |  -  |
+**409** | Session is already approved or expired (Problem.code &#x3D; &#x60;device_code_already_approved&#x60; / &#x60;device_code_expired&#x60;).  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -579,6 +671,15 @@ Issues a `device_code` / `user_code` pair the CLI can present to
 the end user so they can authenticate in a browser on a second
 device (RFC 8628). The client then polls
 /v1/auth/device-token.
+
+A platform-shared binding named via `idp_binding_id` or
+`idp_binding_alias` with **no** `domain_id` starts a
+**platform-operator** device authorization: the approval mints a
+Domain-independent platform-scoped token, mirroring the browser
+sign-in contract. Because initiation is anonymous, the platform
+shapes require the explicit deployment opt-in
+`PLEXSPHERE_AUTH_PLATFORM_DEVICE_LOGIN=true`; without it this
+surface keeps the tenant-only contract and rejects them `400`.
 
 
 ### Example
@@ -640,7 +741,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Device-code issued. |  -  |
-**400** | Invalid request body (missing domain or binding). |  -  |
+**400** | Invalid request body — no Domain or binding selector, a per-Domain binding named without a &#x60;domain_id&#x60;, an ambiguous multi-binding Domain without a pin, or a platform-scoped initiation on a deployment without the platform device-login opt-in.  |  -  |
 **404** | No active IdP binding for the requested Domain. |  -  |
 **500** | Internal server error. |  -  |
 
@@ -915,6 +1016,8 @@ after the first response landed) and `reason=user-initiated`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -927,6 +1030,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -952,7 +1070,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -977,12 +1095,13 @@ Rotate an API token; old plaintext is retired with Sunset.
 
 Issues a replacement plaintext for the named token and marks the
 previous plaintext for retirement. A `Sunset` header names the
-RFC 8594 retirement deadline of the rotated-from token
-.
+RFC 8594 retirement deadline of the rotated-from token.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -996,6 +1115,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1027,7 +1161,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1058,6 +1192,8 @@ metadata.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1072,6 +1208,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1103,7 +1254,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

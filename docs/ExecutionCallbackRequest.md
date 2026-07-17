@@ -1,6 +1,6 @@
 # ExecutionCallbackRequest
 
-Body a Node POSTs to `POST /v1/nodes/{id}/executions/{exec_id}` to report a status advance for its invocation. The reported `status` drives the closed state machine; the optional `output` carries the action's collected output, either inline (≤ 16 KiB) or — for an over- ceiling body — the object-store coordinates of the uploaded object. 
+Body a Node POSTs to `POST /v1/nodes/{id}/executions/{execution_id}` to report a status advance for its invocation. The reported `status` drives the closed state machine; the optional `output` carries the action's collected output, either inline (≤ 16 KiB) or — for an over- ceiling body — the object-store coordinates of the uploaded object. 
 
 ## Properties
 

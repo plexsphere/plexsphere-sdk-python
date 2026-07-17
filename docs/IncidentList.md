@@ -6,7 +6,7 @@ Cursor-paginated page of incident headers. The headers omit the per-incident tim
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**items** | [**List[Incident]**](Incident.md) | The incident headers on this page. | 
+**items** | [**List[IncidentHeader]**](IncidentHeader.md) | The incident headers on this page. | 
 **next_cursor** | **str** | Opaque pagination cursor for the next page, or absent when the page is the last.  | [optional] 
 
 ## Example

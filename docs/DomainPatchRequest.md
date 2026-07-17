@@ -1,6 +1,6 @@
 # DomainPatchRequest
 
-Body for `PATCH /v1/domains/{id}`. All properties are optional — but the body MUST set at least one of `name`, `description`, `region`, `mesh_cidr`, or `reachability`. An empty body is rejected at the handler with `400 empty_patch`.  x-domain-slug-immutable: The `slug` is intentionally absent from this schema. The handler rejects any request body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`. See the `tenancy` tag description and the DECISION block on `tenancy.Domain` for the rationale. 
+Body for `PATCH /v1/domains/{id}`. All properties are optional — but the body MUST set at least one of `name`, `description`, `region`, `mesh_cidr`, or `reachability`. An empty body is rejected at the handler with `400 empty_patch`.  The immutable `slug` is intentionally absent from this schema; the handler rejects any body carrying a `slug` key (even with the same value) at decode time with `400 slug_immutable`. See the `tenancy` tag description and the DECISION on `tenancy.Domain` for the rationale. 
 
 ## Properties
 

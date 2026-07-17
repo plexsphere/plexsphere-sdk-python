@@ -1,6 +1,6 @@
 # LabelAssignmentList
 
-Array wrapper for the Label Assignments attached to an object . 
+Array wrapper for the Label Assignments attached to an object. 
 
 ## Properties
 

@@ -1,6 +1,6 @@
 # GroupMembershipResponse
 
-Response echo of a persisted Membership row . 
+Response echo of a persisted Membership row. 
 
 ## Properties
 

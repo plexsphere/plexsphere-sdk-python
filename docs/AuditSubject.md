@@ -1,13 +1,13 @@
 # AuditSubject
 
-Subject-side projection on an audit row. `pseudonym` is the per-Domain HMAC of the subject identity — the chain-input form, never plaintext. The `identity_id_ref` is a pointer to the live Identity row when one is still resolvable; it is `null` after the right-to- erasure workflow has purged the `audit_subject_pii` mapping for the subject. 
+Subject-side projection on an audit row. `pseudonym` is the per-Domain HMAC of the subject identity — the chain-input form, never plaintext. The `identity_id_ref` is a pointer to the live Identity row when one is still resolvable; it is absent after the right-to- erasure workflow has purged the `audit_subject_pii` mapping for the subject. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **pseudonym** | **str** | Per-Domain pseudonym of the subject (32 bytes, lowercase hex). Stable for the lifetime of the chain and never reversible to plaintext from the chain alone.  | 
-**identity_id_ref** | **UUID** | Live Identity id the pseudonym maps to, or &#x60;null&#x60; if the mapping has been erased. Cleared by &#x60;EraseIdentityFromAudit&#x60; .  | [optional] 
+**identity_id_ref** | **UUID** | Live Identity id the pseudonym maps to; absent if the mapping has been erased. Cleared by &#x60;EraseIdentityFromAudit&#x60;.  | [optional] 
 
 ## Example
 

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **relation** | **str** | New relation name. | 
 **resource** | **str** | New object reference of the resource side. | 
 **caveat_name** | **str** | Optional caveat program name to attach to the replacement tuple. When set, SpiceDB evaluates the caveat against the supplied &#x60;caveat_context&#x60; at every Check.  | [optional] 
-**caveat_context** | **Dict[str, object]** | Optional set of caveat field NAMES the new tuple binds. NAMES only — values never cross the contract boundary.  | [optional] 
+**caveat_context** | **Dict[str, object]** | Optional CEL caveat evaluation context — a map from caveat field NAME to VALUE — bound to the replacement tuple. Values DO cross this boundary; only the audit row is names-only.  | [optional] 
 
 ## Example
 

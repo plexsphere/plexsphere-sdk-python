@@ -1,12 +1,12 @@
 # NodeStateSnapshot
 
-Canonical reconciliation-pull envelope for a single Node . The four wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories (policy fan-out, bridge orchestrator, node-state reports) populate the currently-empty blocks without changing the wire shape. Empty `peers` is `[]` (never `null`); the other blocks may be `null` until their owning story lands. 
+Canonical reconciliation-pull envelope for a single Node. The wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories (policy fan-out, bridge orchestrator, node-state reports) populate the currently-empty blocks without changing the wire shape. Empty `peers` is `[]` (never `null`); the other blocks may be `null` until their owning story lands. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**peers** | [**List[NodeStatePeer]**](NodeStatePeer.md) | Peer set the addressed Node should program into its WireGuard table. One entry per other Node in the addressed Node&#39;s Domain — the addressed Node itself is excluded so plexd does not program a self-peer . Ordered by &#x60;node_id&#x60; ascending so two consecutive pulls against the same ledger snapshot are byte-equal.  | 
+**peers** | [**List[NodeStatePeer]**](NodeStatePeer.md) | Peer set the addressed Node should program into its WireGuard table. One entry per other Node in the addressed Node&#39;s Domain — the addressed Node itself is excluded so plexd does not program a self-peer. Ordered by &#x60;node_id&#x60; ascending so two consecutive pulls against the same ledger snapshot are byte-equal.  | 
 **reachability** | [**Reachability**](Reachability.md) | Latest &#x60;Reachability&#x60; projection for the addressed Node, carried inside the reconciliation-pull payload so plexd sees the same health view that &#x60;GET /v1/nodes/{id}/reachability&#x60; exposes without an additional round-trip.  | 
 **policy** | [**NodeStatePolicy**](NodeStatePolicy.md) | Policy block — present-but-empty placeholder populates the wire shape. May be &#x60;null&#x60; until then; the field itself is always present so plexd&#39;s reconcile loop can diff by field presence.  | 
 **bridge** | [**NodeStateBridge**](NodeStateBridge.md) | Bridge orchestrator block — present-but-empty placeholder  populates the wire shape. May be &#x60;null&#x60; until then; the field itself is always present.  | 

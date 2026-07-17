@@ -1,6 +1,6 @@
 # IdentityDetail
 
-Auditor-facing projection of a Domain principal returned by `GET /v1/domains/{id}/identities/{principalId}`. Extends `IdentitySummary` with optional `external_subject` and `email` plaintext fields. The plaintext fields are populated ONLY when the calling principal carries the `auditor` relation on the addressed Domain (`domain:<id>#auditor`); a `read`-only caller receives the same shape with the plaintext fields elided so a client cannot escalate by reading the wire bytes. 
+Auditor-facing projection of a Domain principal returned by `GET /v1/domains/{id}/identities/{principal_id}`. Extends `IdentitySummary` with optional `external_subject` and `email` plaintext fields. The plaintext fields are populated ONLY when the calling principal carries the `auditor` relation on the addressed Domain (`domain:<id>#auditor`); a `read`-only caller receives the same shape with the plaintext fields elided so a client cannot escalate by reading the wire bytes. 
 
 ## Properties
 

@@ -1,6 +1,6 @@
 # LabelAssignmentRequest
 
-Body for PUT /v1/objects/{kind}/{id}/labels. Identifies the Label Definition by id and supplies the value to upsert . 
+Body for PUT /v1/objects/{kind}/{id}/labels. Identifies the Label Definition by id and supplies the value to upsert. 
 
 ## Properties
 

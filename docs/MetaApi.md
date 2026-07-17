@@ -75,7 +75,6 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | ReDoc HTML shell. |  -  |
-**404** | Endpoint not found. |  -  |
 **500** | Internal server error rendering the docs shell. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -212,8 +211,8 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Current health snapshot. |  -  |
-**404** | Endpoint not found. |  -  |
+**200** | Current health snapshot — the rollup is &#x60;ok&#x60; or &#x60;degraded&#x60;.  |  -  |
+**503** | The process is unhealthy — the rollup is &#x60;down&#x60;. The body is the same health snapshot so operators see the failing checks; probes need only the status code.  |  -  |
 **500** | Internal server error while computing health. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -276,7 +275,6 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The OpenAPI document as JSON. |  -  |
-**404** | Endpoint not found. |  -  |
 **500** | Internal server error rendering the spec. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -340,7 +338,6 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Build metadata. |  -  |
-**404** | Endpoint not found. |  -  |
 **500** | Internal server error reading build metadata. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -7,7 +7,7 @@ Decision-side projection on an audit row. `result` is the rendered Reason; `cave
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **result** | [**AuditReason**](AuditReason.md) |  | 
-**caveat_context** | **Dict[str, List[str]]** | Map from caveat NAME to the array of caveat-parameter NAMES referenced by the check. Values are never present on the wire — is structural: the only string content here is identifiers. &#x60;internal/audit.Entry&#x60; and &#x60;internal/audit.AppendInput&#x60; enforce the same discipline structurally on the Go side.  | 
+**caveat_context** | **Dict[str, List[str]]** | Map from caveat NAME to the array of caveat-parameter NAMES referenced by the check. Values are never present on the wire — the constraint is structural: the only string content here is identifiers. &#x60;internal/audit.Entry&#x60; and &#x60;internal/audit.AppendInput&#x60; enforce the same discipline structurally on the Go side.  | 
 
 ## Example
 

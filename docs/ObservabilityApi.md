@@ -4,18 +4,18 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**append_incident_event**](ObservabilityApi.md#append_incident_event) | **POST** /v1/domains/{domainId}/incidents/{incidentId}/events | Append an event to an incident&#39;s timeline.
-[**create_alert_rule**](ObservabilityApi.md#create_alert_rule) | **POST** /v1/domains/{domainId}/alert-rules | Store a new alert rule for a Domain.
-[**delete_alert_rule**](ObservabilityApi.md#delete_alert_rule) | **DELETE** /v1/domains/{domainId}/alert-rules/{alertRuleId} | Delete a stored alert rule.
-[**get_alert_rule**](ObservabilityApi.md#get_alert_rule) | **GET** /v1/domains/{domainId}/alert-rules/{alertRuleId} | Read a single stored alert rule.
-[**get_incident**](ObservabilityApi.md#get_incident) | **GET** /v1/domains/{domainId}/incidents/{incidentId} | Read a single incident with its ordered timeline.
-[**list_alert_rules**](ObservabilityApi.md#list_alert_rules) | **GET** /v1/domains/{domainId}/alert-rules | List the stored alert rules for a Domain.
-[**list_incidents**](ObservabilityApi.md#list_incidents) | **GET** /v1/domains/{domainId}/incidents | List the incidents for a Domain.
-[**open_incident**](ObservabilityApi.md#open_incident) | **POST** /v1/domains/{domainId}/incidents | Open a new incident for a Domain.
-[**query_domain_logs**](ObservabilityApi.md#query_domain_logs) | **GET** /v1/domains/{domainId}/logs/query | Run a read-only LogQL logs query for a Domain.
-[**query_domain_metrics**](ObservabilityApi.md#query_domain_metrics) | **GET** /v1/domains/{domainId}/metrics/query | Run a read-only PromQL metrics query for a Domain.
-[**resolve_incident**](ObservabilityApi.md#resolve_incident) | **POST** /v1/domains/{domainId}/incidents/{incidentId}:resolve | Resolve an open incident.
-[**update_alert_rule**](ObservabilityApi.md#update_alert_rule) | **PATCH** /v1/domains/{domainId}/alert-rules/{alertRuleId} | Update mutable fields on a stored alert rule.
+[**append_incident_event**](ObservabilityApi.md#append_incident_event) | **POST** /v1/domains/{domain_id}/incidents/{incident_id}/events | Append an event to an incident&#39;s timeline.
+[**create_alert_rule**](ObservabilityApi.md#create_alert_rule) | **POST** /v1/domains/{domain_id}/alert-rules | Store a new alert rule for a Domain.
+[**delete_alert_rule**](ObservabilityApi.md#delete_alert_rule) | **DELETE** /v1/domains/{domain_id}/alert-rules/{alert_rule_id} | Delete a stored alert rule.
+[**get_alert_rule**](ObservabilityApi.md#get_alert_rule) | **GET** /v1/domains/{domain_id}/alert-rules/{alert_rule_id} | Read a single stored alert rule.
+[**get_incident**](ObservabilityApi.md#get_incident) | **GET** /v1/domains/{domain_id}/incidents/{incident_id} | Read a single incident with its ordered timeline.
+[**list_alert_rules**](ObservabilityApi.md#list_alert_rules) | **GET** /v1/domains/{domain_id}/alert-rules | List the stored alert rules for a Domain.
+[**list_incidents**](ObservabilityApi.md#list_incidents) | **GET** /v1/domains/{domain_id}/incidents | List the incidents for a Domain.
+[**open_incident**](ObservabilityApi.md#open_incident) | **POST** /v1/domains/{domain_id}/incidents | Open a new incident for a Domain.
+[**query_domain_logs**](ObservabilityApi.md#query_domain_logs) | **GET** /v1/domains/{domain_id}/logs/query | Run a read-only LogQL logs query for a Domain.
+[**query_domain_metrics**](ObservabilityApi.md#query_domain_metrics) | **GET** /v1/domains/{domain_id}/metrics/query | Run a read-only PromQL metrics query for a Domain.
+[**resolve_incident**](ObservabilityApi.md#resolve_incident) | **POST** /v1/domains/{domain_id}/incidents/{incident_id}/resolve | Resolve an open incident.
+[**update_alert_rule**](ObservabilityApi.md#update_alert_rule) | **PATCH** /v1/domains/{domain_id}/alert-rules/{alert_rule_id} | Update mutable fields on a stored alert rule.
 
 
 # **append_incident_event**
@@ -24,7 +24,7 @@ Method | HTTP request | Description
 Append an event to an incident's timeline.
 
 Appends one event to the append-only timeline of the incident
-addressed by `{incidentId}`. Events may only be appended while the
+addressed by `{incident_id}`. Events may only be appended while the
 incident is open; appending to a resolved incident is rejected with
 409. The handler checks the `domain-edit` ReBAC relation on the
 addressed Domain before the write, then persists the event and returns
@@ -33,6 +33,8 @@ the appended timeline event.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -47,13 +49,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domainId}/incidents/{incidentId}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/incidents/{incident_id}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
     timeline_event_append = {"kind":"note","message":"Paged the on-call operator; investigating the upstream dependency."} # TimelineEventAppend | 
 
     try:
@@ -72,8 +89,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/incidents/{incidentId}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
  **timeline_event_append** | [**TimelineEventAppend**](TimelineEventAppend.md)|  | 
 
 ### Return type
@@ -82,7 +99,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -119,6 +136,8 @@ within a Domain; a duplicate name is rejected with 409.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -133,12 +152,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
     alert_rule_create = {"name":"node-cpu-saturation","signal":"avg(rate(node_cpu_seconds_total[5m]))","comparator":"gt","threshold":0.9,"severity":"warning"} # AlertRuleCreate | 
 
     try:
@@ -157,7 +191,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
  **alert_rule_create** | [**AlertRuleCreate**](AlertRuleCreate.md)|  | 
 
 ### Return type
@@ -166,7 +200,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -177,7 +211,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | The alert rule was stored. The body carries the stored rule.  |  -  |
+**201** | The alert rule was stored. The body carries the stored rule.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | The body failed validation. The Problem body&#39;s &#x60;code&#x60; field is &#x60;alert_rule_invalid&#x60; — an empty or oversized name or signal, a non-finite threshold, an unknown comparator, or an unknown severity.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |
@@ -193,13 +227,15 @@ No authorization required
 
 Delete a stored alert rule.
 
-Deletes the alert rule addressed by `{alertRuleId}` within the Domain.
+Deletes the alert rule addressed by `{alert_rule_id}` within the Domain.
 The handler checks the `domain-edit` ReBAC relation on the addressed
 Domain before the delete. Deleting an absent rule returns 404.
 
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -212,13 +248,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domainId}/alert-rules/{alertRuleId}` for the single-rule read, update, and delete. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/alert-rules/{alert_rule_id}` for the single-rule read, update, and delete. 
 
     try:
         # Delete a stored alert rule.
@@ -234,8 +285,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/alert-rules/{alertRuleId}&#x60; for the single-rule read, update, and delete.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/alert-rules/{alert_rule_id}&#x60; for the single-rule read, update, and delete.  | 
 
 ### Return type
 
@@ -243,7 +294,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -255,7 +306,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **204** | The alert rule was deleted. No body. |  -  |
-**400** | A malformed &#x60;{domainId}&#x60; or &#x60;{alertRuleId}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_alert_rule_id&#x60;.  |  -  |
+**400** | A malformed &#x60;{domain_id}&#x60; or &#x60;{alert_rule_id}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_alert_rule_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | No alert rule with the id exists in the Domain. The Problem body&#39;s &#x60;code&#x60; field is &#x60;alert_rule_not_found&#x60;.  |  -  |
@@ -269,7 +320,7 @@ No authorization required
 
 Read a single stored alert rule.
 
-Returns the alert rule addressed by `{alertRuleId}` within the Domain.
+Returns the alert rule addressed by `{alert_rule_id}` within the Domain.
 The read is gated by the `domain-view` ReBAC relation on the addressed
 Domain. Alert rules are stored, managed configuration only and are not
 evaluated in this phase.
@@ -277,6 +328,8 @@ evaluated in this phase.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -290,13 +343,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domainId}/alert-rules/{alertRuleId}` for the single-rule read, update, and delete. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/alert-rules/{alert_rule_id}` for the single-rule read, update, and delete. 
 
     try:
         # Read a single stored alert rule.
@@ -314,8 +382,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/alert-rules/{alertRuleId}&#x60; for the single-rule read, update, and delete.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/alert-rules/{alert_rule_id}&#x60; for the single-rule read, update, and delete.  | 
 
 ### Return type
 
@@ -323,7 +391,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -335,7 +403,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The stored alert rule. |  -  |
-**400** | A malformed &#x60;{domainId}&#x60; or &#x60;{alertRuleId}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_alert_rule_id&#x60;.  |  -  |
+**400** | A malformed &#x60;{domain_id}&#x60; or &#x60;{alert_rule_id}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_alert_rule_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | No alert rule with the id exists in the Domain. The Problem body&#39;s &#x60;code&#x60; field is &#x60;alert_rule_not_found&#x60;.  |  -  |
@@ -349,7 +417,7 @@ No authorization required
 
 Read a single incident with its ordered timeline.
 
-Returns the incident addressed by `{incidentId}` within the Domain,
+Returns the incident addressed by `{incident_id}` within the Domain,
 together with its append-only timeline ordered by `occurred_at`
 ascending. The read is gated by the `domain-view` ReBAC relation on
 the addressed Domain.
@@ -357,6 +425,8 @@ the addressed Domain.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -370,13 +440,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domainId}/incidents/{incidentId}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/incidents/{incident_id}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
 
     try:
         # Read a single incident with its ordered timeline.
@@ -394,8 +479,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/incidents/{incidentId}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
 
 ### Return type
 
@@ -403,7 +488,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -415,7 +500,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The incident with its ordered timeline. |  -  |
-**400** | A malformed &#x60;{domainId}&#x60; or &#x60;{incidentId}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_incident_id&#x60;.  |  -  |
+**400** | A malformed &#x60;{domain_id}&#x60; or &#x60;{incident_id}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_incident_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | No incident with the id exists in the Domain. The Problem body&#39;s &#x60;code&#x60; field is &#x60;incident_not_found&#x60;.  |  -  |
@@ -438,6 +523,8 @@ addressed Domain, checked before the persistence read.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -451,14 +538,29 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    cursor = 'cursor_example' # str | Opaque pagination cursor — value of `next_cursor` from the previous page, or unset to start at the head of the list.  (optional)
-    limit = 50 # int | Maximum number of alert rules to return on this page. Clamped server-side at 200.  (optional) (default to 50)
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List the stored alert rules for a Domain.
@@ -476,9 +578,9 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **cursor** | **str**| Opaque pagination cursor — value of &#x60;next_cursor&#x60; from the previous page, or unset to start at the head of the list.  | [optional] 
- **limit** | **int**| Maximum number of alert rules to return on this page. Clamped server-side at 200.  | [optional] [default to 50]
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -486,7 +588,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -498,7 +600,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Page of stored alert rules for the addressed Domain.  |  -  |
-**400** | Invalid query parameter — a malformed cursor (&#x60;code: cursor_invalid&#x60;) or a malformed &#x60;{domainId}&#x60; (&#x60;code: invalid_domain_id&#x60;).  |  -  |
+**400** | Invalid query parameter — a malformed cursor (&#x60;code: invalid_cursor&#x60;) or a malformed &#x60;{domain_id}&#x60; (&#x60;code: invalid_domain_id&#x60;).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | The addressed Domain does not exist. The Problem body&#39;s &#x60;code&#x60; field is &#x60;domain_not_found&#x60;.  |  -  |
@@ -520,6 +622,8 @@ gated by the `domain-view` ReBAC relation on the addressed Domain.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -534,14 +638,29 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    cursor = 'cursor_example' # str | Opaque pagination cursor — value of `next_cursor` from the previous page, or unset to start at the head of the list.  (optional)
-    limit = 50 # int | Maximum number of incidents to return on this page. Clamped server-side at 200.  (optional) (default to 50)
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
     status = plexsphere.IncidentStatus() # IncidentStatus | Optional status filter so the Dashboard can show only open or only resolved incidents.  (optional)
 
     try:
@@ -560,9 +679,9 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **cursor** | **str**| Opaque pagination cursor — value of &#x60;next_cursor&#x60; from the previous page, or unset to start at the head of the list.  | [optional] 
- **limit** | **int**| Maximum number of incidents to return on this page. Clamped server-side at 200.  | [optional] [default to 50]
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
  **status** | [**IncidentStatus**](.md)| Optional status filter so the Dashboard can show only open or only resolved incidents.  | [optional] 
 
 ### Return type
@@ -571,7 +690,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -583,7 +702,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Page of incident headers for the addressed Domain. |  -  |
-**400** | Invalid query parameter — a malformed cursor (&#x60;code: cursor_invalid&#x60;), an unknown &#x60;status&#x60; (&#x60;code: incident_status_invalid&#x60;), or a malformed &#x60;{domainId}&#x60; (&#x60;code: invalid_domain_id&#x60;).  |  -  |
+**400** | Invalid query parameter — a malformed cursor (&#x60;code: invalid_cursor&#x60;), an unknown &#x60;status&#x60; (&#x60;code: incident_status_invalid&#x60;), or a malformed &#x60;{domain_id}&#x60; (&#x60;code: invalid_domain_id&#x60;).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | The addressed Domain does not exist. The Problem body&#39;s &#x60;code&#x60; field is &#x60;domain_not_found&#x60;.  |  -  |
@@ -605,6 +724,8 @@ persists the incident header.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -619,12 +740,27 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
     incident_open_request = {"title":"Elevated mediated-session error rate","severity":"critical"} # IncidentOpenRequest | 
 
     try:
@@ -643,7 +779,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
  **incident_open_request** | [**IncidentOpenRequest**](IncidentOpenRequest.md)|  | 
 
 ### Return type
@@ -652,7 +788,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -663,7 +799,7 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | The incident was opened. The body carries the opened incident with its empty timeline.  |  -  |
+**201** | The incident was opened. The body carries the opened incident with its empty timeline.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | The body failed validation. The Problem body&#39;s &#x60;code&#x60; field is &#x60;incident_invalid&#x60; — an empty or oversized title or an unknown severity.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |
@@ -690,20 +826,24 @@ touching the backend so the endpoint cannot be used as a Domain-id
 oracle (403 on denial), validates the query bounds, then forwards to
 the logs backend.
 
+TENANCY: the caller's LogQL expression is NEVER trusted to scope
+itself. The server derives the upstream tenant from the addressed
+Domain and stamps it as the backend `X-Scope-OrgID` header
+server-side (never from a client header), so `domain-view` on
+Domain A can only ever read Domain A's streams even if the
+expression names another Domain's labels.
+
 Query bounds are enforced at this boundary so one oversized query
 cannot overwhelm the shared logs store: the expression is capped at
 4096 characters, the window may span at most 31 days, and the line
 result is capped server-side. A query that violates a bound is
 rejected with 400 before any backend call.
 
-# DECISION: 502 covers an unreachable / failing Loki upstream and 504
-# covers an upstream that did not answer in time, mirroring the metrics
-# query surface. 501 matches the capacity surface's deferred-wiring
-# posture so log scrapers can alert until the logs backend is wired.
-
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -717,18 +857,33 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
     query = 'query_example' # str | The LogQL expression to evaluate. Capped at 4096 characters; an empty or oversized expression is rejected with 400. 
     start = '2013-10-20T19:20:30+01:00' # datetime | Inclusive lower bound of the query window (RFC 3339). `end` must be after `start` and the window may span at most 31 days. 
     end = '2013-10-20T19:20:30+01:00' # datetime | Inclusive upper bound of the query window (RFC 3339), strictly after `start`. 
     limit = 100 # int | Maximum number of log lines to return. Clamped server-side to protect the logs store from an unbounded read.  (optional) (default to 100)
     direction = backward # str | Scan order: `backward` returns the newest lines first, `forward` the oldest first.  (optional) (default to backward)
-    node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional Node filter. When present the query is scoped to the named Node so the Dashboard can drill into a single Node's logs.  (optional)
+    node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional Node hint for a single-Node drill-down. NOTE: this filter is accepted but NOT yet applied — splicing a per-Node label selector into an arbitrary caller-supplied LogQL expression safely requires parsing the query AST, which is a deferred enhancement. The Domain tenant boundary IS enforced regardless; until Node scoping lands, a present `nodeId` does not narrow the result to that Node.  (optional)
 
     try:
         # Run a read-only LogQL logs query for a Domain.
@@ -746,13 +901,13 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
  **query** | **str**| The LogQL expression to evaluate. Capped at 4096 characters; an empty or oversized expression is rejected with 400.  | 
  **start** | **datetime**| Inclusive lower bound of the query window (RFC 3339). &#x60;end&#x60; must be after &#x60;start&#x60; and the window may span at most 31 days.  | 
  **end** | **datetime**| Inclusive upper bound of the query window (RFC 3339), strictly after &#x60;start&#x60;.  | 
  **limit** | **int**| Maximum number of log lines to return. Clamped server-side to protect the logs store from an unbounded read.  | [optional] [default to 100]
  **direction** | **str**| Scan order: &#x60;backward&#x60; returns the newest lines first, &#x60;forward&#x60; the oldest first.  | [optional] [default to backward]
- **node_id** | **UUID**| Optional Node filter. When present the query is scoped to the named Node so the Dashboard can drill into a single Node&#39;s logs.  | [optional] 
+ **node_id** | **UUID**| Optional Node hint for a single-Node drill-down. NOTE: this filter is accepted but NOT yet applied — splicing a per-Node label selector into an arbitrary caller-supplied LogQL expression safely requires parsing the query AST, which is a deferred enhancement. The Domain tenant boundary IS enforced regardless; until Node scoping lands, a present &#x60;nodeId&#x60; does not narrow the result to that Node.  | [optional] 
 
 ### Return type
 
@@ -760,7 +915,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -772,7 +927,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Logs query result projected from the backend response.  |  -  |
-**400** | Invalid query parameter — an empty or oversized expression (&#x60;code: query_invalid&#x60;), a malformed &#x60;{domainId}&#x60; (&#x60;code: invalid_domain_id&#x60;), or a window whose &#x60;end&#x60; is not after &#x60;start&#x60; or that spans more than the maximum (&#x60;code: query_range_invalid&#x60;).  |  -  |
+**400** | Invalid query parameter — an empty or oversized expression (&#x60;code: query_invalid&#x60;), a malformed &#x60;{domain_id}&#x60; (&#x60;code: invalid_domain_id&#x60;), or a window whose &#x60;end&#x60; is not after &#x60;start&#x60; or that spans more than the maximum (&#x60;code: query_range_invalid&#x60;).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain. Surfaced before the backend read so the endpoint cannot be used as a Domain-id oracle.  |  -  |
 **404** | The addressed Domain does not exist. The Problem body&#39;s &#x60;code&#x60; field is &#x60;domain_not_found&#x60;.  |  -  |
@@ -792,7 +947,10 @@ Runs a single read-only PromQL query against the bundled metrics
 backend for the addressed Domain and returns the backend's verbatim
 result. Either an instant query (supply `time`) or a range query
 (supply `start`, `end`, and `step`) is run; when `time` is absent the
-handler runs a range query and requires the range bounds.
+handler runs a range query and requires the range bounds. `time`
+takes precedence: if it is present the range triple is ignored
+rather than rejected, so a caller must send EITHER `time` OR the
+range triple, never both.
 
 The handler authenticates the caller (401 when no Principal resolves),
 checks the `domain-view` ReBAC relation on the addressed Domain BEFORE
@@ -800,22 +958,24 @@ touching the backend so the endpoint cannot be used as a Domain-id
 oracle (403 on denial), validates the query bounds, then forwards to
 the metrics backend.
 
+TENANCY: the caller's PromQL expression is NEVER trusted to scope
+itself. The server derives the upstream tenant from the addressed
+Domain and stamps it as the backend `X-Scope-OrgID` header
+server-side (never from a client header), so `domain-view` on
+Domain A can only ever read Domain A's series even if the
+expression names another Domain's labels.
+
 Query bounds are enforced at this boundary so one oversized query
 cannot overwhelm the shared metrics store: the expression is capped at
 4096 characters, a range window may span at most 31 days, and the
 series result is capped server-side. A query that violates a bound is
 rejected with 400 before any backend call.
 
-# DECISION: 502 covers an unreachable / failing Mimir upstream and 504
-# covers an upstream that did not answer in time, so the operator can
-# tell an unavailable backend apart from a slow one. 501 matches the
-# capacity surface's deferred-wiring posture: until the production
-# composition root supplies the query backends, every request returns
-# 501 so log scrapers can alert on the deferred-wiring state.
-
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -829,18 +989,33 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
     query = 'query_example' # str | The PromQL expression to evaluate. Capped at 4096 characters; an empty or oversized expression is rejected with 400. 
     time = '2013-10-20T19:20:30+01:00' # datetime | Evaluation instant for an instant query (RFC 3339). When present the handler runs an instant query and ignores `start` / `end` / `step`; when absent the handler runs a range query and requires `start`, `end`, and `step`.  (optional)
     start = '2013-10-20T19:20:30+01:00' # datetime | Inclusive lower bound of the range-query window (RFC 3339). Required for a range query; `end` must be after `start` and the window may span at most 31 days.  (optional)
     end = '2013-10-20T19:20:30+01:00' # datetime | Inclusive upper bound of the range-query window (RFC 3339). Required for a range query and must be after `start`.  (optional)
     step = 'step_example' # str | Range-query resolution step expressed as a duration (for example `30s`, `5m`). Required for a range query and ignored for an instant query.  (optional)
-    node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional Node filter. When present the query is scoped to the named Node so the Dashboard can drill into a single Node's metrics.  (optional)
+    node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional Node hint for a single-Node drill-down. NOTE: this filter is accepted but NOT yet applied — splicing a per-Node label selector into an arbitrary caller-supplied PromQL expression safely requires parsing the query AST, which is a deferred enhancement. The Domain tenant boundary IS enforced regardless (see the operation description); until Node scoping lands, a present `nodeId` does not narrow the result to that Node.  (optional)
 
     try:
         # Run a read-only PromQL metrics query for a Domain.
@@ -858,13 +1033,13 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
  **query** | **str**| The PromQL expression to evaluate. Capped at 4096 characters; an empty or oversized expression is rejected with 400.  | 
  **time** | **datetime**| Evaluation instant for an instant query (RFC 3339). When present the handler runs an instant query and ignores &#x60;start&#x60; / &#x60;end&#x60; / &#x60;step&#x60;; when absent the handler runs a range query and requires &#x60;start&#x60;, &#x60;end&#x60;, and &#x60;step&#x60;.  | [optional] 
  **start** | **datetime**| Inclusive lower bound of the range-query window (RFC 3339). Required for a range query; &#x60;end&#x60; must be after &#x60;start&#x60; and the window may span at most 31 days.  | [optional] 
  **end** | **datetime**| Inclusive upper bound of the range-query window (RFC 3339). Required for a range query and must be after &#x60;start&#x60;.  | [optional] 
  **step** | **str**| Range-query resolution step expressed as a duration (for example &#x60;30s&#x60;, &#x60;5m&#x60;). Required for a range query and ignored for an instant query.  | [optional] 
- **node_id** | **UUID**| Optional Node filter. When present the query is scoped to the named Node so the Dashboard can drill into a single Node&#39;s metrics.  | [optional] 
+ **node_id** | **UUID**| Optional Node hint for a single-Node drill-down. NOTE: this filter is accepted but NOT yet applied — splicing a per-Node label selector into an arbitrary caller-supplied PromQL expression safely requires parsing the query AST, which is a deferred enhancement. The Domain tenant boundary IS enforced regardless (see the operation description); until Node scoping lands, a present &#x60;nodeId&#x60; does not narrow the result to that Node.  | [optional] 
 
 ### Return type
 
@@ -872,7 +1047,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -884,7 +1059,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Metrics query result projected from the backend response.  |  -  |
-**400** | Invalid query parameter — an empty or oversized expression (&#x60;code: query_invalid&#x60;), a malformed &#x60;{domainId}&#x60; (&#x60;code: invalid_domain_id&#x60;), or a range window whose &#x60;end&#x60; is not after &#x60;start&#x60; or that spans more than the maximum (&#x60;code: query_range_invalid&#x60;).  |  -  |
+**400** | Invalid query parameter — an empty or oversized expression (&#x60;code: query_invalid&#x60;), a malformed &#x60;{domain_id}&#x60; (&#x60;code: invalid_domain_id&#x60;), or a range window whose &#x60;end&#x60; is not after &#x60;start&#x60; or that spans more than the maximum (&#x60;code: query_range_invalid&#x60;).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-view&#x60; ReBAC relation on the addressed Domain. Surfaced before the backend read so the endpoint cannot be used as a Domain-id oracle.  |  -  |
 **404** | The addressed Domain does not exist. The Problem body&#39;s &#x60;code&#x60; field is &#x60;domain_not_found&#x60;.  |  -  |
@@ -900,7 +1075,7 @@ No authorization required
 
 Resolve an open incident.
 
-Resolves the open incident addressed by `{incidentId}`, transitioning
+Resolves the open incident addressed by `{incident_id}`, transitioning
 it to the `resolved` state and stamping its resolved-at timestamp. The
 handler checks the `domain-edit` ReBAC relation on the addressed
 Domain before the write. Resolving an incident that is already resolved
@@ -909,6 +1084,8 @@ is rejected with 409 — the lifecycle permits a single resolve.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -922,13 +1099,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domainId}/incidents/{incidentId}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    incident_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Incident identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/incidents/{incident_id}`, its `/events` sub-resource, and its `:resolve` sub-resource. 
 
     try:
         # Resolve an open incident.
@@ -946,8 +1138,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/incidents/{incidentId}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **incident_id** | **UUID**| Incident identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;, its &#x60;/events&#x60; sub-resource, and its &#x60;:resolve&#x60; sub-resource.  | 
 
 ### Return type
 
@@ -955,7 +1147,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -967,7 +1159,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The incident was resolved. The body carries the updated incident.  |  -  |
-**400** | A malformed &#x60;{domainId}&#x60; or &#x60;{incidentId}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_incident_id&#x60;.  |  -  |
+**400** | A malformed &#x60;{domain_id}&#x60; or &#x60;{incident_id}&#x60;. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; or &#x60;invalid_incident_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |
 **404** | No incident with the id exists in the Domain. The Problem body&#39;s &#x60;code&#x60; field is &#x60;incident_not_found&#x60;.  |  -  |
@@ -983,7 +1175,7 @@ No authorization required
 Update mutable fields on a stored alert rule.
 
 Applies a partial update to the alert rule addressed by
-`{alertRuleId}`. Every body field is optional: an absent field leaves
+`{alert_rule_id}`. Every body field is optional: an absent field leaves
 the stored value untouched. The rule remains stored, managed
 configuration only and is not evaluated in this phase. The handler
 checks the `domain-edit` ReBAC relation on the addressed Domain before
@@ -993,6 +1185,8 @@ an existing name in the Domain is rejected with 409.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1007,13 +1201,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ObservabilityApi(api_client)
-    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain's chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path. 
-    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domainId}/alert-rules/{alertRuleId}` for the single-rule read, update, and delete. 
+    domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents. 
+    alert_rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Alert rule identifier (UUIDv7). Bound on `/v1/domains/{domain_id}/alert-rules/{alert_rule_id}` for the single-rule read, update, and delete. 
     alert_rule_update = {"threshold":0.95,"severity":"critical","enabled":false} # AlertRuleUpdate | 
 
     try:
@@ -1032,8 +1241,8 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **domain_id** | **UUID**| Owning Domain. The Platform Audit Log is per-Domain by residency contract — cross-Domain decisions land in EACH affected Domain&#39;s chain, never on a shared system chain . Every audit endpoint requires the Domain identifier in the path.  | 
- **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domainId}/alert-rules/{alertRuleId}&#x60; for the single-rule read, update, and delete.  | 
+ **domain_id** | **UUID**| Owning Domain identifier (UUIDv7). Bound on the Domain-scoped operator surfaces — capacity, mesh topology, managed-push, observability queries, alert rules, and incidents.  | 
+ **alert_rule_id** | **UUID**| Alert rule identifier (UUIDv7). Bound on &#x60;/v1/domains/{domain_id}/alert-rules/{alert_rule_id}&#x60; for the single-rule read, update, and delete.  | 
  **alert_rule_update** | [**AlertRuleUpdate**](AlertRuleUpdate.md)|  | 
 
 ### Return type
@@ -1042,7 +1251,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

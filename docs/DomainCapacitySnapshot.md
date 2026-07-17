@@ -1,6 +1,6 @@
 # DomainCapacitySnapshot
 
-Per-Domain capacity snapshot returned by `GET /v1/domains/{domainId}/capacity`: the wall-clock instant the collector last sampled, and one reading per catalogued capacity dimension in the canonical Dashboard order. 
+Per-Domain capacity snapshot returned by `GET /v1/domains/{domain_id}/capacity`: the wall-clock instant the collector last sampled, and one reading per catalogued capacity dimension in the canonical Dashboard order. 
 
 ## Properties
 

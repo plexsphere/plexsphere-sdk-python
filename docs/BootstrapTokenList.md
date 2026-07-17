@@ -7,7 +7,7 @@ Page of BootstrapToken metadata returned by GET /v1/projects/{project_id}/bootst
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **items** | [**List[BootstrapTokenMetadata]**](BootstrapTokenMetadata.md) | BootstrapToken metadata in the current page. | 
-**next_cursor** | **str** | Continuation token for the next page. Null or omitted when the iteration has reached end-of-stream.  | [optional] 
+**next_cursor** | **str** | Continuation token for the next page. Absent when the iteration has reached end-of-stream.  | [optional] 
 
 ## Example
 

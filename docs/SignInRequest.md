@@ -1,6 +1,6 @@
 # SignInRequest
 
-Body for POST /v1/auth/sign-in. At least one of `domain_id` or `idp_binding_id` must be supplied; the router uses them to resolve the IdP binding against which to begin the flow . 
+Body for POST /v1/auth/sign-in. At least one of `domain_id` or `idp_binding_id` must be supplied; the router uses them to resolve the IdP binding against which to begin the flow. An `idp_binding_id` naming a platform-scoped (shared) binding with NO `domain_id` starts a Domain-independent platform-operator sign-in that yields a platform-scoped session; a per-Domain binding still requires its Domain. 
 
 ## Properties
 

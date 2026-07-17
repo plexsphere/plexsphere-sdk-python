@@ -1,6 +1,6 @@
 # IdPBindingPatchRequest
 
-Partial-update body for PATCH /v1/admin/idp/{id}. All fields are optional; only fields present in the request are mutated. the `status` field is intentionally absent from this schema — status transitions are performed exclusively through PATCH /v1/admin/idp/{id}/status. 
+Partial-update body for PATCH /v1/admin/idp/{id}. All fields are optional; only fields present in the request are mutated. The `status` field is intentionally absent from this schema — status transitions are performed exclusively through PATCH /v1/admin/idp/{id}/status. 
 
 ## Properties
 

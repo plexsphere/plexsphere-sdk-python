@@ -18,7 +18,11 @@ top of the page: rows the caller cannot `read` are filtered
 out so the response items are a subset of the persistence-
 level page. The optional `domain_id` query parameter scopes
 the page to a single parent Domain. Cursor pagination mirrors
-`/v1/projects` exactly.
+`/v1/projects` (HMAC-signed, per-caller-bound cursor; per-row
+ReBAC filter on top). It does NOT carry the
+`no_rebac_membership` `empty_reason` disambiguator ProjectList
+adds — a filtered-to-empty Node page is indistinguishable from
+a genuinely empty one.
 
 The pagination cursor is HMAC-signed and bound to the
 per-(caller, pepper) pseudonym, so a cursor minted by one
@@ -29,6 +33,8 @@ envelope or unknown version byte stays on `400 invalid_cursor`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -42,13 +48,28 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.NodesApi(api_client)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
     domain_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional filter scoping the page to a single parent Domain. Omit to page across every Domain the caller is authorised to see.  (optional)
 
     try:
@@ -68,7 +89,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
  **domain_id** | **UUID**| Optional filter scoping the page to a single parent Domain. Omit to page across every Domain the caller is authorised to see.  | [optional] 
 
 ### Return type
@@ -77,7 +98,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

@@ -6,10 +6,10 @@ Per-Node bridge-orchestrator delivered-config block. Carries the relay configura
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**relay** | [**NodeStateBridgeRelay**](NodeStateBridgeRelay.md) | Relay configuration the Node must program. &#x60;null&#x60; when no relay is configured on the owning bridge Resource.  | [optional] 
-**user_access** | [**NodeStateBridgeUserAccess**](NodeStateBridgeUserAccess.md) | User-access providers the Node must program. &#x60;null&#x60; when the owning bridge Resource defines none.  | [optional] 
-**ingress** | [**NodeStateBridgeIngress**](NodeStateBridgeIngress.md) | Public-ingress rules the Node must program. &#x60;null&#x60; when the owning bridge Resource defines none.  | [optional] 
-**site_to_site** | [**NodeStateBridgeSiteToSite**](NodeStateBridgeSiteToSite.md) | Site-to-site tunnels the Node must program. &#x60;null&#x60; when the owning bridge Resource defines none.  | [optional] 
+**relay** | [**NodeStateBridgeRelay**](NodeStateBridgeRelay.md) | Relay configuration the Node must program. Absent when no relay is configured on the owning bridge Resource.  | [optional] 
+**user_access** | [**NodeStateBridgeUserAccess**](NodeStateBridgeUserAccess.md) | User-access providers the Node must program. Absent when the owning bridge Resource defines none.  | [optional] 
+**ingress** | [**NodeStateBridgeIngress**](NodeStateBridgeIngress.md) | Public-ingress rules the Node must program. Absent when the owning bridge Resource defines none.  | [optional] 
+**site_to_site** | [**NodeStateBridgeSiteToSite**](NodeStateBridgeSiteToSite.md) | Site-to-site tunnels the Node must program. Absent when the owning bridge Resource defines none.  | [optional] 
 
 ## Example
 

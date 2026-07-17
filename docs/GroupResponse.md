@@ -8,11 +8,11 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Group identifier (UUIDv7). | 
 **domain_id** | **UUID** | Owning Domain. | 
-**slug** | **str** | URL-safe identifier unique within &#x60;domain_id&#x60; .  | 
+**slug** | **str** | URL-safe identifier unique within &#x60;domain_id&#x60;.  | 
 **display_name** | **str** | Human-friendly Group name. | 
 **source** | **str** | Provenance of the Group. | 
 **idp_binding_id** | **UUID** | IdP binding the Group is reconciled from. Present only when &#x60;source&#x3D;idp&#x60;.  | [optional] 
-**idp_claim_value** | **str** | Verbatim IdP claim value. Present only when &#x60;source&#x3D;idp&#x60; .  | [optional] 
+**idp_claim_value** | **str** | Verbatim IdP claim value. Present only when &#x60;source&#x3D;idp&#x60;.  | [optional] 
 **created_at** | **datetime** |  | 
 **updated_at** | **datetime** |  | 
 

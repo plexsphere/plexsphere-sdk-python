@@ -1,6 +1,6 @@
 # MeshTopology
 
-Envelope returned by `GET /v1/domains/{domainId}/mesh/topology`. Carries a snapshot of every anchored Node in the Domain and the directed edges between them, captured at `generated_at`. The snapshot is a coherent read of the SSE peer-delta projection — partial pages are never emitted; a renderer can replace the entire view on each pull. 
+Envelope returned by `GET /v1/domains/{domain_id}/mesh/topology`. Carries a snapshot of every anchored Node in the Domain and the directed edges between them, captured at `generated_at`. The snapshot is a coherent read of the SSE peer-delta projection — partial pages are never emitted; a renderer can replace the entire view on each pull. 
 
 ## Properties
 

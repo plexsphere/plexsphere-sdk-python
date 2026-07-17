@@ -13,9 +13,9 @@ Name | Type | Description | Notes
 **status** | [**IntegrityViolationStatus**](IntegrityViolationStatus.md) |  | 
 **artifact_id** | **str** | Stable identifier of the affected artifact (hook name, binary path label, or host-key file label).  | 
 **detected_at** | **datetime** | Timestamp the agent detected the violation (UTC). | 
-**acknowledged_at** | **datetime** | Timestamp an operator acknowledged the violation (UTC). &#x60;null&#x60; or omitted while the violation is still &#x60;open&#x60;.  | [optional] 
-**acknowledged_by_subject** | **str** | Subject string of the operator that acknowledged the violation. &#x60;null&#x60; or omitted while the violation is still &#x60;open&#x60;.  | [optional] 
-**acknowledge_reason** | **str** | Free-text rationale recorded with the acknowledgement. &#x60;null&#x60; or omitted while the violation is still &#x60;open&#x60;.  | [optional] 
+**acknowledged_at** | **datetime** | Timestamp an operator acknowledged the violation (UTC). Absent while the violation is still &#x60;open&#x60;.  | [optional] 
+**acknowledged_by_subject** | **str** | Subject string of the operator that acknowledged the violation. Absent while the violation is still &#x60;open&#x60;.  | [optional] 
+**acknowledge_reason** | **str** | Free-text rationale recorded with the acknowledgement. Absent while the violation is still &#x60;open&#x60;.  | [optional] 
 
 ## Example
 

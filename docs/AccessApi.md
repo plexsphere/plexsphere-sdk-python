@@ -9,7 +9,7 @@ Method | HTTP request | Description
 [**issue_session**](AccessApi.md#issue_session) | **POST** /v1/projects/{project_id}/sessions | Issue a short-lived, session-scoped JWT for a mediated target.
 [**list_sessions**](AccessApi.md#list_sessions) | **GET** /v1/projects/{project_id}/sessions | List mediated sessions for a Project.
 [**post_node_session_callback**](AccessApi.md#post_node_session_callback) | **POST** /v1/nodes/{id}/sessions/{session_id} | Report per-kind session activity from a Node.
-[**revoke_session**](AccessApi.md#revoke_session) | **POST** /v1/projects/{project_id}/sessions/{session_id}:revoke | Instantly revoke a live mediated session.
+[**revoke_session**](AccessApi.md#revoke_session) | **POST** /v1/projects/{project_id}/sessions/{session_id}/revoke | Instantly revoke a live mediated session.
 
 
 # **attach_session**
@@ -297,12 +297,13 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Session issued. Body carries the metadata-only Session projection, the signed EdDSA JWT (delivered exactly once), the per-kind plexd listener endpoint, and the expiry. The &#x60;Location&#x60; header points at the single-Session read path.  |  * Location - Absolute path of the issued Session for the single-Session read.  <br>  |
+**201** | Session issued. Body carries the metadata-only Session projection, the signed EdDSA JWT (delivered exactly once), the per-kind plexd listener endpoint, and the expiry. The &#x60;Location&#x60; header points at the single-Session read path.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Invalid request — typically a malformed body, a &#x60;kind&#x60; that does not match the supplied &#x60;target&#x60; variant, or a per-kind target that fails a domain invariant. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_body&#x60;, &#x60;invalid_target&#x60; }.  |  -  |
 **401** | Caller is not authenticated, OR the targeted kind requires a fresh step-up the caller has not satisfied. On the step-up path the body is a &#x60;Problem&#x60; with &#x60;code: step_up_required&#x60; and the response carries an RFC 9470 &#x60;WWW-Authenticate: Bearer error&#x3D;\&quot;insufficient_user_authentication\&quot;&#x60; challenge — with an &#x60;acr_values&#x60; parameter naming the required assurance set when the unmet requirement is an ACR, or the bare challenge when the unmet requirement is an AMR.  |  * WWW-Authenticate - RFC 9470 step-up challenge, present only on the step-up-required path.  <br>  |
 **403** | Caller is not authorized to issue sessions on the targeted Resource, or the target lies outside the caller&#39;s authorised scope. Body is a &#x60;PermissionDenied&#x60; problem whose &#x60;reason&#x60; is &#x60;insufficient_relation&#x60; or &#x60;out_of_scope&#x60;.  |  -  |
 **404** | The owning Project or the targeted Resource does not exist or is not visible. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;project_not_found&#x60;, &#x60;resource_not_found&#x60; }.  |  -  |
-**409** | The issuance could not be admitted. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;session_limit_exceeded&#x60; (a per-Domain concurrency cap or the issuance rate limit is full — the breached dimension is named in &#x60;detail&#x60;), &#x60;idempotent_replay&#x60; (a prior request with the same idempotency key is still in flight) }.  |  -  |
+**409** | The issuance could not be admitted. Body is a &#x60;Problem&#x60; with &#x60;code: idempotent_replay&#x60; — a prior request with the same idempotency key is still in flight.  |  -  |
+**429** | A per-Domain session budget is full. Body is a &#x60;Problem&#x60; with &#x60;code: session_limit_exceeded&#x60;; the breached dimension (concurrency cap or issuance rate) is named in &#x60;detail&#x60;. No &#x60;Retry-After&#x60; header is sent — a concurrency slot frees when a live session ends, which has no deterministic instant.  |  -  |
 **503** | A dependency the issuance path needs is temporarily unavailable, so the session could not be minted. Body is a &#x60;Problem&#x60; whose &#x60;code&#x60; is one of the dependency-degradation codes documented on the &#x60;Problem.code&#x60; schema:    * &#x60;signing_unavailable&#x60; — the Signing Service is     unreachable, so the session token could not be signed.   * &#x60;authz_unavailable&#x60; — the ReBAC backend (SpiceDB) is     unreachable, so the issuance authorization check could     not be reached (the global degradation code emitted by     every ReBAC-gated operation).  No Session row is persisted and no token is issued on this path, so a retry after the dependency recovers is safe. The &#x60;detail&#x60; is a fixed, generic, retry-oriented string — the underlying error is recorded only in the server&#39;s structured log, never on the wire.  |  -  |
 **501** | The access-orchestrator surface is not yet provisioned in this build. The Problem body&#39;s &#x60;code&#x60; field is &#x60;access_session_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state. Resolves once the issuance service and its signer / authz ports are wired into the v1 handler dependency cone.  |  -  |
 **500** | Internal server error. |  -  |
@@ -362,7 +363,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     kind = plexsphere.SessionKind() # SessionKind | Optional kind filter. When present, only Sessions of the named kind are returned.  (optional)
     identity_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Optional identity filter. When present, only Sessions issued to the named Identity are returned.  (optional)
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
-    limit = 50 # int | Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  (optional) (default to 50)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
     try:
         # List mediated sessions for a Project.
@@ -385,7 +386,7 @@ Name | Type | Description  | Notes
  **kind** | [**SessionKind**](.md)| Optional kind filter. When present, only Sessions of the named kind are returned.  | [optional] 
  **identity_id** | **UUID**| Optional identity filter. When present, only Sessions issued to the named Identity are returned.  | [optional] 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
- **limit** | **int**| Maximum number of items to return in a single page. The handler clamps the value to [1, 200] before forwarding it to the read service.  | [optional] [default to 50]
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
 ### Return type
 
@@ -415,7 +416,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **post_node_session_callback**
-> post_node_session_callback(id, session_id, authorization, session_activity_request)
+> post_node_session_callback(id, session_id, session_activity_request)
 
 Report per-kind session activity from a Node.
 
@@ -447,6 +448,7 @@ deferred-wiring state.
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 
 ```python
 import plexsphere
@@ -460,6 +462,15 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -467,12 +478,11 @@ with plexsphere.ApiClient(configuration) as api_client:
     api_instance = plexsphere.AccessApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) — the callback scope.
     session_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Session identifier (UUIDv7) the activity belongs to.
-    authorization = 'authorization_example' # str | `Bearer <NSK plaintext>` — the per-Node Node Secret Key issued at registration time. The NSK is bound to the Node addressed by the path `id`; a credential belonging to a different Node surfaces as 403 `nsk_node_mismatch`. 
     session_activity_request = {"ssh":{"command":"journalctl -u plexd","exit_code":0,"started_at":"2026-05-02T10:06:00Z","completed_at":"2026-05-02T10:06:02Z"}} # SessionActivityRequest | 
 
     try:
         # Report per-kind session activity from a Node.
-        api_instance.post_node_session_callback(id, session_id, authorization, session_activity_request)
+        api_instance.post_node_session_callback(id, session_id, session_activity_request)
     except Exception as e:
         print("Exception when calling AccessApi->post_node_session_callback: %s\n" % e)
 ```
@@ -486,7 +496,6 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **UUID**| Node identifier (UUIDv7) — the callback scope. | 
  **session_id** | **UUID**| Session identifier (UUIDv7) the activity belongs to. | 
- **authorization** | **str**| &#x60;Bearer &lt;NSK plaintext&gt;&#x60; — the per-Node Node Secret Key issued at registration time. The NSK is bound to the Node addressed by the path &#x60;id&#x60;; a credential belonging to a different Node surfaces as 403 &#x60;nsk_node_mismatch&#x60;.  | 
  **session_activity_request** | [**SessionActivityRequest**](SessionActivityRequest.md)|  | 
 
 ### Return type
@@ -495,7 +504,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[nskBearer](../README.md#nskBearer)
 
 ### HTTP request headers
 
@@ -508,7 +517,7 @@ No authorization required
 |-------------|-------------|------------------|
 **204** | Activity recorded. No body. |  -  |
 **400** | Callback body failed structural validation — an invalid JSON envelope or an activity variant that does not match the session&#39;s kind.  |  -  |
-**401** | NSK in the &#x60;Authorization: Bearer&#x60; header is missing, malformed, or has been revoked. The Problem body&#39;s &#x60;code&#x60; field is &#x60;nsk_revoked&#x60; so log scrapers can distinguish credential revocation from generic auth failures.  |  -  |
+**401** | The NSK credential in the &#x60;Authorization: Bearer&#x60; header was rejected. The Problem body&#39;s &#x60;code&#x60; field disambiguates the cause: &#x60;unauthorized&#x60; when the header is missing or malformed, &#x60;nsk_invalid&#x60; when the presented NSK cannot be resolved, and &#x60;nsk_revoked&#x60; when it resolves to a revoked NSK.  |  -  |
 **403** | The NSK authenticates successfully but belongs to a different Node than the path &#x60;id&#x60;. The PermissionDenied body&#39;s &#x60;code&#x60; field is &#x60;nsk_node_mismatch&#x60;.  |  -  |
 **404** | No Session resolves for the addressed &#x60;(id, session_id)&#x60; pair. Body is a &#x60;Problem&#x60; with &#x60;code: session_not_found&#x60;.  |  -  |
 **409** | The Session is no longer live. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;session_already_revoked&#x60;, &#x60;session_expired&#x60; }.  |  -  |

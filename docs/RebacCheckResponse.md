@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **decision** | **str** | ReBAC decision. &#x60;allowed&#x60; is the affirmative outcome; &#x60;denied&#x60; is a policy denial — NEVER an HTTP error.  | 
 **relation_path** | **List[str]** | Ordered sequence of relations the authorizer traversed while evaluating the Check. Set only when &#x60;decision&#x60; is &#x60;allowed&#x60;. Empty array when the decision was reached without a relation lookup (typically a direct-binding allowance).  | [optional] 
-**reason** | **str** | Machine-readable denial reason. Set only when &#x60;decision&#x60; is &#x60;denied&#x60;. Values match &#x60;internal/audit.Reason.String&#x60; extended with &#x60;granted&#x60; (allowance bookkeeping) and &#x60;unknown&#x60; (defensive default the authorizer never emits on a happy path). &#x60;out_of_scope&#x60;, &#x60;insufficient_relation&#x60;, and &#x60;caveat_violation&#x60; mirror the &#x60;PermissionDenied.reason&#x60; enum used by the 403 surface elsewhere in this spec.  | [optional] 
+**reason** | **str** | Machine-readable denial reason. Set only when &#x60;decision&#x60; is &#x60;denied&#x60;, so the allowance value of &#x60;internal/audit.Reason.String&#x60; never appears here; &#x60;unknown&#x60; is the defensive default the authorizer never emits on a happy path. &#x60;out_of_scope&#x60;, &#x60;insufficient_relation&#x60;, and &#x60;caveat_violation&#x60; mirror the &#x60;PermissionDenied.reason&#x60; enum used by the 403 surface elsewhere in this spec.  | [optional] 
 **correlation_id** | **str** | Correlation id that pairs this decision with the matching audit entry emitted by &#x60;internal/audit&#x60;.  | 
 
 ## Example

@@ -11,8 +11,8 @@ Name | Type | Description | Notes
 **version** | **int** | Monotonic broker-row version. Starts at 1 on issuance and increments on every rotate.  | 
 **status** | [**CloudCredentialStatus**](CloudCredentialStatus.md) | Derived lifecycle status of the credential. &#x60;revoked&#x60; when &#x60;revoked_at&#x60; is set; otherwise &#x60;expired&#x60; when &#x60;expired_at&#x60; is set or &#x60;expires_at&#x60; is in the past; otherwise &#x60;active&#x60;. Computed by the read surface from the lifecycle timestamps — it is not a stored column. Reuses the shared &#x60;CloudCredentialStatus&#x60; closed enum (identical active/expired/revoked vocabulary and precedence) rather than declaring a byte-identical parallel enum.  | 
 **expires_at** | **datetime** | Wall-clock expiry budget (UTC). | 
-**revoked_at** | **datetime** | Revocation timestamp (UTC). &#x60;null&#x60; until the credential is revoked by an operator.  | [optional] 
-**expired_at** | **datetime** | Expiry-observed timestamp (UTC). &#x60;null&#x60; until the sweeper marks the credential expired.  | [optional] 
+**revoked_at** | **datetime** | Revocation timestamp (UTC). Absent until the credential is revoked by an operator.  | [optional] 
+**expired_at** | **datetime** | Expiry-observed timestamp (UTC). Absent until the sweeper marks the credential expired.  | [optional] 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 **updated_at** | **datetime** | Last-modified timestamp (UTC). Bumped by every lifecycle mutator — rotate, revoke, expire.  | 
 

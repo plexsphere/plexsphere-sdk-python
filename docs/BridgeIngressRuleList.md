@@ -6,7 +6,7 @@ Public-ingress rules on a bridge Resource, returned by `ListBridgeIngressRules`.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**rules** | [**List[BridgeIngressRuleResponse]**](BridgeIngressRuleResponse.md) | Rules ordered by slug ascending. | 
+**items** | [**List[BridgeIngressRuleResponse]**](BridgeIngressRuleResponse.md) | Rules ordered by slug ascending. | 
 
 ## Example
 

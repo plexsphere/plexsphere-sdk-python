@@ -39,6 +39,8 @@ non-bridge Resource with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -53,6 +55,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -88,7 +105,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -100,7 +117,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Relay configured. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;. The bridge handler never resolves a parent Project, so &#x60;project_not_found&#x60; is not emitted on this surface.  |  -  |
@@ -126,6 +143,8 @@ surfaces as `409 slug_conflict`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -140,6 +159,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -175,7 +209,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -186,8 +220,8 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Public-ingress rule created. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;target_node_not_in_domain&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**201** | Public-ingress rule created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;target_node_not_in_domain&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;. The bridge handler never resolves a parent Project, so &#x60;project_not_found&#x60; is not emitted on this surface.  |  -  |
@@ -213,6 +247,8 @@ with `409 resource_not_bridge`. A duplicate slug surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -227,6 +263,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -262,7 +313,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -273,12 +324,12 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Site-to-site tunnel created. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;allowed_subnet_empty&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**201** | Site-to-site tunnel created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;allowed_subnet_empty&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;. The bridge handler never resolves a parent Project, so &#x60;project_not_found&#x60; is not emitted on this surface.  |  -  |
-**409** | Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;resource_not_bridge&#x60; (the addressed Resource is not kind &#x60;bridge&#x60;), &#x60;slug_conflict&#x60; (a tunnel with the same slug already exists on this Resource), &#x60;subnet_overlap_with_mesh&#x60; (an &#x60;allowed_subnets&#x60; entry overlaps the Domain mesh CIDR), &#x60;subnet_overlap_with_tunnel&#x60; (an &#x60;allowed_subnets&#x60; entry overlaps a sibling tunnel within the bridge) — the two overlap codes are raised by the cross-aggregate validator before persistence, with the mesh check taking precedence over the sibling-tunnel check.  |  -  |
+**409** | Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;resource_not_bridge&#x60; (the addressed Resource is not kind &#x60;bridge&#x60;), &#x60;slug_conflict&#x60; (a tunnel with the same slug already exists on this Resource), &#x60;subnet_overlap_with_mesh&#x60; (an &#x60;allowed_subnets&#x60; entry overlaps the Domain mesh CIDR), &#x60;subnet_overlap_with_tunnel&#x60; (an &#x60;allowed_subnets&#x60; entry overlaps a sibling tunnel within the bridge) }. The two overlap codes are raised by the cross-aggregate validator before persistence, with the mesh check taking precedence over the sibling-tunnel check.  |  -  |
 **413** | Request body exceeded the bridge body ceiling.  |  -  |
 **500** | Internal server error. |  -  |
 
@@ -299,6 +350,8 @@ with `409 resource_not_bridge`. A duplicate slug surfaces as
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -313,6 +366,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -348,7 +416,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -359,8 +427,8 @@ No authorization required
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | User-access provider created. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**201** | User-access provider created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;. The bridge handler never resolves a parent Project, so &#x60;project_not_found&#x60; is not emitted on this surface.  |  -  |
@@ -383,6 +451,8 @@ with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -395,6 +465,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -428,7 +513,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -461,6 +546,8 @@ with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -473,6 +560,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -506,7 +608,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -539,6 +641,8 @@ with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -551,6 +655,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -584,7 +703,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -617,6 +736,8 @@ persistence read.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -630,6 +751,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -665,7 +801,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -697,6 +833,8 @@ handler runs the `observe` ReBAC check on the addressed Resource
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -710,6 +848,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -743,7 +896,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -775,6 +928,8 @@ persistence read.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -788,6 +943,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -823,7 +993,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -855,6 +1025,8 @@ persistence read.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -868,6 +1040,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -903,7 +1090,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -935,6 +1122,8 @@ Resource, ordered by slug ascending. The handler runs the
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -948,6 +1137,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -981,7 +1185,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1013,6 +1217,8 @@ Resource, ordered by slug ascending. The handler runs the
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1026,6 +1232,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1059,7 +1280,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1091,6 +1312,8 @@ Resource, ordered by slug ascending. The handler runs the
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1104,6 +1327,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1137,7 +1375,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1170,6 +1408,8 @@ refuses a non-bridge Resource with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1184,6 +1424,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1221,7 +1476,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1233,7 +1488,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Public-ingress rule updated. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;target_node_not_in_domain&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;target_node_not_in_domain&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource or the named rule was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;.  |  -  |
@@ -1258,6 +1513,8 @@ refuses a non-bridge Resource with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1272,6 +1529,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1309,7 +1581,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1321,11 +1593,11 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Site-to-site tunnel updated. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;allowed_subnet_empty&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;allowed_subnet_empty&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource or the named tunnel was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;.  |  -  |
-**409** | Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;resource_not_bridge&#x60; (the addressed Resource is not kind &#x60;bridge&#x60;), &#x60;subnet_overlap_with_mesh&#x60; (a patched &#x60;allowed_subnets&#x60; entry overlaps the Domain mesh CIDR), &#x60;subnet_overlap_with_tunnel&#x60; (a patched &#x60;allowed_subnets&#x60; entry overlaps a sibling tunnel within the bridge) — the two overlap codes are raised by the cross-aggregate validator before persistence, with the mesh check taking precedence over the sibling-tunnel check.  |  -  |
+**409** | Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;resource_not_bridge&#x60; (the addressed Resource is not kind &#x60;bridge&#x60;), &#x60;subnet_overlap_with_mesh&#x60; (a patched &#x60;allowed_subnets&#x60; entry overlaps the Domain mesh CIDR), &#x60;subnet_overlap_with_tunnel&#x60; (a patched &#x60;allowed_subnets&#x60; entry overlaps a sibling tunnel within the bridge) }. The two overlap codes are raised by the cross-aggregate validator before persistence, with the mesh check taking precedence over the sibling-tunnel check.  |  -  |
 **413** | Request body exceeded the bridge body ceiling.  |  -  |
 **500** | Internal server error. |  -  |
 
@@ -1345,6 +1617,8 @@ refuses a non-bridge Resource with `409 resource_not_bridge`.
 
 ### Example
 
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
 
 ```python
 import plexsphere
@@ -1359,6 +1633,21 @@ configuration = plexsphere.Configuration(
     host = "http://localhost"
 )
 
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
 
 # Enter a context with an instance of the API client
 with plexsphere.ApiClient(configuration) as api_client:
@@ -1396,7 +1685,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -1408,7 +1697,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | User-access provider updated. |  -  |
-**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;relay_port_out_of_range&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | The addressed Resource or the named provider was not found. Body is a &#x60;Problem&#x60; with &#x60;code: resource_not_found&#x60;.  |  -  |

@@ -1,12 +1,12 @@
 # RevokeSessionRequest
 
-Body for `POST /v1/projects/{project_id}/sessions/{session_id}:revoke`. Carries the operator's revocation reason. 
+Body for `POST /v1/projects/{project_id}/sessions/{session_id}/revoke`. Carries the operator's revocation reason. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**revoke_reason** | [**RevokeReason**](RevokeReason.md) | Reason for the revocation. Only the operator-driven values are accepted here — the sweeper reasons (&#x60;ttl_expired&#x60;, &#x60;idle_timeout&#x60;) are set internally, never by this call.  | 
+**revoke_reason** | [**OperatorRevokeReason**](OperatorRevokeReason.md) | Reason for the revocation. The schema is the operator-driven subset of &#x60;RevokeReason&#x60; — the sweeper reasons (&#x60;ttl_expired&#x60;, &#x60;idle_timeout&#x60;) are set internally, never by this call, so a request carrying one fails validation instead of reaching the handler.  | 
 
 ## Example
 

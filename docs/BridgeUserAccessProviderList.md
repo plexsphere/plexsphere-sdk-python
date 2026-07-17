@@ -6,7 +6,7 @@ User-access providers on a bridge Resource, returned by `ListBridgeUserAccessPro
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**providers** | [**List[BridgeUserAccessProviderResponse]**](BridgeUserAccessProviderResponse.md) | Providers ordered by slug ascending. | 
+**items** | [**List[BridgeUserAccessProviderResponse]**](BridgeUserAccessProviderResponse.md) | Providers ordered by slug ascending. | 
 
 ## Example
 

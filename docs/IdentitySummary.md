@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **domain_id** | **UUID** | Owning Domain identifier (UUIDv7). | 
 **display_name** | **str** | Operator-facing display string. For users this is the IdP- sourced full name; for service identities it is the operator-supplied label.  | 
 **external_subject_pseudonym** | **str** | Per-Domain pseudonym of the IdP-side &#x60;external_subject&#x60; (32 bytes, lowercase hex). Always present so the listing surface is queryable without exposing plaintext PII to non-auditor callers.  | 
-**last_sign_in_at** | **datetime** | Timestamp of the most recent successful sign-in for this principal, or &#x60;null&#x60; when the principal has never signed in (typical for service identities and freshly invited users).  | [optional] 
+**last_sign_in_at** | **datetime** | Timestamp of the most recent successful sign-in for this principal; absent when the principal has never signed in (typical for service identities and freshly invited users).  | [optional] 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 
 ## Example
