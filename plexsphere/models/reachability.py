@@ -26,9 +26,9 @@ from pydantic_core import to_jsonable_python
 
 class Reachability(BaseModel):
     """
-    Per-Node reachability projection driven by the heartbeat handler. The state-machine transitions `healthy` → `stale` after 90 seconds without an accepted heartbeat and `stale` → `unreachable` after 300 seconds. `last_heartbeat_at` is absent until the first heartbeat is accepted; `changed_at` is always present and tracks the most recent state transition. 
+    Per-Node reachability projection driven by the heartbeat handler. A Node enters the projection in `never_reported` and leaves it for a heartbeat-derived verdict once its first heartbeat is admitted. From there the state-machine transitions `healthy` → `stale` after 90 seconds without an accepted heartbeat and `stale` → `unreachable` after 300 seconds. `last_heartbeat_at` is absent until the first heartbeat is accepted; `changed_at` is always present and tracks the most recent state transition. 
     """ # noqa: E501
-    state: StrictStr = Field(description="Current reachability state. `healthy` means the most recent heartbeat is younger than 90s; `stale` means it is between 90s and 300s old; `unreachable` means it is older than 300s or no heartbeat has ever been accepted. ")
+    state: StrictStr = Field(description="Current reachability state. `never_reported` means no heartbeat has ever been admitted for the Node; it is the state a Node is born in at enrolment. The other three values are derived from the age of the most recent admitted heartbeat: `healthy` means it is younger than 90s, `stale` means it is between 90s and 300s old, and `unreachable` means it is older than 300s. `unreachable` therefore applies only to a Node whose heartbeats stopped. ")
     last_heartbeat_at: Optional[datetime] = Field(default=None, description="Server-side timestamp of the most recently accepted heartbeat; absent until the first heartbeat is accepted. ")
     changed_at: datetime = Field(description="Server-side timestamp of the most recent transition into the current `state`. Always present — for a Node that has never sent a heartbeat this is the timestamp at which the reachability row was first materialised. ")
     additional_properties: Dict[str, Any] = {}
@@ -37,8 +37,8 @@ class Reachability(BaseModel):
     @field_validator('state')
     def state_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['healthy', 'stale', 'unreachable']):
-            raise ValueError("must be one of enum values ('healthy', 'stale', 'unreachable')")
+        if value not in set(['healthy', 'stale', 'unreachable', 'never_reported']):
+            raise ValueError("must be one of enum values ('healthy', 'stale', 'unreachable', 'never_reported')")
         return value
 
     model_config = ConfigDict(

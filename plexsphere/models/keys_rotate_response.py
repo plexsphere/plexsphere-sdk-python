@@ -27,10 +27,10 @@ from pydantic_core import to_jsonable_python
 
 class KeysRotateResponse(BaseModel):
     """
-    Body for POST /v1/keys/rotate success responses. Carries the receipt of the completed rotation: the `peer_key_rotation` row id and the `(kid, wrap_key_version)` reference of the re-issued pairwise PSK.  The response deliberately carries NO PSK plaintext and NO ciphertext — only the `(kid, wrap_key_version)` reference. The rotating Node already holds its NSK and resolves the PSK wrapping locally; the control plane never re-emits secret material on this surface. 
+    Body for POST /v1/keys/rotate success responses. Carries the receipt of the completed rotation: the `peer_key_rotation` row id and the `(kid, wrap_key_version)` reference of the re-issued pairwise PSK.  The response deliberately carries NO PSK plaintext and NO ciphertext — only the `(kid, wrap_key_version)` reference. The row is wrapped under the per-Domain wrap key, not the NSK, so the rotating Node cannot open it locally: after rotation the Node re-fetches each pairwise edge PSK from `GET /v1/nodes/{id}/peers/{peer_node_id}/psk`, which serves the edge key rewrapped under the caller's NSK. The control plane never re-emits secret material on this surface. 
     """ # noqa: E501
     rotation_id: UUID = Field(description="Identifier of the `peer_key_rotation` row this submission flipped from `pending` to `completed`. The Node records it so a later audit query can correlate the rotation back to the re-issued PSK row. ")
-    kid: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Key id of the freshly-wrapped pairwise PSK the rotation re-issued. Paired with `wrap_key_version` it is the reference plexd uses to resolve the PSK without the control plane re-transmitting secret material. ")
+    kid: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Key id of the freshly-wrapped pairwise PSK the rotation re-issued. Paired with `wrap_key_version` it is a server-side row reference — the pair pins the exact wrapped PSK row, not a path the Node resolves locally; the Node re-fetches each edge PSK from `GET /v1/nodes/{id}/peers/{peer_node_id}/psk`. ")
     wrap_key_version: Annotated[int, Field(strict=True, ge=0)] = Field(description="Version of the active wrap key under which the re-issued PSK was wrapped. Paired with `kid` it pins the exact wrapping epoch. ")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["rotation_id", "kid", "wrap_key_version"]

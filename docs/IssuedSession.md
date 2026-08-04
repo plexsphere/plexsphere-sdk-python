@@ -1,6 +1,6 @@
 # IssuedSession
 
-Body of a successful `IssueSession`. Carries the metadata-only Session projection, the signed EdDSA JWT (delivered EXACTLY ONCE, here — it is never persisted server-side beyond the identifier and expiry, and never re-exposed through the list or read projections), the per-kind plexd listener endpoint the operator's client connects to, and the expiry. 
+Body of a successful `IssueSession`. Carries the metadata-only Session projection, the signed EdDSA JWT (delivered EXACTLY ONCE, here — it is never persisted server-side beyond the identifier and expiry, and never re-exposed through the list or read projections), and the expiry. The body carries no listener endpoint: the target Node reports its mediated-listener coordinate after issuance, and it settles on the nested Session projection served by `GetSession` / `ListSessions`. 
 
 ## Properties
 
@@ -9,7 +9,6 @@ Name | Type | Description | Notes
 **session_id** | **UUID** | Identifier of the issued Session (UUIDv7). Equals the token&#39;s &#x60;jti&#x60;.  | 
 **token** | **str** | The signed, session-scoped EdDSA JWT. Delivered exactly once, in this response. Treat as a bearer secret.  | 
 **expires_at** | **datetime** | Expiry timestamp (UTC) of the issued Session and its token.  | 
-**listener_endpoint** | **str** | The on-Node endpoint (&#x60;host:port&#x60;) the operator&#39;s client connects to for this session kind.  | [optional] 
 **session** | [**Session**](Session.md) |  | 
 
 ## Example

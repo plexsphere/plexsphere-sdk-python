@@ -21,6 +21,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBytes, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from uuid import UUID
+from plexsphere.models.builtin_action import BuiltinAction
 from plexsphere.models.capability_status import CapabilityStatus
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,16 +29,17 @@ from pydantic_core import to_jsonable_python
 
 class CapabilityRow(BaseModel):
     """
-    One per-Node capability inventory row returned by `ListCapabilities` — a metadata-only projection of the Node's reported capability manifest paired with its checksum status. 
+    One per-Node capability inventory row returned by `ListCapabilities` — a projection of the Node's reported capability manifest paired with its checksum status. It carries the binary metadata, the checksum verdict, and the built-in action inventory the agent advertised; the hook lists are not projected here (see the Hook Catalog surfaces). 
     """ # noqa: E501
     node_id: UUID = Field(description="Node the capability row describes (UUIDv7).")
     domain_id: UUID = Field(description="Owning Domain (UUIDv7) — the residency pivot the per-row visibility filter authorises against. ")
     binary_version: StrictStr = Field(description="Reported plexd agent version string of the Node's running binary. ")
     binary_checksum: Optional[Union[StrictBytes, StrictStr]] = Field(default=None, description="SHA-256 digest of the running binary, 32 bytes base64-encoded with standard padding. Absent when the Node has not yet reported a checksum. ")
     status: CapabilityStatus
+    builtin_actions: List[BuiltinAction] = Field(description="The built-in actions the Node's agent advertised on its most recent capability manifest, in the order it reported them. This is the read side of `CapabilityManifestRequest.builtin_actions` — what an operator surface reads to offer a Node's actual actions rather than a fixed list.  Required, so every row carries the key and a client needs no null-check: a Node that reported no inventory renders the empty array. That is deliberately NOT the same claim as \"this Node supports no actions\" — an agent that predates the field and one that reports an empty list are indistinguishable here. Do not treat an empty array as a reason to refuse a dispatch; the Node remains the authority on what it can run. ")
     reported_at: datetime = Field(description="Timestamp at which the capability manifest snapshot was last reported (UTC). ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["node_id", "domain_id", "binary_version", "binary_checksum", "status", "reported_at"]
+    __properties: ClassVar[List[str]] = ["node_id", "domain_id", "binary_version", "binary_checksum", "status", "builtin_actions", "reported_at"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -80,6 +82,13 @@ class CapabilityRow(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in builtin_actions (list)
+        _items = []
+        if self.builtin_actions:
+            for _item_builtin_actions in self.builtin_actions:
+                if _item_builtin_actions:
+                    _items.append(_item_builtin_actions.to_dict())
+            _dict['builtin_actions'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -102,6 +111,7 @@ class CapabilityRow(BaseModel):
             "binary_version": obj.get("binary_version"),
             "binary_checksum": obj.get("binary_checksum"),
             "status": obj.get("status"),
+            "builtin_actions": [BuiltinAction.from_dict(_item) for _item in obj["builtin_actions"]] if obj.get("builtin_actions") is not None else None,
             "reported_at": obj.get("reported_at")
         })
         # store additional fields in additional_properties

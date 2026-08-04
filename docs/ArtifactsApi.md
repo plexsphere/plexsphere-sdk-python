@@ -26,9 +26,17 @@ The verbatim Sigstore bundle attesting each build is NOT inlined
 in this record; fetch it from the `{version}/sigstore` companion
 endpoint so an operator can re-verify the attestation independently.
 
+A registered Node's NSK authenticates this read directly: the
+plexd release registry is platform-global and read-only, so a
+valid, non-revoked NSK is sufficient authorization for a node
+pulling its own upgrade verdict — the NSK arm adds no 403. The
+operator path (the platform read relation, with a denial
+collapsing onto the same `404 release_not_found`) is unchanged.
+
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 * Bearer (JWT) Authentication (operatorBearer):
 * Api Key Authentication (sessionCookie):
 
@@ -48,6 +56,11 @@ configuration = plexsphere.Configuration(
 # in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Configure Bearer authorization (JWT): operatorBearer
 configuration = plexsphere.Configuration(
@@ -90,7 +103,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+[nskBearer](../README.md#nskBearer), [operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -123,9 +136,17 @@ identity to confirm the build provenance without trusting this
 server. A version that has never been indexed, or whose cached
 bundle is absent, surfaces as `404 release_not_found`.
 
+A registered Node's NSK authenticates this read directly: the
+plexd release registry is platform-global and read-only, so a
+valid, non-revoked NSK is sufficient authorization for a node
+verifying its own build provenance — the NSK arm adds no 403.
+The operator path (the platform read relation, with a denial
+collapsing onto the same `404 release_not_found`) is unchanged.
+
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 * Bearer (JWT) Authentication (operatorBearer):
 * Api Key Authentication (sessionCookie):
 
@@ -144,6 +165,11 @@ configuration = plexsphere.Configuration(
 # in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Configure Bearer authorization (JWT): operatorBearer
 configuration = plexsphere.Configuration(
@@ -186,7 +212,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+[nskBearer](../README.md#nskBearer), [operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 

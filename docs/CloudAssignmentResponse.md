@@ -1,6 +1,6 @@
 # CloudAssignmentResponse
 
-Metadata projection of a Cloud Assignment. The shape is shared by `RequestCloudAssignment`, `ListCloudAssignments`, `GrantCloudAssignment`, `ApproveCloudAssignment`, `RejectCloudAssignment`, and `RevokeCloudAssignment` so clients only need one binding. 
+Metadata projection of a Cloud Assignment. The shape is shared by `RequestCloudAssignment`, `ListCloudAssignments`, `GrantCloudAssignment`, and `RevokeCloudAssignment` so clients only need one binding. 
 
 ## Properties
 

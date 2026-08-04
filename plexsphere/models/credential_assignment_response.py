@@ -28,7 +28,7 @@ from pydantic_core import to_jsonable_python
 
 class CredentialAssignmentResponse(BaseModel):
     """
-    Metadata projection of a Credential Assignment. The shape is shared by `RequestCredentialAssignment`, `ListCredentialAssignments`, `ApproveCredentialAssignment`, `RejectCredentialAssignment`, and `RevokeCredentialAssignment` so clients only need one binding. 
+    Metadata projection of a Credential Assignment. The shape is shared by `RequestCredentialAssignment`, `ListCredentialAssignments`, and `RevokeCredentialAssignment` so clients only need one binding. 
     """ # noqa: E501
     id: UUID = Field(description="Credential Assignment identifier (UUIDv7).")
     project_id: UUID = Field(description="Identifier of the owning Project — the residency pivot the ReBAC gate authorises against. ")

@@ -20,6 +20,7 @@ from typing import Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from plexsphere.models.approval import Approval
+from plexsphere.models.approval_kind import ApprovalKind
 from plexsphere.models.approval_list import ApprovalList
 from plexsphere.models.approval_state import ApprovalState
 from plexsphere.models.break_glass_request import BreakGlassRequest
@@ -62,7 +63,7 @@ class ApprovalsApi:
     ) -> Approval:
         """Approve a pending Approval.
 
-        Approves the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `approved` state and appends the approval outbox event in a single transaction.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
+        Approves the queue row identified by `{id}`. This is the one approve entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -135,7 +136,7 @@ class ApprovalsApi:
     ) -> ApiResponse[Approval]:
         """Approve a pending Approval.
 
-        Approves the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `approved` state and appends the approval outbox event in a single transaction.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
+        Approves the queue row identified by `{id}`. This is the one approve entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -208,7 +209,7 @@ class ApprovalsApi:
     ) -> RESTResponseType:
         """Approve a pending Approval.
 
-        Approves the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `approved` state and appends the approval outbox event in a single transaction.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
+        Approves the queue row identified by `{id}`. This is the one approve entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  Approval is only legal from the `pending-approval` state (or the `proposed` state under the empty-policy short-circuit) — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. The caller may not approve a proposal they themselves raised; that self-approval is rejected with `403 self_approval_denied`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -344,7 +345,7 @@ class ApprovalsApi:
     ) -> Approval:
         """Force a pending Approval via the emergency override.
 
-        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary. 
+        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary.  Break-glass covers the `approval` kind only. The emergency override is a Domain `ApprovalPolicy` construct and the assignment sources have no counterpart, so a `credential_assignment` or `cloud_assignment` row answers `409 illegal_transition`. Decide those rows through `ApproveApproval` or `RejectApproval`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -422,7 +423,7 @@ class ApprovalsApi:
     ) -> ApiResponse[Approval]:
         """Force a pending Approval via the emergency override.
 
-        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary. 
+        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary.  Break-glass covers the `approval` kind only. The emergency override is a Domain `ApprovalPolicy` construct and the assignment sources have no counterpart, so a `credential_assignment` or `cloud_assignment` row answers `409 illegal_transition`. Decide those rows through `ApproveApproval` or `RejectApproval`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -500,7 +501,7 @@ class ApprovalsApi:
     ) -> RESTResponseType:
         """Force a pending Approval via the emergency override.
 
-        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary. 
+        Forces the Approval identified by `{id}` to the `approved` state via the emergency break-glass override, bypassing the second-party decision. The handler reads the row to resolve the owning Domain, runs the `emergency_approver` ReBAC check on that Domain — the ordinary `approve` relation is NOT sufficient — then delegates to the approval-workflow application service which moves the proposal to `approved` and appends the break-glass outbox event in a single transaction.  The override is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. The mandatory `reason` justifies the emergency and is recorded by field NAME only on the decision's audit caveat context; the value itself is PII routed to a PII-safe sink and never crosses the contract boundary.  Break-glass covers the `approval` kind only. The emergency override is a Domain `ApprovalPolicy` construct and the assignment sources have no counterpart, so a `credential_assignment` or `cloud_assignment` row answers `409 illegal_transition`. Decide those rows through `ApproveApproval` or `RejectApproval`. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -655,7 +656,7 @@ class ApprovalsApi:
     ) -> Approval:
         """Inspect a single Approval.
 
-        Returns the lifecycle metadata projection of the Approval identified by `{id}`. The handler runs the approval-read ReBAC check on the owning Domain BEFORE the persistence read. 
+        Returns the lifecycle metadata projection of the queue row identified by `{id}`. The row may come from any of the three queue sources, and its `kind` names which one.  The visibility check is the same per-row, fail-closed check `ListApprovals` applies, resolved once the row read has revealed the kind: `read` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  An assignment row presents its stored `requested` state as the wire state `pending-approval`, and carries `project_id` and `materialised` in place of the `expires_at` deadline an `approval` row carries. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -727,7 +728,7 @@ class ApprovalsApi:
     ) -> ApiResponse[Approval]:
         """Inspect a single Approval.
 
-        Returns the lifecycle metadata projection of the Approval identified by `{id}`. The handler runs the approval-read ReBAC check on the owning Domain BEFORE the persistence read. 
+        Returns the lifecycle metadata projection of the queue row identified by `{id}`. The row may come from any of the three queue sources, and its `kind` names which one.  The visibility check is the same per-row, fail-closed check `ListApprovals` applies, resolved once the row read has revealed the kind: `read` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  An assignment row presents its stored `requested` state as the wire state `pending-approval`, and carries `project_id` and `materialised` in place of the `expires_at` deadline an `approval` row carries. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -799,7 +800,7 @@ class ApprovalsApi:
     ) -> RESTResponseType:
         """Inspect a single Approval.
 
-        Returns the lifecycle metadata projection of the Approval identified by `{id}`. The handler runs the approval-read ReBAC check on the owning Domain BEFORE the persistence read. 
+        Returns the lifecycle metadata projection of the queue row identified by `{id}`. The row may come from any of the three queue sources, and its `kind` names which one.  The visibility check is the same per-row, fail-closed check `ListApprovals` applies, resolved once the row read has revealed the kind: `read` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row.  An assignment row presents its stored `requested` state as the wire state `pending-approval`, and carries `project_id` and `materialised` in place of the `expires_at` deadline an `approval` row carries. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -917,8 +918,10 @@ class ApprovalsApi:
     @validate_call
     def list_approvals(
         self,
-        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only Approvals in the named state are returned. ")] = None,
-        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. ")] = None,
+        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. ")] = None,
+        kind: Annotated[Optional[ApprovalKind], Field(description="Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. ")] = None,
+        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. ")] = None,
+        cloud_id: Annotated[Optional[UUID], Field(description="Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. ")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -936,12 +939,16 @@ class ApprovalsApi:
     ) -> ApprovalList:
         """List dual-control Approvals.
 
-        Returns a creation-ordered page of Approval lifecycle metadata across the approval queue, optionally narrowed to a single lifecycle `status` and/or a single owning `domain_id`. The handler runs the approval-read ReBAC check BEFORE the persistence read, then layers a per-row visibility filter on top so the response items are the subset of the persistence- level page the caller is authorised to see.  The projection carries the proposal identity, the owning Domain, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of approval-queue rows. The queue is the union of three sources: generic Approvals, Credential Assignments, and Cloud Assignments. Every row carries a `kind` naming its source. The page is optionally narrowed to a single lifecycle `status`, a single owning `domain_id`, a single source `kind`, and a single `cloud_id`.  There is no top-level ReBAC gate on this operation: any authenticated principal may call it, and per-row fail-closed checks decide what the page contains. An `approval` row is visible to a caller holding `read` on its owning Domain; an assignment row is visible to a caller holding `assign` on the object it spends, the Cloud Credential for a `credential_assignment` and the Cloud for a `cloud_assignment`. A row whose check errors or denies is dropped from the page, so the `items` array is the subset the caller is authorised to see.  The projection carries the row identity and kind, the owning Domain, the consuming Project on assignment rows, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection. An assignment row presents its stored `requested` state as the wire state `pending-approval` so a client filters the whole queue with one vocabulary.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param status: Optional lifecycle filter. When present, only Approvals in the named state are returned. 
+        :param status: Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. 
         :type status: ApprovalState
-        :param domain_id: Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. 
+        :param kind: Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. 
+        :type kind: ApprovalKind
+        :param domain_id: Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. 
         :type domain_id: UUID
+        :param cloud_id: Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. 
+        :type cloud_id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
         :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
@@ -970,7 +977,9 @@ class ApprovalsApi:
 
         _param = self._list_approvals_serialize(
             status=status,
+            kind=kind,
             domain_id=domain_id,
+            cloud_id=cloud_id,
             cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
@@ -1000,8 +1009,10 @@ class ApprovalsApi:
     @validate_call
     def list_approvals_with_http_info(
         self,
-        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only Approvals in the named state are returned. ")] = None,
-        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. ")] = None,
+        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. ")] = None,
+        kind: Annotated[Optional[ApprovalKind], Field(description="Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. ")] = None,
+        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. ")] = None,
+        cloud_id: Annotated[Optional[UUID], Field(description="Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. ")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -1019,12 +1030,16 @@ class ApprovalsApi:
     ) -> ApiResponse[ApprovalList]:
         """List dual-control Approvals.
 
-        Returns a creation-ordered page of Approval lifecycle metadata across the approval queue, optionally narrowed to a single lifecycle `status` and/or a single owning `domain_id`. The handler runs the approval-read ReBAC check BEFORE the persistence read, then layers a per-row visibility filter on top so the response items are the subset of the persistence- level page the caller is authorised to see.  The projection carries the proposal identity, the owning Domain, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of approval-queue rows. The queue is the union of three sources: generic Approvals, Credential Assignments, and Cloud Assignments. Every row carries a `kind` naming its source. The page is optionally narrowed to a single lifecycle `status`, a single owning `domain_id`, a single source `kind`, and a single `cloud_id`.  There is no top-level ReBAC gate on this operation: any authenticated principal may call it, and per-row fail-closed checks decide what the page contains. An `approval` row is visible to a caller holding `read` on its owning Domain; an assignment row is visible to a caller holding `assign` on the object it spends, the Cloud Credential for a `credential_assignment` and the Cloud for a `cloud_assignment`. A row whose check errors or denies is dropped from the page, so the `items` array is the subset the caller is authorised to see.  The projection carries the row identity and kind, the owning Domain, the consuming Project on assignment rows, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection. An assignment row presents its stored `requested` state as the wire state `pending-approval` so a client filters the whole queue with one vocabulary.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param status: Optional lifecycle filter. When present, only Approvals in the named state are returned. 
+        :param status: Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. 
         :type status: ApprovalState
-        :param domain_id: Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. 
+        :param kind: Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. 
+        :type kind: ApprovalKind
+        :param domain_id: Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. 
         :type domain_id: UUID
+        :param cloud_id: Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. 
+        :type cloud_id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
         :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
@@ -1053,7 +1068,9 @@ class ApprovalsApi:
 
         _param = self._list_approvals_serialize(
             status=status,
+            kind=kind,
             domain_id=domain_id,
+            cloud_id=cloud_id,
             cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
@@ -1083,8 +1100,10 @@ class ApprovalsApi:
     @validate_call
     def list_approvals_without_preload_content(
         self,
-        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only Approvals in the named state are returned. ")] = None,
-        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. ")] = None,
+        status: Annotated[Optional[ApprovalState], Field(description="Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. ")] = None,
+        kind: Annotated[Optional[ApprovalKind], Field(description="Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. ")] = None,
+        domain_id: Annotated[Optional[UUID], Field(description="Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. ")] = None,
+        cloud_id: Annotated[Optional[UUID], Field(description="Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. ")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -1102,12 +1121,16 @@ class ApprovalsApi:
     ) -> RESTResponseType:
         """List dual-control Approvals.
 
-        Returns a creation-ordered page of Approval lifecycle metadata across the approval queue, optionally narrowed to a single lifecycle `status` and/or a single owning `domain_id`. The handler runs the approval-read ReBAC check BEFORE the persistence read, then layers a per-row visibility filter on top so the response items are the subset of the persistence- level page the caller is authorised to see.  The projection carries the proposal identity, the owning Domain, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of approval-queue rows. The queue is the union of three sources: generic Approvals, Credential Assignments, and Cloud Assignments. Every row carries a `kind` naming its source. The page is optionally narrowed to a single lifecycle `status`, a single owning `domain_id`, a single source `kind`, and a single `cloud_id`.  There is no top-level ReBAC gate on this operation: any authenticated principal may call it, and per-row fail-closed checks decide what the page contains. An `approval` row is visible to a caller holding `read` on its owning Domain; an assignment row is visible to a caller holding `assign` on the object it spends, the Cloud Credential for a `credential_assignment` and the Cloud for a `cloud_assignment`. A row whose check errors or denies is dropped from the page, so the `items` array is the subset the caller is authorised to see.  The projection carries the row identity and kind, the owning Domain, the consuming Project on assignment rows, the proposer, the proposed action and target, the lifecycle state, the decision metadata once a terminal state is reached, and the names-only audit caveat projection. An assignment row presents its stored `requested` state as the wire state `pending-approval` so a client filters the whole queue with one vocabulary.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param status: Optional lifecycle filter. When present, only Approvals in the named state are returned. 
+        :param status: Optional lifecycle filter. When present, only rows in the named state are returned. A value outside the vocabulary is rejected with `400 invalid_status`. 
         :type status: ApprovalState
-        :param domain_id: Optional owning-Domain filter. When present, only Approvals belonging to the named Domain are returned. 
+        :param kind: Optional source filter. When present, only rows of the named source family are returned. A value outside the vocabulary is rejected with `400 invalid_kind`. 
+        :type kind: ApprovalKind
+        :param domain_id: Optional owning-Domain filter. When present, only rows belonging to the named Domain are returned. 
         :type domain_id: UUID
+        :param cloud_id: Optional Cloud filter. When present, only assignment rows that target the named Cloud are returned: a `cloud_assignment` row for that Cloud, or a `credential_assignment` row for any Cloud Credential the Cloud owns. An `approval` row never matches this filter, so combining `cloud_id` with `kind=approval` returns an empty page. A malformed value is rejected with `400 invalid_cloud_id`. 
+        :type cloud_id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
         :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
@@ -1136,7 +1159,9 @@ class ApprovalsApi:
 
         _param = self._list_approvals_serialize(
             status=status,
+            kind=kind,
             domain_id=domain_id,
+            cloud_id=cloud_id,
             cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
@@ -1162,7 +1187,9 @@ class ApprovalsApi:
     def _list_approvals_serialize(
         self,
         status,
+        kind,
         domain_id,
+        cloud_id,
         cursor,
         limit,
         _request_auth,
@@ -1191,9 +1218,17 @@ class ApprovalsApi:
             
             _query_params.append(('status', status.value))
             
+        if kind is not None:
+            
+            _query_params.append(('kind', kind.value))
+            
         if domain_id is not None:
             
             _query_params.append(('domain_id', domain_id))
+            
+        if cloud_id is not None:
+            
+            _query_params.append(('cloud_id', cloud_id))
             
         if cursor is not None:
             
@@ -1262,7 +1297,7 @@ class ApprovalsApi:
     ) -> Approval:
         """Reject a pending Approval.
 
-        Rejects the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `rejected` state and appends the rejection outbox event in a single transaction. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. 
+        Rejects the queue row identified by `{id}`. This is the one reject entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service, which moves the row to the `rejected` state and appends the rejection outbox event in a single transaction. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -1340,7 +1375,7 @@ class ApprovalsApi:
     ) -> ApiResponse[Approval]:
         """Reject a pending Approval.
 
-        Rejects the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `rejected` state and appends the rejection outbox event in a single transaction. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. 
+        Rejects the queue row identified by `{id}`. This is the one reject entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service, which moves the row to the `rejected` state and appends the rejection outbox event in a single transaction. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID
@@ -1418,7 +1453,7 @@ class ApprovalsApi:
     ) -> RESTResponseType:
         """Reject a pending Approval.
 
-        Rejects the Approval identified by `{id}`. The handler reads the row to resolve the owning Domain, runs the `approve` ReBAC check on that Domain, then delegates to the approval-workflow application service which moves the proposal to the `rejected` state and appends the rejection outbox event in a single transaction. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. 
+        Rejects the queue row identified by `{id}`. This is the one reject entry point for all three queue sources: the handler reads the row, then dispatches on its `kind` to the owning application service, which moves the row to the `rejected` state and appends the rejection outbox event in a single transaction. The gate is the one the kind's source surface owns: `approve` on the owning Domain for an `approval` row, `assign` on the Cloud Credential for a `credential_assignment` row, `assign` on the Cloud for a `cloud_assignment` row. The `reason` from the body is recorded on the decision as an operator-supplied audit string.  Rejection is only legal from the `pending-approval` state — any other source state returns `409 illegal_transition`. On an assignment row `pending-approval` is the wire presentation of the stored `requested` state, so the same rule holds. 
 
         :param id: Approval identifier (UUIDv7). Bound on `/v1/approvals/{id}`, `/v1/approvals/{id}/approve`, `/v1/approvals/{id}/reject`, and `/v1/approvals/{id}/break-glass` for the dual-control approval read + decision surface.  (required)
         :type id: UUID

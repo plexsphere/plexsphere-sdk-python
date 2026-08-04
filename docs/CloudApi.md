@@ -4,8 +4,6 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**approve_cloud_assignment**](CloudApi.md#approve_cloud_assignment) | **POST** /v1/cloud-assignments/{id}/approve | Approve a Cloud Assignment request.
-[**approve_credential_assignment**](CloudApi.md#approve_credential_assignment) | **POST** /v1/credential-assignments/{id}/approve | Approve a Credential Assignment.
 [**attach_cloud_credential_cloud**](CloudApi.md#attach_cloud_credential_cloud) | **POST** /v1/cloud-credentials/{id}/clouds | Attach a usage Cloud to a Cloud Credential.
 [**create_cloud**](CloudApi.md#create_cloud) | **POST** /v1/clouds | Create a Cloud Inventory entry.
 [**delete_cloud**](CloudApi.md#delete_cloud) | **DELETE** /v1/clouds/{id} | Delete a Cloud.
@@ -20,221 +18,12 @@ Method | HTTP request | Description
 [**list_clouds**](CloudApi.md#list_clouds) | **GET** /v1/clouds | List Cloud Inventory entries.
 [**list_credential_assignments**](CloudApi.md#list_credential_assignments) | **GET** /v1/projects/{id}/credential-assignments | List the Credential Assignments owned by a Project.
 [**patch_cloud**](CloudApi.md#patch_cloud) | **PATCH** /v1/clouds/{id} | Patch mutable fields on a Cloud.
-[**reject_cloud_assignment**](CloudApi.md#reject_cloud_assignment) | **POST** /v1/cloud-assignments/{id}/reject | Reject a Cloud Assignment request.
-[**reject_credential_assignment**](CloudApi.md#reject_credential_assignment) | **POST** /v1/credential-assignments/{id}/reject | Reject a Credential Assignment.
 [**request_cloud_assignment**](CloudApi.md#request_cloud_assignment) | **POST** /v1/projects/{id}/cloud-assignments | Request usage of a Cloud for a Project.
 [**request_credential_assignment**](CloudApi.md#request_credential_assignment) | **POST** /v1/projects/{id}/credential-assignments | Request a Credential Assignment for a Project.
 [**revoke_cloud_assignment**](CloudApi.md#revoke_cloud_assignment) | **POST** /v1/cloud-assignments/{id}/revoke | Revoke a Cloud Assignment.
 [**revoke_cloud_credential**](CloudApi.md#revoke_cloud_credential) | **POST** /v1/cloud-credentials/{id}/revoke | Revoke a Cloud Credential.
 [**revoke_credential_assignment**](CloudApi.md#revoke_credential_assignment) | **POST** /v1/credential-assignments/{id}/revoke | Revoke a Credential Assignment.
 
-
-# **approve_cloud_assignment**
-> CloudAssignmentResponse approve_cloud_assignment(id)
-
-Approve a Cloud Assignment request.
-
-Approves the Cloud Assignment identified by `{id}`. The handler
-reads the row to resolve the owning Cloud, runs the `assign`
-ReBAC check on that Cloud, then delegates to the Cloud
-Assignment application service which moves the assignment to the
-`approved` state, materialises the `cloud#uses` binding so the
-Cloud is usable in the Project, and appends a
-`CloudAssignmentMaterialised` outbox event in a single
-transaction.
-
-Approval is only legal from the `requested` state — any other
-source state returns `409 illegal_transition`. The caller may
-not approve an assignment they themselves requested; that
-self-approval is rejected with `403 self_approval_denied`.
-
-
-### Example
-
-* Bearer (JWT) Authentication (operatorBearer):
-* Api Key Authentication (sessionCookie):
-
-```python
-import plexsphere
-from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse
-from plexsphere.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = plexsphere.Configuration(
-    host = "http://localhost"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (JWT): operatorBearer
-configuration = plexsphere.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Configure API key authorization: sessionCookie
-configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
-
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
-
-# Enter a context with an instance of the API client
-with plexsphere.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. 
-
-    try:
-        # Approve a Cloud Assignment request.
-        api_response = api_instance.approve_cloud_assignment(id)
-        print("The response of CloudApi->approve_cloud_assignment:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CloudApi->approve_cloud_assignment: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Assignment identifier (UUIDv7). Bound on &#x60;/v1/cloud-assignments/{id}/approve&#x60;, &#x60;/v1/cloud-assignments/{id}/reject&#x60;, and &#x60;/v1/cloud-assignments/{id}/revoke&#x60; for the Cloud Assignment decision surface.  | 
-
-### Return type
-
-[**CloudAssignmentResponse**](CloudAssignmentResponse.md)
-
-### Authorization
-
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Cloud Assignment approved. Body is the metadata projection with &#x60;state: approved&#x60; and &#x60;materialised: true&#x60;.  |  -  |
-**400** | Malformed id. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_cloud_assignment_id&#x60;.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to assign the owning Cloud, or the caller is the requester of this assignment and may not approve their own request (body is a &#x60;Problem&#x60; with &#x60;code: self_approval_denied&#x60;).  |  -  |
-**404** | Cloud Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_assignment_not_found&#x60;.  |  -  |
-**409** | The assignment is not in a state from which approval is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
-**500** | Internal server error. |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **approve_credential_assignment**
-> CredentialAssignmentResponse approve_credential_assignment(id)
-
-Approve a Credential Assignment.
-
-Approves the Credential Assignment identified by `{id}`. The
-handler reads the row to resolve the parent Project, runs the
-`manage` ReBAC check on that Project, then delegates to the
-Credential Assignment application service which moves the
-assignment to the `approved` state, materialises the binding,
-and appends a `CredentialAssignmentApproved` outbox event in a
-single transaction.
-
-Approval is only legal from the `requested` state — any other
-source state returns `409 illegal_transition`. The caller may
-not approve an assignment they themselves requested; that
-self-approval is rejected with `403 self_approval_denied`.
-
-
-### Example
-
-* Bearer (JWT) Authentication (operatorBearer):
-* Api Key Authentication (sessionCookie):
-
-```python
-import plexsphere
-from plexsphere.models.credential_assignment_response import CredentialAssignmentResponse
-from plexsphere.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = plexsphere.Configuration(
-    host = "http://localhost"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (JWT): operatorBearer
-configuration = plexsphere.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Configure API key authorization: sessionCookie
-configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
-
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
-
-# Enter a context with an instance of the API client
-with plexsphere.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. 
-
-    try:
-        # Approve a Credential Assignment.
-        api_response = api_instance.approve_credential_assignment(id)
-        print("The response of CloudApi->approve_credential_assignment:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CloudApi->approve_credential_assignment: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Credential Assignment identifier (UUIDv7). Bound on &#x60;/v1/credential-assignments/{id}/approve&#x60;, &#x60;/v1/credential-assignments/{id}/reject&#x60;, and &#x60;/v1/credential-assignments/{id}/revoke&#x60; for the Credential Assignment decision surface.  | 
-
-### Return type
-
-[**CredentialAssignmentResponse**](CredentialAssignmentResponse.md)
-
-### Authorization
-
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Credential Assignment approved. Body is the metadata projection with &#x60;state: approved&#x60; and &#x60;materialised: true&#x60;.  |  -  |
-**400** | Malformed id. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_credential_assignment_id&#x60;.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to manage the parent Project, or the caller is the requester of this assignment and may not approve their own request (body is a &#x60;Problem&#x60; with &#x60;code: self_approval_denied&#x60;).  |  -  |
-**404** | Credential Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: credential_assignment_not_found&#x60;.  |  -  |
-**409** | The assignment is not in a state from which approval is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
-**500** | Internal server error. |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **attach_cloud_credential_cloud**
 > CloudUsageRef attach_cloud_credential_cloud(id, cloud_credential_attach_request)
@@ -1488,10 +1277,10 @@ List the Credential Assignments owned by a Project.
 
 Returns a creation-ordered page of Credential Assignment
 lifecycle metadata for the Project identified by `{id}`. The
-handler runs a top-level `observe` ReBAC check on the parent
-Project BEFORE the persistence read, then layers a per-row
-`observe` filter on top so the response items are the subset
-of the persistence-level page the caller is authorised to see.
+handler runs a top-level `read` ReBAC check on the parent
+Project BEFORE the persistence read; every assignment in the
+page belongs to the one path Project, so the project `read`
+check authorises the whole page and no per-row filter runs.
 
 The projection carries the assignment identity, the owning
 Project, the bound Cloud Credential, the lifecycle state, a
@@ -1585,7 +1374,7 @@ Name | Type | Description  | Notes
 **200** | Page of Credential Assignments. |  -  |
 **400** | Invalid query parameters — typically a tampered or malformed cursor, an out-of-range &#x60;limit&#x60;, or a malformed Project id.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to observe the parent Project (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
+**403** | Caller is not authorized to read the parent Project (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1701,217 +1490,6 @@ Name | Type | Description  | Notes
 **403** | Caller is not authorized to manage the addressed Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Cloud not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_not_found&#x60;.  |  -  |
 **413** | Request body exceeded the 8 KiB Cloud Inventory ceiling.  |  -  |
-**500** | Internal server error. |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **reject_cloud_assignment**
-> CloudAssignmentResponse reject_cloud_assignment(id, cloud_assignment_decision_request)
-
-Reject a Cloud Assignment request.
-
-Rejects the Cloud Assignment identified by `{id}`. The handler
-reads the row to resolve the owning Cloud, runs the `assign`
-ReBAC check on that Cloud, then delegates to the Cloud
-Assignment application service which moves the assignment to the
-`rejected` state and appends a `CloudAssignmentRejected` outbox
-event in a single transaction. The `reason` from the body is
-recorded on the event as an operator-supplied audit string.
-
-Rejection is only legal from the `requested` state — any other
-source state returns `409 illegal_transition`.
-
-
-### Example
-
-* Bearer (JWT) Authentication (operatorBearer):
-* Api Key Authentication (sessionCookie):
-
-```python
-import plexsphere
-from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest
-from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse
-from plexsphere.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = plexsphere.Configuration(
-    host = "http://localhost"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (JWT): operatorBearer
-configuration = plexsphere.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Configure API key authorization: sessionCookie
-configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
-
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
-
-# Enter a context with an instance of the API client
-with plexsphere.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. 
-    cloud_assignment_decision_request = {"reason":"Cloud is being decommissioned this quarter"} # CloudAssignmentDecisionRequest | 
-
-    try:
-        # Reject a Cloud Assignment request.
-        api_response = api_instance.reject_cloud_assignment(id, cloud_assignment_decision_request)
-        print("The response of CloudApi->reject_cloud_assignment:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CloudApi->reject_cloud_assignment: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Assignment identifier (UUIDv7). Bound on &#x60;/v1/cloud-assignments/{id}/approve&#x60;, &#x60;/v1/cloud-assignments/{id}/reject&#x60;, and &#x60;/v1/cloud-assignments/{id}/revoke&#x60; for the Cloud Assignment decision surface.  | 
- **cloud_assignment_decision_request** | [**CloudAssignmentDecisionRequest**](CloudAssignmentDecisionRequest.md)|  | 
-
-### Return type
-
-[**CloudAssignmentResponse**](CloudAssignmentResponse.md)
-
-### Authorization
-
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Cloud Assignment rejected. Body is the metadata projection with &#x60;state: rejected&#x60;.  |  -  |
-**400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud_assignment_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_decision_reason&#x60; }.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to assign the owning Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
-**404** | Cloud Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_assignment_not_found&#x60;.  |  -  |
-**409** | The assignment is not in a state from which rejection is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
-**413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
-**500** | Internal server error. |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **reject_credential_assignment**
-> CredentialAssignmentResponse reject_credential_assignment(id, credential_assignment_decision_request)
-
-Reject a Credential Assignment.
-
-Rejects the Credential Assignment identified by `{id}`. The
-handler reads the row to resolve the parent Project, runs the
-`manage` ReBAC check on that Project, then delegates to the
-Credential Assignment application service which moves the
-assignment to the `rejected` state and appends a
-`CredentialAssignmentRejected` outbox event in a single
-transaction. The `reason` from the body is recorded on the
-event as an approver-supplied audit string.
-
-Rejection is only legal from the `requested` state — any other
-source state returns `409 illegal_transition`.
-
-
-### Example
-
-* Bearer (JWT) Authentication (operatorBearer):
-* Api Key Authentication (sessionCookie):
-
-```python
-import plexsphere
-from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest
-from plexsphere.models.credential_assignment_response import CredentialAssignmentResponse
-from plexsphere.rest import ApiException
-from pprint import pprint
-
-# Defining the host is optional and defaults to http://localhost
-# See configuration.py for a list of all supported configuration parameters.
-configuration = plexsphere.Configuration(
-    host = "http://localhost"
-)
-
-# The client must configure the authentication and authorization parameters
-# in accordance with the API server security policy.
-# Examples for each auth method are provided below, use the example that
-# satisfies your auth use case.
-
-# Configure Bearer authorization (JWT): operatorBearer
-configuration = plexsphere.Configuration(
-    access_token = os.environ["BEARER_TOKEN"]
-)
-
-# Configure API key authorization: sessionCookie
-configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
-
-# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
-
-# Enter a context with an instance of the API client
-with plexsphere.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. 
-    credential_assignment_decision_request = {"reason":"Cloud Credential is scheduled for rotation this week"} # CredentialAssignmentDecisionRequest | 
-
-    try:
-        # Reject a Credential Assignment.
-        api_response = api_instance.reject_credential_assignment(id, credential_assignment_decision_request)
-        print("The response of CloudApi->reject_credential_assignment:\n")
-        pprint(api_response)
-    except Exception as e:
-        print("Exception when calling CloudApi->reject_credential_assignment: %s\n" % e)
-```
-
-
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Credential Assignment identifier (UUIDv7). Bound on &#x60;/v1/credential-assignments/{id}/approve&#x60;, &#x60;/v1/credential-assignments/{id}/reject&#x60;, and &#x60;/v1/credential-assignments/{id}/revoke&#x60; for the Credential Assignment decision surface.  | 
- **credential_assignment_decision_request** | [**CredentialAssignmentDecisionRequest**](CredentialAssignmentDecisionRequest.md)|  | 
-
-### Return type
-
-[**CredentialAssignmentResponse**](CredentialAssignmentResponse.md)
-
-### Authorization
-
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json, application/problem+json
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-**200** | Credential Assignment rejected. Body is the metadata projection with &#x60;state: rejected&#x60;.  |  -  |
-**400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_credential_assignment_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_decision_reason&#x60; }.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to manage the parent Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
-**404** | Credential Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: credential_assignment_not_found&#x60;.  |  -  |
-**409** | The assignment is not in a state from which rejection is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
-**413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -2148,14 +1726,21 @@ Name | Type | Description  | Notes
 Revoke a Cloud Assignment.
 
 Revokes the Cloud Assignment identified by `{id}`. The handler
-reads the row to resolve the owning Cloud, runs the `assign`
-ReBAC check on that Cloud, then delegates to the Cloud
-Assignment application service which moves the assignment to the
-`revoked` state, narrow-deletes the `cloud#uses` binding so the
-Cloud is no longer usable in the Project, and appends a
-`CloudAssignmentRevoked` outbox event in a single transaction.
-The `reason` from the body is recorded on the event as an
-operator-supplied audit string.
+reads the row to resolve the owning Cloud and the consuming
+Project, runs the dual ReBAC gate described below, then
+delegates to the Cloud Assignment application service which
+moves the assignment to the `revoked` state, narrow-deletes the
+`cloud#uses` binding so the Cloud is no longer usable in the
+Project, and appends a `CloudAssignmentRevoked` outbox event in
+a single transaction. The `reason` from the body is recorded on
+the event as an operator-supplied audit string.
+
+The gate has two legs: `assign` on the owning Cloud, the object
+the assignment spends, and on its denial `deploy` on the
+consuming Project. Either leg authorises the revocation; the
+call is denied only when both deny. The second leg lets a
+Project owner hand back a Cloud they were granted without
+holding the Cloud-side `assign` relation.
 
 Revocation is only legal from the `approved` state — any other
 source state returns `409 illegal_transition`.
@@ -2199,7 +1784,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface. 
     cloud_assignment_decision_request = {"reason":"Project no longer authorised for this Cloud"} # CloudAssignmentDecisionRequest | 
 
     try:
@@ -2218,7 +1803,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Assignment identifier (UUIDv7). Bound on &#x60;/v1/cloud-assignments/{id}/approve&#x60;, &#x60;/v1/cloud-assignments/{id}/reject&#x60;, and &#x60;/v1/cloud-assignments/{id}/revoke&#x60; for the Cloud Assignment decision surface.  | 
+ **id** | **UUID**| Cloud Assignment identifier (UUIDv7). Bound on &#x60;/v1/cloud-assignments/{id}/revoke&#x60; for the Cloud Assignment revocation surface.  | 
  **cloud_assignment_decision_request** | [**CloudAssignmentDecisionRequest**](CloudAssignmentDecisionRequest.md)|  | 
 
 ### Return type
@@ -2241,7 +1826,7 @@ Name | Type | Description  | Notes
 **200** | Cloud Assignment revoked. Body is the metadata projection with &#x60;state: revoked&#x60;.  |  -  |
 **400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud_assignment_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_decision_reason&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to assign the owning Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**403** | Caller holds neither &#x60;assign&#x60; on the owning Cloud nor &#x60;deploy&#x60; on the consuming Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Cloud Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_assignment_not_found&#x60;.  |  -  |
 **409** | The assignment is not in a state from which revocation is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
 **413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
@@ -2360,13 +1945,21 @@ Name | Type | Description  | Notes
 Revoke a Credential Assignment.
 
 Revokes the Credential Assignment identified by `{id}`. The
-handler reads the row to resolve the parent Project, runs the
-`manage` ReBAC check on that Project, then delegates to the
-Credential Assignment application service which moves the
-assignment to the `revoked` state, tears down the materialised
-binding, and appends a `CredentialAssignmentRevoked` outbox
-event in a single transaction. The `reason` from the body is
-recorded on the event as an operator-supplied audit string.
+handler reads the row to resolve the owning Cloud Credential and
+the consuming Project, runs the dual ReBAC gate described below,
+then delegates to the Credential Assignment application service
+which moves the assignment to the `revoked` state, tears down
+the materialised binding, and appends a
+`CredentialAssignmentRevoked` outbox event in a single
+transaction. The `reason` from the body is recorded on the event
+as an operator-supplied audit string.
+
+The gate has two legs: `assign` on the owning Cloud Credential,
+the object the assignment spends, and on its denial `deploy` on
+the consuming Project. Either leg authorises the revocation; the
+call is denied only when both deny. The second leg lets a
+Project owner hand back a Credential they were granted without
+holding the Credential-side `assign` relation.
 
 Revocation is only legal from the `approved` state — any other
 source state returns `409 illegal_transition`.
@@ -2410,7 +2003,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface. 
     credential_assignment_decision_request = {"reason":"Project decommissioned by the platform on-call"} # CredentialAssignmentDecisionRequest | 
 
     try:
@@ -2429,7 +2022,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Credential Assignment identifier (UUIDv7). Bound on &#x60;/v1/credential-assignments/{id}/approve&#x60;, &#x60;/v1/credential-assignments/{id}/reject&#x60;, and &#x60;/v1/credential-assignments/{id}/revoke&#x60; for the Credential Assignment decision surface.  | 
+ **id** | **UUID**| Credential Assignment identifier (UUIDv7). Bound on &#x60;/v1/credential-assignments/{id}/revoke&#x60; for the Credential Assignment revocation surface.  | 
  **credential_assignment_decision_request** | [**CredentialAssignmentDecisionRequest**](CredentialAssignmentDecisionRequest.md)|  | 
 
 ### Return type
@@ -2452,7 +2045,7 @@ Name | Type | Description  | Notes
 **200** | Credential Assignment revoked. Body is the metadata projection with &#x60;state: revoked&#x60; and &#x60;materialised: false&#x60;.  |  -  |
 **400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_credential_assignment_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_decision_reason&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to manage the parent Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**403** | Caller holds neither &#x60;assign&#x60; on the owning Cloud Credential nor &#x60;deploy&#x60; on the consuming Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Credential Assignment not found. Body is a &#x60;Problem&#x60; with &#x60;code: credential_assignment_not_found&#x60;.  |  -  |
 **409** | The assignment is not in a state from which revocation is legal. Body is a &#x60;Problem&#x60; with &#x60;code: illegal_transition&#x60;.  |  -  |
 **413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |

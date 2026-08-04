@@ -18,9 +18,8 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from uuid import UUID
 from plexsphere.models.session import Session
 from typing import Optional, Set
@@ -29,28 +28,14 @@ from pydantic_core import to_jsonable_python
 
 class IssuedSession(BaseModel):
     """
-    Body of a successful `IssueSession`. Carries the metadata-only Session projection, the signed EdDSA JWT (delivered EXACTLY ONCE, here — it is never persisted server-side beyond the identifier and expiry, and never re-exposed through the list or read projections), the per-kind plexd listener endpoint the operator's client connects to, and the expiry. 
+    Body of a successful `IssueSession`. Carries the metadata-only Session projection, the signed EdDSA JWT (delivered EXACTLY ONCE, here — it is never persisted server-side beyond the identifier and expiry, and never re-exposed through the list or read projections), and the expiry. The body carries no listener endpoint: the target Node reports its mediated-listener coordinate after issuance, and it settles on the nested Session projection served by `GetSession` / `ListSessions`. 
     """ # noqa: E501
     session_id: UUID = Field(description="Identifier of the issued Session (UUIDv7). Equals the token's `jti`. ")
     token: StrictStr = Field(description="The signed, session-scoped EdDSA JWT. Delivered exactly once, in this response. Treat as a bearer secret. ")
     expires_at: datetime = Field(description="Expiry timestamp (UTC) of the issued Session and its token. ")
-    listener_endpoint: Optional[Annotated[str, Field(strict=True, max_length=261)]] = Field(default=None, description="The on-Node endpoint (`host:port`) the operator's client connects to for this session kind. ")
     session: Session
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["session_id", "token", "expires_at", "listener_endpoint", "session"]
-
-    @field_validator('listener_endpoint')
-    def listener_endpoint_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not isinstance(value, str):
-            value = str(value)
-
-        if not re.match(r"^.+:[0-9]{1,5}$", value):
-            raise ValueError(r"must validate the regular expression /^.+:[0-9]{1,5}$/")
-        return value
+    __properties: ClassVar[List[str]] = ["session_id", "token", "expires_at", "session"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -116,7 +101,6 @@ class IssuedSession(BaseModel):
             "session_id": obj.get("session_id"),
             "token": obj.get("token"),
             "expires_at": obj.get("expires_at"),
-            "listener_endpoint": obj.get("listener_endpoint"),
             "session": Session.from_dict(obj["session"]) if obj.get("session") is not None else None
         })
         # store additional fields in additional_properties

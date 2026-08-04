@@ -1,6 +1,6 @@
 # CredentialAssignmentResponse
 
-Metadata projection of a Credential Assignment. The shape is shared by `RequestCredentialAssignment`, `ListCredentialAssignments`, `ApproveCredentialAssignment`, `RejectCredentialAssignment`, and `RevokeCredentialAssignment` so clients only need one binding. 
+Metadata projection of a Credential Assignment. The shape is shared by `RequestCredentialAssignment`, `ListCredentialAssignments`, and `RevokeCredentialAssignment` so clients only need one binding. 
 
 ## Properties
 

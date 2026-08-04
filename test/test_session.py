@@ -51,7 +51,8 @@ class TestSession(unittest.TestCase):
                 target = plexsphere.models.session_target.SessionTarget(
                     ssh = null, 
                     k8s = null, 
-                    tcp = null, )
+                    tcp = null, ),
+                listener_endpoint = 'j:0728'
             )
         else:
             return Session(

@@ -52,6 +52,19 @@ class TestCapabilityManifestRequest(unittest.TestCase):
                             }, 
                         timeout_seconds = 0, 
                         sandbox = True, )
+                    ],
+                builtin_actions = [
+                    plexsphere.models.builtin_action.BuiltinAction(
+                        name = '0', 
+                        description = '', 
+                        parameters = [
+                            plexsphere.models.builtin_action_parameter.BuiltinActionParameter(
+                                name = '0', 
+                                type = '', 
+                                required = True, 
+                                default = '', 
+                                description = '', )
+                            ], )
                     ]
             )
         else:

@@ -40,6 +40,7 @@ class TestProblem(unittest.TestCase):
                 status = 56,
                 detail = '',
                 instance = '',
+                correlation_id = '',
                 code = '',
                 dimension = '',
                 child_counts = plexsphere.models.domain_child_counts.DomainChildCounts(
@@ -63,6 +64,7 @@ class TestProblem(unittest.TestCase):
                 status = 56,
                 detail = '',
                 instance = '',
+                correlation_id = '',
         )
         """
 

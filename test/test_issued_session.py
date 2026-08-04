@@ -38,7 +38,6 @@ class TestIssuedSession(unittest.TestCase):
                 session_id = '',
                 token = '',
                 expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
-                listener_endpoint = 'j:0728',
                 session = plexsphere.models.session.Session(
                     id = '', 
                     project_id = '', 
@@ -56,7 +55,8 @@ class TestIssuedSession(unittest.TestCase):
                     target = plexsphere.models.session_target.SessionTarget(
                         ssh = null, 
                         k8s = null, 
-                        tcp = null, ), )
+                        tcp = null, ), 
+                    listener_endpoint = 'j:0728', )
             )
         else:
             return IssuedSession(
@@ -80,7 +80,8 @@ class TestIssuedSession(unittest.TestCase):
                     target = plexsphere.models.session_target.SessionTarget(
                         ssh = null, 
                         k8s = null, 
-                        tcp = null, ), ),
+                        tcp = null, ), 
+                    listener_endpoint = 'j:0728', ),
         )
         """
 

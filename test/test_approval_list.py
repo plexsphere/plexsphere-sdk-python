@@ -38,12 +38,15 @@ class TestApprovalList(unittest.TestCase):
                 items = [
                     plexsphere.models.approval.Approval(
                         id = '', 
+                        kind = 'approval', 
                         domain_id = '', 
+                        project_id = '', 
                         proposer_subject = '', 
                         action_kind = '', 
                         target_resource = '', 
                         payload = { }, 
                         state = 'proposed', 
+                        materialised = True, 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         decided_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         decided_by_subject = '', 
@@ -62,12 +65,15 @@ class TestApprovalList(unittest.TestCase):
                 items = [
                     plexsphere.models.approval.Approval(
                         id = '', 
+                        kind = 'approval', 
                         domain_id = '', 
+                        project_id = '', 
                         proposer_subject = '', 
                         action_kind = '', 
                         target_resource = '', 
                         payload = { }, 
                         state = 'proposed', 
+                        materialised = True, 
                         created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         decided_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                         decided_by_subject = '', 

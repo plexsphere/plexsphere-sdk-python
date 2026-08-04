@@ -46,8 +46,8 @@ class MeshEdge(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['healthy', 'stale', 'unreachable']):
-            raise ValueError("must be one of enum values ('healthy', 'stale', 'unreachable')")
+        if value not in set(['healthy', 'stale', 'unreachable', 'never_reported']):
+            raise ValueError("must be one of enum values ('healthy', 'stale', 'unreachable', 'never_reported')")
         return value
 
     model_config = ConfigDict(
