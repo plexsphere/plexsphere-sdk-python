@@ -111,12 +111,13 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **201** | Relation tuple created. |  -  |
-**400** | Aggregate invariant rejected the body — empty subject / relation / resource, malformed object reference, etc. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_relation_tuple&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | The triple is not writable. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_triple&#x60;, &#x60;invalid_project_id&#x60;, &#x60;invalid_body&#x60; }. &#x60;invalid_triple&#x60; covers both the shape checks the handler makes itself — empty subject / relation / resource — and the schema rejections only the ReBAC backend can make: an unknown object definition, an unknown relation, a subject type the relation does not admit, or a PERMISSION named where a relation belongs. Permissions are computed from relations, so nothing can be written into one; grant a relation the permission derives from instead.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create relation tuples on the addressed Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Owning Project does not exist or is not visible to the caller. Body is a &#x60;Problem&#x60; with &#x60;code: project_not_found&#x60;.  |  -  |
 **413** | Request body exceeded the 8 KiB ceiling enforced by the handler.  |  -  |
 **500** | Internal server error. |  -  |
+**503** | The ReBAC backend is unreachable, so neither the authorization decision nor the tuple write could be reached. Body is a &#x60;Problem&#x60; with &#x60;code: authz_unavailable&#x60;. Nothing was written, and the write is idempotent, so retrying after the backend recovers is safe.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -403,7 +404,7 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Relation tuple replaced. |  -  |
-**400** | Path &#x60;{id}&#x60; was not a non-zero UUID, body was empty, or the new tuple invariants were rejected. Body is a &#x60;Problem&#x60;.  |  -  |
+**400** | Path &#x60;{id}&#x60; was not a non-zero UUID, body was empty, or the replacement triple is not writable — the same &#x60;invalid_triple&#x60; contract &#x60;CreateRelationTuple&#x60; documents, including the schema rejections only the ReBAC backend can make. Note that the delete leg runs first, so a replacement the backend refuses leaves the old tuple already deleted; the &#x60;detail&#x60; says so. Body is a &#x60;Problem&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to replace the addressed relation tuple. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Relation tuple not found. Body is a &#x60;Problem&#x60; with &#x60;code: relation_tuple_not_found&#x60;.  |  -  |

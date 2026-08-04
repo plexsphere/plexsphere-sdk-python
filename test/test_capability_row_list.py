@@ -42,6 +42,19 @@ class TestCapabilityRowList(unittest.TestCase):
                         binary_version = '', 
                         binary_checksum = 'YQ==', 
                         status = 'match', 
+                        builtin_actions = [
+                            plexsphere.models.builtin_action.BuiltinAction(
+                                name = '0', 
+                                description = '', 
+                                parameters = [
+                                    plexsphere.models.builtin_action_parameter.BuiltinActionParameter(
+                                        name = '0', 
+                                        type = '', 
+                                        required = True, 
+                                        default = '', 
+                                        description = '', )
+                                    ], )
+                            ], 
                         reported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                     ],
                 next_cursor = ''
@@ -55,6 +68,19 @@ class TestCapabilityRowList(unittest.TestCase):
                         binary_version = '', 
                         binary_checksum = 'YQ==', 
                         status = 'match', 
+                        builtin_actions = [
+                            plexsphere.models.builtin_action.BuiltinAction(
+                                name = '0', 
+                                description = '', 
+                                parameters = [
+                                    plexsphere.models.builtin_action_parameter.BuiltinActionParameter(
+                                        name = '0', 
+                                        type = '', 
+                                        required = True, 
+                                        default = '', 
+                                        description = '', )
+                                    ], )
+                            ], 
                         reported_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                     ],
         )

@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **phase** | **str** | Lifecycle phase: &#x60;session_started&#x60; opens the tunnel, &#x60;session_ended&#x60; closes it.  | 
 **target_host** | **str** | Target host the tunnel connected to. Present on &#x60;session_started&#x60;.  | [optional] 
 **target_port** | **int** | Target port the tunnel connected to. Present on &#x60;session_started&#x60;.  | [optional] 
+**listener_endpoint** | **str** | The &#x60;host:port&#x60; the Node bound for this session on its mesh address. Present only on &#x60;session_started&#x60;.  | [optional] 
 **bytes_in** | **int** | Bytes forwarded from the operator to the target. Present on &#x60;session_ended&#x60;.  | [optional] 
 **bytes_out** | **int** | Bytes forwarded from the target to the operator. Present on &#x60;session_ended&#x60;.  | [optional] 
 **terminated_by** | **str** | What closed the tunnel. Present on &#x60;session_ended&#x60;.  | [optional] 

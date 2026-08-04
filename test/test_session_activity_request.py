@@ -51,6 +51,7 @@ class TestSessionActivityRequest(unittest.TestCase):
                     phase = 'session_started', 
                     target_host = '', 
                     target_port = 1, 
+                    listener_endpoint = 'j:0728', 
                     bytes_in = 0, 
                     bytes_out = 0, 
                     terminated_by = 'ttl_expired', )

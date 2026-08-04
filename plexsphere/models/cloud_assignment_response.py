@@ -27,7 +27,7 @@ from pydantic_core import to_jsonable_python
 
 class CloudAssignmentResponse(BaseModel):
     """
-    Metadata projection of a Cloud Assignment. The shape is shared by `RequestCloudAssignment`, `ListCloudAssignments`, `GrantCloudAssignment`, `ApproveCloudAssignment`, `RejectCloudAssignment`, and `RevokeCloudAssignment` so clients only need one binding. 
+    Metadata projection of a Cloud Assignment. The shape is shared by `RequestCloudAssignment`, `ListCloudAssignments`, `GrantCloudAssignment`, and `RevokeCloudAssignment` so clients only need one binding. 
     """ # noqa: E501
     id: UUID = Field(description="Cloud Assignment identifier (UUIDv7).")
     project_id: UUID = Field(description="Identifier of the consuming Project the Cloud is assigned to. ")

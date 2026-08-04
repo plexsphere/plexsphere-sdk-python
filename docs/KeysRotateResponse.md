@@ -1,13 +1,13 @@
 # KeysRotateResponse
 
-Body for POST /v1/keys/rotate success responses. Carries the receipt of the completed rotation: the `peer_key_rotation` row id and the `(kid, wrap_key_version)` reference of the re-issued pairwise PSK.  The response deliberately carries NO PSK plaintext and NO ciphertext — only the `(kid, wrap_key_version)` reference. The rotating Node already holds its NSK and resolves the PSK wrapping locally; the control plane never re-emits secret material on this surface. 
+Body for POST /v1/keys/rotate success responses. Carries the receipt of the completed rotation: the `peer_key_rotation` row id and the `(kid, wrap_key_version)` reference of the re-issued pairwise PSK.  The response deliberately carries NO PSK plaintext and NO ciphertext — only the `(kid, wrap_key_version)` reference. The row is wrapped under the per-Domain wrap key, not the NSK, so the rotating Node cannot open it locally: after rotation the Node re-fetches each pairwise edge PSK from `GET /v1/nodes/{id}/peers/{peer_node_id}/psk`, which serves the edge key rewrapped under the caller's NSK. The control plane never re-emits secret material on this surface. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **rotation_id** | **UUID** | Identifier of the &#x60;peer_key_rotation&#x60; row this submission flipped from &#x60;pending&#x60; to &#x60;completed&#x60;. The Node records it so a later audit query can correlate the rotation back to the re-issued PSK row.  | 
-**kid** | **str** | Key id of the freshly-wrapped pairwise PSK the rotation re-issued. Paired with &#x60;wrap_key_version&#x60; it is the reference plexd uses to resolve the PSK without the control plane re-transmitting secret material.  | 
+**kid** | **str** | Key id of the freshly-wrapped pairwise PSK the rotation re-issued. Paired with &#x60;wrap_key_version&#x60; it is a server-side row reference — the pair pins the exact wrapped PSK row, not a path the Node resolves locally; the Node re-fetches each edge PSK from &#x60;GET /v1/nodes/{id}/peers/{peer_node_id}/psk&#x60;.  | 
 **wrap_key_version** | **int** | Version of the active wrap key under which the re-issued PSK was wrapped. Paired with &#x60;kid&#x60; it pins the exact wrapping epoch.  | 
 
 ## Example

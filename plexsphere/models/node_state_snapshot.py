@@ -20,9 +20,11 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
 from plexsphere.models.node_state_bridge import NodeStateBridge
+from plexsphere.models.node_state_execution import NodeStateExecution
 from plexsphere.models.node_state_peer import NodeStatePeer
 from plexsphere.models.node_state_policy import NodeStatePolicy
 from plexsphere.models.node_state_reports import NodeStateReports
+from plexsphere.models.node_state_session import NodeStateSession
 from plexsphere.models.reachability import Reachability
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,16 +32,18 @@ from pydantic_core import to_jsonable_python
 
 class NodeStateSnapshot(BaseModel):
     """
-    Canonical reconciliation-pull envelope for a single Node. The wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories (policy fan-out, bridge orchestrator, node-state reports) populate the currently-empty blocks without changing the wire shape. Empty `peers` is `[]` (never `null`); the other blocks may be `null` until their owning story lands. 
+    Canonical reconciliation-pull envelope for a single Node. The wire blocks — `peers`, `policy`, `bridge`, `state`, `reports`, `executions`, and `sessions` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories (policy fan-out, bridge orchestrator, node-state reports) populate the currently-empty blocks without changing the wire shape. Empty `peers`, `executions`, and `sessions` are `[]` (never `null`); the other blocks may be `null` until their owning story lands. 
     """ # noqa: E501
     peers: List[NodeStatePeer] = Field(description="Peer set the addressed Node should program into its WireGuard table. One entry per other Node in the addressed Node's Domain — the addressed Node itself is excluded so plexd does not program a self-peer. Ordered by `node_id` ascending so two consecutive pulls against the same ledger snapshot are byte-equal. ")
+    executions: List[NodeStateExecution] = Field(description="Pending action dispatches addressed to this Node — entries whose per-target status is `pending`, `ack`, or `started` and whose deadline is unexpired. An entry leaves the block when its target reaches a terminal status via the execution callback. Ordered by `requested_at` then `execution_id` ascending so two consecutive pulls against the same ledger snapshot are byte-equal. Empty is `[]` (never `null`). ")
+    sessions: List[NodeStateSession] = Field(description="Live mediated sessions targeting a Resource this Node provisions. An entry leaves the block on revocation or expiry. Ordered by `issued_at` then `session_id` ascending so two consecutive pulls against the same ledger snapshot are byte-equal. Empty is `[]` (never `null`). ")
     reachability: Reachability = Field(description="Latest `Reachability` projection for the addressed Node, carried inside the reconciliation-pull payload so plexd sees the same health view that `GET /v1/nodes/{id}/reachability` exposes without an additional round-trip. ")
     policy: NodeStatePolicy = Field(description="Policy block — present-but-empty placeholder populates the wire shape. May be `null` until then; the field itself is always present so plexd's reconcile loop can diff by field presence. ")
     bridge: NodeStateBridge = Field(description="Bridge orchestrator block — present-but-empty placeholder  populates the wire shape. May be `null` until then; the field itself is always present. ")
     state: NodeStateReports = Field(description="Node-state block for the addressed Node: its node-state entries fanned into the `metadata`, `data`, and `reports` buckets of `NodeStateReports`. Populated after a successful reconciliation pull — each bucket is `[]` (never `null`) when the Node carries no entry of that kind. The field is always present so plexd's reconcile loop can diff by field presence; it is `null` only when the snapshot carries no node-state projection at all. ")
     reports: NodeStateReports = Field(description="Forward-compatibility mirror of `state`: the controller points it at the same `NodeStateReports` value so the convergence with the SSE event taxonomy stays explicit and a future split between live state and rolled-up reports lands without an OpenAPI break. Always equals `state` today. The field is always present and is `null` only when `state` is. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["peers", "reachability", "policy", "bridge", "state", "reports"]
+    __properties: ClassVar[List[str]] = ["peers", "executions", "sessions", "reachability", "policy", "bridge", "state", "reports"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -89,6 +93,20 @@ class NodeStateSnapshot(BaseModel):
                 if _item_peers:
                     _items.append(_item_peers.to_dict())
             _dict['peers'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in executions (list)
+        _items = []
+        if self.executions:
+            for _item_executions in self.executions:
+                if _item_executions:
+                    _items.append(_item_executions.to_dict())
+            _dict['executions'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in sessions (list)
+        _items = []
+        if self.sessions:
+            for _item_sessions in self.sessions:
+                if _item_sessions:
+                    _items.append(_item_sessions.to_dict())
+            _dict['sessions'] = _items
         # override the default output from pydantic by calling `to_dict()` of reachability
         if self.reachability:
             _dict['reachability'] = self.reachability.to_dict()
@@ -122,6 +140,8 @@ class NodeStateSnapshot(BaseModel):
 
         _obj = cls.model_validate({
             "peers": [NodeStatePeer.from_dict(_item) for _item in obj["peers"]] if obj.get("peers") is not None else None,
+            "executions": [NodeStateExecution.from_dict(_item) for _item in obj["executions"]] if obj.get("executions") is not None else None,
+            "sessions": [NodeStateSession.from_dict(_item) for _item in obj["sessions"]] if obj.get("sessions") is not None else None,
             "reachability": Reachability.from_dict(obj["reachability"]) if obj.get("reachability") is not None else None,
             "policy": NodeStatePolicy.from_dict(obj["policy"]) if obj.get("policy") is not None else None,
             "bridge": NodeStateBridge.from_dict(obj["bridge"]) if obj.get("bridge") is not None else None,

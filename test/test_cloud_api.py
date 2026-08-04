@@ -26,20 +26,6 @@ class TestCloudApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_approve_cloud_assignment(self) -> None:
-        """Test case for approve_cloud_assignment
-
-        Approve a Cloud Assignment request.
-        """
-        pass
-
-    def test_approve_credential_assignment(self) -> None:
-        """Test case for approve_credential_assignment
-
-        Approve a Credential Assignment.
-        """
-        pass
-
     def test_attach_cloud_credential_cloud(self) -> None:
         """Test case for attach_cloud_credential_cloud
 
@@ -135,20 +121,6 @@ class TestCloudApi(unittest.TestCase):
         """Test case for patch_cloud
 
         Patch mutable fields on a Cloud.
-        """
-        pass
-
-    def test_reject_cloud_assignment(self) -> None:
-        """Test case for reject_cloud_assignment
-
-        Reject a Cloud Assignment request.
-        """
-        pass
-
-    def test_reject_credential_assignment(self) -> None:
-        """Test case for reject_credential_assignment
-
-        Reject a Credential Assignment.
         """
         pass
 

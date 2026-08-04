@@ -31,17 +31,31 @@ class SessionActivityTCP(BaseModel):
     phase: StrictStr = Field(description="Lifecycle phase: `session_started` opens the tunnel, `session_ended` closes it. ")
     target_host: Optional[StrictStr] = Field(default=None, description="Target host the tunnel connected to. Present on `session_started`. ")
     target_port: Optional[Annotated[int, Field(le=65535, strict=True, ge=1)]] = Field(default=None, description="Target port the tunnel connected to. Present on `session_started`. ")
+    listener_endpoint: Optional[Annotated[str, Field(strict=True, max_length=261)]] = Field(default=None, description="The `host:port` the Node bound for this session on its mesh address. Present only on `session_started`. ")
     bytes_in: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Bytes forwarded from the operator to the target. Present on `session_ended`. ")
     bytes_out: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Bytes forwarded from the target to the operator. Present on `session_ended`. ")
     terminated_by: Optional[StrictStr] = Field(default=None, description="What closed the tunnel. Present on `session_ended`. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["phase", "target_host", "target_port", "bytes_in", "bytes_out", "terminated_by"]
+    __properties: ClassVar[List[str]] = ["phase", "target_host", "target_port", "listener_endpoint", "bytes_in", "bytes_out", "terminated_by"]
 
     @field_validator('phase')
     def phase_validate_enum(cls, value):
         """Validates the enum"""
         if value not in set(['session_started', 'session_ended']):
             raise ValueError("must be one of enum values ('session_started', 'session_ended')")
+        return value
+
+    @field_validator('listener_endpoint')
+    def listener_endpoint_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^.+:[0-9]{1,5}$", value):
+            raise ValueError(r"must validate the regular expression /^.+:[0-9]{1,5}$/")
         return value
 
     @field_validator('terminated_by')
@@ -115,6 +129,7 @@ class SessionActivityTCP(BaseModel):
             "phase": obj.get("phase"),
             "target_host": obj.get("target_host"),
             "target_port": obj.get("target_port"),
+            "listener_endpoint": obj.get("listener_endpoint"),
             "bytes_in": obj.get("bytes_in"),
             "bytes_out": obj.get("bytes_out"),
             "terminated_by": obj.get("terminated_by")

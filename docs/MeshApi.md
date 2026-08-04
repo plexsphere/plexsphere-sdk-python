@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**get_domain_mesh_topology**](MeshApi.md#get_domain_mesh_topology) | **GET** /v1/domains/{domain_id}/mesh/topology | Return the mesh topology for a Domain.
 [**get_node_events**](MeshApi.md#get_node_events) | **GET** /v1/nodes/{id}/events | Stream signed envelope events for a Node over SSE.
 [**get_node_keys_rotate_preview**](MeshApi.md#get_node_keys_rotate_preview) | **GET** /v1/nodes/{id}/keys/rotate/preview | Preview the fleet impact of rotating a Node&#39;s mesh key.
+[**get_node_peer_psk**](MeshApi.md#get_node_peer_psk) | **GET** /v1/nodes/{id}/peers/{peer_node_id}/psk | Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node&#39;s NSK.
 [**get_node_reachability**](MeshApi.md#get_node_reachability) | **GET** /v1/nodes/{id}/reachability | Read the reachability projection for a Node.
 [**get_node_secret**](MeshApi.md#get_node_secret) | **GET** /v1/nodes/{id}/secrets/{name} | Fetch a Secret Store entry rewrapped under the calling Node&#39;s NSK.
 [**get_node_state**](MeshApi.md#get_node_state) | **GET** /v1/nodes/{id}/state | Reconciliation pull for a Node — return the canonical NodeStateSnapshot.
@@ -262,20 +263,35 @@ carries the contract version the stream conforms to;
 `Cache-Control: no-cache` opts the response out of any
 intermediary caching layer.
 
-DESCOPED FOR THE FIRST PRODUCTION RELEASE: the signed SSE event
-bus does not ship in the first production release —
-reconciliation-pull (GET /v1/nodes/{id}/state) is the working
-delivery channel for mesh state. The production composition root
-wires none of the load-bearing EventStream, NonceStore,
-SignatureVerifier, RelationChecker, or NodeRepo ports, so every
-request to this endpoint returns 501 with `code:
-signed_event_bus_not_provisioned`, fail-closed by construction.
-See docs/architecture/mesh-event-bus-roadmap.md for the descope
-decision and the full un-descope checklist.
+This read is a dual-credential surface. A node agent
+authenticates with its NSK carried in the
+`Authorization: Bearer` header; the NSK arm enforces an equality
+gate — the authenticated Node must equal the addressed `{id}` —
+and runs no ReBAC relation check. A cross-Node NSK is refused
+with `403 node_id_mismatch` so a leaked credential cannot
+subscribe to a sibling Node's stream, and a revoked NSK is
+refused with `401 nsk_revoked`. The operator arm (session cookie
+or operator bearer JWT plus the `node-agent` relation on the
+Node) is unchanged.
+
+CONDITIONAL POSTURE: the signed SSE event bus is a latency
+optimisation layered over the reconciliation-pull baseline
+(GET /v1/nodes/{id}/state), which stays the authoritative
+delivery channel for mesh state. This endpoint answers 501 with
+`code: signed_event_bus_not_provisioned` until the operator
+configures the event-bus seams — the EventStream, NonceStore,
+SignatureVerifier, RelationChecker, and NodeRepo ports — after
+which it streams signed envelopes. The bus is single-replica: the
+backing PLEXSPHERE_NODE_EVENTS JetStream stream and the in-memory
+replay-protection store require the API server to run a single
+replica until a distributed nonce store is wired. See
+docs/architecture/mesh-event-bus-roadmap.md for the un-descope
+checklist and the single-replica constraint.
 
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 * Bearer (JWT) Authentication (operatorBearer):
 * Api Key Authentication (sessionCookie):
 
@@ -294,6 +310,11 @@ configuration = plexsphere.Configuration(
 # in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Configure Bearer authorization (JWT): operatorBearer
 configuration = plexsphere.Configuration(
@@ -338,7 +359,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+[nskBearer](../README.md#nskBearer), [operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -349,13 +370,13 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | SSE stream of signed envelope events. The body is an unbounded &#x60;text/event-stream&#x60; — each event frame carries an &#x60;id:&#x60; (JetStream sequence), an &#x60;event:&#x60; discriminator, and a &#x60;data:&#x60; line whose payload is the canonical signed envelope JSON. The currently emitted &#x60;event:&#x60; values are &#x60;node_state_updated&#x60;, &#x60;policy_updated&#x60;, and &#x60;bridge_config_updated&#x60;; &#x60;policy_updated&#x60; carries the per-(Node, Policy) compiled-ruleset projection described by &#x60;PolicyUpdatedPayload&#x60;, while &#x60;bridge_config_updated&#x60; carries the per-(Node, bridge Resource) delivered-config projection described by &#x60;BridgeConfigUpdatedPayload&#x60;. Additional discriminators land as the README&#39;s 14-type taxonomy ships. Comment frames every 25 seconds keep idle proxies from collapsing the connection.  |  * X-Plexsphere-API-Version - Contract version this SSE stream conforms to. Lets consumers branch on schema evolution without parsing the OpenAPI document at runtime.  <br>  * Cache-Control - Always &#x60;no-store&#x60; — the ciphertext envelope MUST NOT be retained by any intermediary or client cache.  <br>  |
+**200** | SSE stream of signed envelope events. The body is an unbounded &#x60;text/event-stream&#x60; — each event frame carries an &#x60;id:&#x60; (JetStream sequence), an &#x60;event:&#x60; discriminator, and a &#x60;data:&#x60; line whose payload is the canonical signed envelope JSON. The emitted &#x60;event:&#x60; values are &#x60;node_state_updated&#x60;, &#x60;policy_updated&#x60;, &#x60;bridge_config_updated&#x60;, &#x60;action_request&#x60;, and &#x60;session_setup&#x60;; &#x60;policy_updated&#x60; carries the per-(Node, Policy) compiled-ruleset projection described by &#x60;PolicyUpdatedPayload&#x60;, &#x60;bridge_config_updated&#x60; carries the per-(Node, bridge Resource) delivered-config projection described by &#x60;BridgeConfigUpdatedPayload&#x60;, &#x60;action_request&#x60; carries the per-Node action dispatch described by &#x60;SSEEventActionRequest&#x60;, and &#x60;session_setup&#x60; carries the per-Node session provisioning payload described by &#x60;SSEEventSessionSetup&#x60;. Additional discriminators land as the README&#39;s 14-type taxonomy ships. Comment frames every 25 seconds keep idle proxies from collapsing the connection.  |  * X-Plexsphere-API-Version - Contract version this SSE stream conforms to. Lets consumers branch on schema evolution without parsing the OpenAPI document at runtime.  <br>  * Cache-Control - Always &#x60;no-store&#x60; — the ciphertext envelope MUST NOT be retained by any intermediary or client cache.  <br>  |
 **400** | &#x60;Last-Event-ID&#x60; header was present but unparseable — non-numeric, negative, or otherwise outside the integer domain. The stream is NOT opened.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller lacks the node-agent ReBAC relation on the addressed Node and may not subscribe to its event stream.  |  -  |
+**401** | Caller is not authenticated — no session cookie, operator bearer JWT, or NSK resolved. On the NSK arm a missing or malformed key surfaces here with &#x60;code: nsk_invalid&#x60; and a revoked key with &#x60;code: nsk_revoked&#x60;.  |  -  |
+**403** | Operator caller lacks the node-agent ReBAC relation on the addressed Node and may not subscribe to its event stream. On the NSK arm a cross-Node key surfaces here with &#x60;code: node_id_mismatch&#x60;.  |  -  |
 **404** | Node id not found. |  -  |
 **503** | The signed event bus is temporarily unavailable because the backing message bus (NATS JetStream) is unreachable, so the stream could not be opened. The Problem body&#39;s &#x60;code&#x60; field is &#x60;event_stream_unavailable&#x60; and the &#x60;detail&#x60; is a fixed, generic, retry-oriented string — the underlying subscribe error is recorded only in the server&#39;s structured log, never on the wire. The reconciliation-pull &#x60;GET /v1/nodes/{id}/state&#x60; surface does NOT depend on the message bus and stays available during the same outage, so a client that receives this code can keep reconciling from the pull path while it retries the stream.  |  -  |
-**501** | The Signed Event Bus surface is descoped from the first production release and always answers 501 in the production binary. The Problem body&#39;s &#x60;code&#x60; field is &#x60;signed_event_bus_not_provisioned&#x60; so log scrapers can alert on the descoped state. The surface can only return a stream once EventStream, NonceStore, SignatureVerifier, RelationChecker, and NodeRepo are wired into the v1 handler dependency cone — see docs/architecture/mesh-event-bus-roadmap.md.  |  -  |
+**501** | The Signed Event Bus surface has not been provisioned in this deployment and answers 501 until the operator configures the event-bus seams. The Problem body&#39;s &#x60;code&#x60; field is &#x60;signed_event_bus_not_provisioned&#x60; so log scrapers can alert on the unprovisioned state. The surface returns a stream once EventStream, NonceStore, SignatureVerifier, RelationChecker, and NodeRepo are wired into the v1 handler dependency cone — see docs/architecture/mesh-event-bus-roadmap.md.  |  -  |
 **500** | Internal server error. Body is a &#x60;Problem&#x60; with &#x60;code: internal&#x60;.  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -485,6 +506,125 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_node_peer_psk**
+> bytes get_node_peer_psk(id, peer_node_id)
+
+Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+
+Returns the WireGuard preshared key (PSK) for the tunnel between
+the addressed Node and the named peer, as an AES-256-GCM
+ciphertext envelope rewrapped under the calling Node's Node
+Secret Key (NSK). WireGuard requires the SAME preshared key on
+both ends of a tunnel, but the control plane persists one wrapped
+PSK per Node. The server therefore derives the per-tunnel edge
+key from the two endpoints' stored per-Node PSKs via HKDF-SHA256
+— both edges derive a byte-identical value — and serves it
+rewrapped under the calling Node's NSK so that ONLY NSK-wrapped
+ciphertext ever crosses the wire. The transient per-Node
+plaintexts, the derived edge key, and the recovered NSK are
+zeroed on every exit path; no plaintext is ever persisted,
+logged, cached, or placed on the event bus.
+
+The 200 body is the raw envelope `<12-byte nonce> ||
+<ciphertext + 16-byte GCM tag>` — exactly 60 bytes for the
+32-byte edge PSK — served as `application/octet-stream`. The
+caller recovers the edge PSK byte-for-byte with
+`AES-256-GCM-Open` under its NSK. The response carries the NSK
+key id used for the wrap in `X-Plexsphere-PSK-KID` (so plexd can
+pick the right NSK during a rotation overlap), the PSK epoch the
+envelope is bound to in `X-Plexsphere-PSK-Epoch`, and
+`Cache-Control: no-store` so no intermediary ever retains the
+ciphertext.
+
+An agent re-fetches the edge PSK for a peer P when P first
+appears in a projection, when P's `public_key` changes, and after
+the agent completes its own key rotation.
+
+DEFERRED-WIRING POSTURE: when the edge-PSK delivery bundle is not
+wired into the composition root every request returns 501 with
+`code: psk_delivery_not_provisioned` so log scrapers can alert on
+the deferred-wiring state.
+
+
+### Example
+
+* Bearer Authentication (nskBearer):
+
+```python
+import plexsphere
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.MeshApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node. 
+    peer_node_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched. 
+
+    try:
+        # Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+        api_response = api_instance.get_node_peer_psk(id, peer_node_id)
+        print("The response of MeshApi->get_node_peer_psk:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MeshApi->get_node_peer_psk: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node.  | 
+ **peer_node_id** | **UUID**| Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched.  | 
+
+### Return type
+
+**bytes**
+
+### Authorization
+
+[nskBearer](../README.md#nskBearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/octet-stream, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The rewrapped edge-PSK envelope &#x60;&lt;12-byte nonce&gt; || &lt;ciphertext + 16-byte GCM tag&gt;&#x60;. &#x60;AES-256-GCM-Open&#x60; under the calling Node&#39;s NSK recovers the 32-byte edge PSK byte-for-byte. The body is opaque ciphertext and is never logged.  |  * X-Plexsphere-PSK-KID - The NSK key id used to wrap the envelope. Lets plexd pick the correct NSK to unwrap with during a key-rotation overlap window.  <br>  * X-Plexsphere-PSK-Epoch - The PSK epoch the envelope is bound to: the two endpoints&#39; PSK issuance instants, caller first, as &#x60;&lt;caller&gt;|&lt;peer&gt;&#x60; in fixed-width UTC (&#x60;2006-01-02T15:04:05.000000000Z&#x60;). It is part of the envelope&#39;s additional authenticated data, so the agent needs it to open the body at all and an attacker cannot pair a replayed body with a fresher epoch.  The agent MUST refuse an envelope whose epoch is older than the one already in force for that edge: the NSK is not rotated by a mesh key rotation, so without this check a captured envelope can be replayed to reinstall a retired key. The format is fixed-width precisely so the comparison is a plain string compare — byte order equals chronological order.  <br>  * Cache-Control - Always &#x60;no-store&#x60; — the ciphertext envelope MUST NOT be retained by any intermediary or client cache.  <br>  |
+**401** | The NSK credential in the &#x60;Authorization: Bearer&#x60; header was rejected. The Problem body&#39;s &#x60;code&#x60; field disambiguates the cause: &#x60;unauthorized&#x60; when the header is missing or malformed, &#x60;nsk_invalid&#x60; when the presented NSK cannot be resolved, and &#x60;nsk_revoked&#x60; when it resolves to a revoked NSK.  |  -  |
+**403** | Two terminal refusals share this status, told apart by the Problem body&#39;s &#x60;code&#x60; field:  - &#x60;node_id_mismatch&#x60; — the NSK authenticates but resolves to a   different Node than the path &#x60;id&#x60;. A Node may only fetch PSKs   for its own edges, so a leaked NSK cannot be replayed against   a sibling Node. - &#x60;node_deregistered&#x60; — the NSK authenticates and matches the   path &#x60;id&#x60;, but the calling Node has been deregistered. This is   deliberately NOT one of the retryable &#x60;404&#x60; / &#x60;409&#x60; codes: an   agent retries those by contract, so a revoked Node routed onto   them would poll indefinitely instead of stopping.  The body is a plain &#x60;Problem&#x60;, not &#x60;PermissionDenied&#x60;. That is the established node-facing convention — every NSK-authenticated surface (state reports, observability ingest, secret fetch) renders a path-id refusal through the same plain shape, because the denial comes from the NSK path-binding rather than from the ReBAC authorizer, so there is no traversed relation path and no authorizer-emitted correlation id to report.  |  -  |
+**404** | The &#x60;peer_node_id&#x60; does not resolve to a live, non-deregistered peer of the calling Node&#39;s Domain — also returned when &#x60;peer_node_id&#x60; equals &#x60;id&#x60;, since no Node builds a tunnel to itself. The Problem body&#39;s &#x60;code&#x60; field is &#x60;peer_not_found&#x60;. The response deliberately does not reveal whether the target exists in another Domain.  |  -  |
+**409** | Either endpoint&#39;s live PSK row is absent because the post-registration anchor consumer has not landed it yet. The Problem body&#39;s &#x60;code&#x60; field is &#x60;psk_not_ready&#x60;; the agent retries on its next reconcile.  |  -  |
+**429** | The calling Node has exhausted its per-Node edge-PSK fetch budget. The Problem body&#39;s &#x60;code&#x60; field is &#x60;per_node_rate_limited&#x60;. The budget is keyed on the NSK-authenticated Node — not the source address, so a fleet behind one NAT egress is not throttled collectively — and is sized to admit a full-mesh re-fetch pass in one burst, which is the largest legitimate spike the fetch-on-change contract produces. The agent honours &#x60;Retry-After&#x60; and resumes.  |  * Retry-After - Seconds the caller should wait before retrying, derived from the collector&#39;s sample interval.  <br>  |
+**501** | The edge-PSK delivery surface is not yet provisioned in this build — the delivery bundle is unset. The Problem body&#39;s &#x60;code&#x60; field is &#x60;psk_delivery_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state. Resolves once the edge-PSK fetch service and its ports are wired into the v1 handler dependency cone.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_node_reachability**
 > Reachability get_node_reachability(id)
 
@@ -507,6 +647,17 @@ authenticated callers without the relation receive 403; an
 unknown Node id surfaces as 404 only after the authorisation
 gate passes so the endpoint cannot be used as a Node-id oracle.
 
+This read is a dual-credential surface. A node agent
+authenticates with its NSK carried in the
+`Authorization: Bearer` header; the NSK arm enforces an equality
+gate — the authenticated Node must equal the addressed `{id}` —
+and runs no ReBAC relation check. A cross-Node NSK is refused
+with `403 node_id_mismatch` so a leaked credential cannot read a
+sibling Node's reachability projection, and a revoked NSK is
+refused with `401 nsk_revoked`. The operator arm (session cookie
+or operator bearer JWT plus the `node-agent` relation on the
+Node) is unchanged.
+
 DEFERRED-WIRING POSTURE: until the production
 composition root supplies the ReachabilityRepo, RelationChecker,
 and NodeRepo ports the handler depends on, every request to
@@ -518,6 +669,7 @@ deferred work tracking.
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 * Bearer (JWT) Authentication (operatorBearer):
 * Api Key Authentication (sessionCookie):
 
@@ -537,6 +689,11 @@ configuration = plexsphere.Configuration(
 # in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Configure Bearer authorization (JWT): operatorBearer
 configuration = plexsphere.Configuration(
@@ -579,7 +736,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+[nskBearer](../README.md#nskBearer), [operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -591,8 +748,8 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Latest &#x60;Reachability&#x60; projection for the addressed Node. &#x60;last_heartbeat_at&#x60; is absent until the first heartbeat is accepted; &#x60;changed_at&#x60; is always present and tracks the most recent state transition.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller lacks the &#x60;node-agent&#x60; ReBAC relation on the addressed Node and may not read the reachability projection. The Problem body&#39;s &#x60;code&#x60; field is &#x60;insufficient_relation&#x60;.  |  -  |
+**401** | Caller is not authenticated — no session cookie, operator bearer JWT, or NSK resolved. On the NSK arm a missing or malformed key surfaces here with &#x60;code: nsk_invalid&#x60; and a revoked key with &#x60;code: nsk_revoked&#x60;.  |  -  |
+**403** | Operator caller lacks the &#x60;node-agent&#x60; ReBAC relation on the addressed Node and may not read the reachability projection; the Problem body&#39;s &#x60;code&#x60; field is &#x60;insufficient_relation&#x60;. On the NSK arm a cross-Node key surfaces here with &#x60;code: node_id_mismatch&#x60;.  |  -  |
 **404** | Node id not found. Surfaced only after the authorisation gate has passed so the endpoint cannot be used as a Node-id oracle. The Problem body&#39;s &#x60;code&#x60; field is &#x60;node_not_found&#x60;.  |  -  |
 **501** | The reachability surface is not yet provisioned in this build. The Problem body&#39;s &#x60;code&#x60; field is &#x60;reachability_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state. Resolves once ReachabilityRepo, RelationChecker, and NodeRepo are wired into the v1 handler dependency cone (see docs/architecture/mesh-event-bus-roadmap.md).  |  -  |
 **500** | Internal server error. Body is a &#x60;Problem&#x60; with &#x60;code: internal&#x60;.  |  -  |
@@ -751,10 +908,20 @@ cold-start view that plexd consumes when it first comes up,
 when its SSE connection has been disconnected for longer than
 the replay window, or when an out-of-band request arrives to
 re-derive the desired state. The wire blocks — `peers`,
-`policy`, `bridge`, `state`, and `reports` — are always present
-so plexd's reconcile loop can diff by field presence rather
-than absence; later stories populate the
-currently-empty blocks without changing the wire shape.
+`policy`, `bridge`, `state`, `reports`, `executions`, and
+`sessions` — are always present so plexd's reconcile loop can
+diff by field presence rather than absence; later stories
+populate the currently-empty blocks without changing the wire
+shape.
+
+The `executions` and `sessions` blocks carry the Node's pending
+action dispatches and its live mediated sessions. With no event
+channel delivering dispatches, this reconciliation pull is the
+correctness-baseline delivery path for both: a Node learns of a
+pending dispatch or a session setup by pulling the snapshot and
+acknowledges it through the existing callbacks. An entry drains
+from `executions` when its target reaches a terminal status and
+from `sessions` on revocation or expiry.
 
 The peer projection is a single SQL round-trip ordered by
 `node_id ASC` so two consecutive pulls against the same
@@ -770,6 +937,17 @@ unknown Node id surfaces as 404 only after the authorisation
 gate passes so the endpoint cannot be used as a Node-id
 oracle.
 
+This read is a dual-credential surface. A node agent
+authenticates with its NSK carried in the
+`Authorization: Bearer` header; the NSK arm enforces an equality
+gate — the authenticated Node must equal the addressed `{id}` —
+and runs no ReBAC relation check. A cross-Node NSK is refused
+with `403 node_id_mismatch` so a leaked credential cannot pull a
+sibling Node's snapshot, and a revoked NSK is refused with
+`401 nsk_revoked`. The operator arm (session cookie or operator
+bearer JWT plus the `node-agent` relation on the Node) is
+unchanged.
+
 DEFERRED-WIRING POSTURE: until the production
 composition root supplies the `SnapshotProvider`,
 `RelationChecker`, and `NodeRepo` ports the handler depends
@@ -781,6 +959,7 @@ the deferred work tracking.
 
 ### Example
 
+* Bearer Authentication (nskBearer):
 * Bearer (JWT) Authentication (operatorBearer):
 * Api Key Authentication (sessionCookie):
 
@@ -800,6 +979,11 @@ configuration = plexsphere.Configuration(
 # in accordance with the API server security policy.
 # Examples for each auth method are provided below, use the example that
 # satisfies your auth use case.
+
+# Configure Bearer authorization: nskBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
 
 # Configure Bearer authorization (JWT): operatorBearer
 configuration = plexsphere.Configuration(
@@ -842,7 +1026,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+[nskBearer](../README.md#nskBearer), [operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
 
 ### HTTP request headers
 
@@ -853,9 +1037,9 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**200** | Canonical &#x60;NodeStateSnapshot&#x60; for the addressed Node. The &#x60;peers&#x60; array carries one entry per other Node in the addressed Node&#39;s Domain; the addressed Node itself is excluded so plexd does not program a self-peer. The remaining blocks (&#x60;policy&#x60;, &#x60;bridge&#x60;, &#x60;state&#x60;, &#x60;reports&#x60;) are present-but-empty placeholders that later stories populate without changing the wire shape.  |  -  |
-**401** | Caller is not authenticated. |  -  |
-**403** | Caller lacks the &#x60;node-agent&#x60; ReBAC relation on the addressed Node and may not issue a reconciliation pull.  |  -  |
+**200** | Canonical &#x60;NodeStateSnapshot&#x60; for the addressed Node. The &#x60;peers&#x60; array carries one entry per other Node in the addressed Node&#39;s Domain; the addressed Node itself is excluded so plexd does not program a self-peer. The &#x60;executions&#x60; and &#x60;sessions&#x60; arrays carry the Node&#39;s pending action dispatches and live mediated sessions (&#x60;[]&#x60; when empty). The remaining blocks (&#x60;policy&#x60;, &#x60;bridge&#x60;, &#x60;state&#x60;, &#x60;reports&#x60;) are present-but-empty placeholders that later stories populate without changing the wire shape.  |  -  |
+**401** | Caller is not authenticated — no session cookie, operator bearer JWT, or NSK resolved. On the NSK arm a missing or malformed key surfaces here with &#x60;code: nsk_invalid&#x60; and a revoked key with &#x60;code: nsk_revoked&#x60;.  |  -  |
+**403** | Operator caller lacks the &#x60;node-agent&#x60; ReBAC relation on the addressed Node and may not issue a reconciliation pull. On the NSK arm a cross-Node key surfaces here with &#x60;code: node_id_mismatch&#x60;.  |  -  |
 **404** | Node id not found. Surfaced only after the authorisation gate has passed so the endpoint cannot be used as a Node-id oracle.  |  -  |
 **503** | The datastore (Postgres) is temporarily unreachable AND no fresh-enough cached snapshot exists for the addressed Node, so a reconciliation pull could not be served. The Problem body&#39;s &#x60;code&#x60; field is &#x60;datastore_unavailable&#x60; and the &#x60;detail&#x60; is a fixed, generic, retry-oriented string — the underlying datastore error is recorded only in the server&#39;s structured log, never on the wire. A Node whose last successful snapshot is cached and fresher than the per- deployment stale-read TTL is still served &#x60;200&#x60; from that last-known-good snapshot during the same outage, so an existing Node keeps its desired state rather than seeing a generic 5xx — only a cold-cache Node receives this code.  |  -  |
 **501** | The reconciliation-pull surface is not yet provisioned in this build. The Problem body&#39;s &#x60;code&#x60; field is &#x60;signed_event_bus_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state — the same code used by the SSE peer endpoint, since both surfaces share the same fail-closed posture and unblock together. Resolves once &#x60;SnapshotProvider&#x60;, &#x60;RelationChecker&#x60;, and &#x60;NodeRepo&#x60; are wired into the v1 handler dependency cone (see docs/architecture/mesh-event-bus-roadmap.md).  |  -  |
@@ -1162,7 +1346,13 @@ The handler:
      reachability state-machine (`healthy` → `stale` after 90s,
      `stale` → `unreachable` after 300s) so the projection at
      `GET /v1/nodes/{id}/reachability` reflects the new fact
-     on the next read.
+     on the next read. A Node starts in `never_reported` and
+     stays there until its first heartbeat is admitted. The
+     evaluator's recovery sweep observes that heartbeat on the
+     next tick and moves the Node to a heartbeat-derived
+     verdict (`healthy`, or `stale`/`unreachable` when the lone
+     heartbeat is already older than the thresholds), and a
+     transition event records the exit.
 
 The 200 response carries `accepted_at` (server timestamp at
 commit) and two reconciliation flags. `reconcile` defaults to
@@ -1214,7 +1404,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.MeshApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) — the heartbeat scope.
-    heartbeat_request = {"client_now":"2026-04-27T10:15:30Z","binary_checksum":"5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8","binary_version":"plexd-v0.4.2-ge5f3a1c","nat_summary":{}} # HeartbeatRequest | 
+    heartbeat_request = {"client_now":"2026-04-27T10:15:30Z","binary_checksum":"XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=","binary_version":"plexd-v0.4.2-ge5f3a1c","nat_summary":{}} # HeartbeatRequest | 
 
     try:
         # Record a Node liveness heartbeat and return reconcile/rotate hints.
@@ -1852,8 +2042,11 @@ hooks the agent advertises. The handler:
      non-empty, `binary_checksum` exactly 32 bytes,
      `ssh_host_key_fingerprint` empty or matching
      `SHA256:<base64>`, no duplicate hook names, hook count
-     within the per-manifest cap, and every hook's `checksum`
-     exactly 32 bytes.
+     within the per-manifest cap, every hook's `checksum`
+     exactly 32 bytes, and — for the advertised
+     `builtin_actions` inventory — no duplicate action names,
+     no duplicate parameter names within one action, and both
+     counts within their caps.
   6. Persists the snapshot inside a single transaction. When
      the supplied manifest differs from the prior persisted
      row, the recorder appends a `NodeCapabilitiesUpdated`
@@ -1909,7 +2102,7 @@ with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.MeshApi(api_client)
     id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Node identifier (UUIDv7) — the capability manifest scope.
-    capability_manifest_request = {"binary_version":"plexd-v0.4.2-ge5f3a1c","binary_checksum":"XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=","ssh_host_key_fingerprint":"SHA256:6QGz1Q4iE2zG5p2N3oRZb8ZsT4nKqJgY3oZmP8eFvWk=","declared_hooks":[{"name":"post-install","checksum":"XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="}],"plexd_hooks":[{"name":"nightly-backup","image_digest":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","parameters":{"retention":"7d"},"timeout_seconds":300,"sandbox":true}]} # CapabilityManifestRequest | 
+    capability_manifest_request = {"binary_version":"plexd-v0.4.2-ge5f3a1c","binary_checksum":"XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=","ssh_host_key_fingerprint":"SHA256:6QGz1Q4iE2zG5p2N3oRZb8ZsT4nKqJgY3oZmP8eFvWk=","declared_hooks":[{"name":"post-install","checksum":"XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="}],"plexd_hooks":[{"name":"nightly-backup","image_digest":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","parameters":{"retention":"7d"},"timeout_seconds":300,"sandbox":true}],"builtin_actions":[{"name":"diagnostics.collect","description":"Collect a diagnostics bundle from the node.","parameters":[{"name":"since","type":"duration","required":false,"description":"How far back to collect logs."}]},{"name":"service.upgrade","description":"Upgrade the plexd binary to a target version.","parameters":[{"name":"version","type":"string","required":true,"description":"Target plexd release to upgrade to."}]}]} # CapabilityManifestRequest | 
 
     try:
         # Record the per-Node capability manifest snapshot.
@@ -1953,7 +2146,7 @@ Name | Type | Description  | Notes
 **403** | The NSK in the &#x60;Authorization: Bearer&#x60; header authenticates successfully but belongs to a different Node than the path &#x60;id&#x60;. The PermissionDenied body&#39;s &#x60;code&#x60; field is &#x60;node_id_mismatch&#x60; so a leaked NSK cannot be replayed against a sibling Node.  |  -  |
 **404** | No Node row resolves for the path &#x60;id&#x60; — the row was concurrently deleted between the NSK middleware&#39;s admission and the aggregate write. The Problem body&#39;s &#x60;code&#x60; field is &#x60;capabilities_node_not_found&#x60;.  |  -  |
 **413** | Request body exceeded the 32 KiB ceiling enforced by the handler. The Problem body&#39;s &#x60;code&#x60; field is &#x60;capabilities_body_too_large&#x60; so the handler can refuse a pathological payload without ever invoking the JSON decoder.  |  -  |
-**422** | A &#x60;plexd_hooks&#x60; entry — the discovered Kubernetes PlexdHook list — failed a value-object invariant. The structurally well-formed envelope decoded, but a discovered-hook value is semantically invalid, so the surface returns 422 rather than the 400 reserved for structural/declared-hook failures. The Problem body&#39;s &#x60;code&#x60; field disambiguates the cause and is one of the following exhaustive enum values:    - &#x60;plexd_hook_invalid&#x60; — a &#x60;plexd_hooks&#x60; entry has an     empty &#x60;name&#x60;, an &#x60;image_digest&#x60; that is not canonical     &#x60;sha256:&lt;64 lowercase hex&gt;&#x60;, or a negative     &#x60;timeout_seconds&#x60;.   - &#x60;plexd_hook_duplicate&#x60; — &#x60;plexd_hooks&#x60; contains two     entries with the same &#x60;name&#x60;.   - &#x60;plexd_hooks_too_many&#x60; — &#x60;plexd_hooks&#x60; exceeds the     per-manifest cap of 128 entries.  Generated clients can therefore exhaustively switch on &#x60;code&#x60; without a fall-through arm.  |  -  |
+**422** | A &#x60;plexd_hooks&#x60; entry — the discovered Kubernetes PlexdHook list — or a &#x60;builtin_actions&#x60; entry failed a value-object invariant. The structurally well-formed envelope decoded, but an advertised-inventory value is semantically invalid, so the surface returns 422 rather than the 400 reserved for structural/declared-hook failures. The Problem body&#39;s &#x60;code&#x60; field disambiguates the cause and is one of the following exhaustive enum values:    - &#x60;plexd_hook_invalid&#x60; — a &#x60;plexd_hooks&#x60; entry has an     empty &#x60;name&#x60;, an &#x60;image_digest&#x60; that is not canonical     &#x60;sha256:&lt;64 lowercase hex&gt;&#x60;, or a negative     &#x60;timeout_seconds&#x60;.   - &#x60;plexd_hook_duplicate&#x60; — &#x60;plexd_hooks&#x60; contains two     entries with the same &#x60;name&#x60;.   - &#x60;plexd_hooks_too_many&#x60; — &#x60;plexd_hooks&#x60; exceeds the     per-manifest cap of 128 entries.   - &#x60;builtin_action_invalid&#x60; — a &#x60;builtin_actions&#x60; entry     has an empty &#x60;name&#x60;, or carries a &#x60;parameters&#x60; entry     with an empty &#x60;name&#x60; or a duplicate parameter &#x60;name&#x60;.   - &#x60;builtin_action_duplicate&#x60; — &#x60;builtin_actions&#x60; contains     two entries with the same &#x60;name&#x60;.   - &#x60;builtin_actions_too_many&#x60; — &#x60;builtin_actions&#x60; exceeds     the per-manifest cap of 128 entries, or one entry     declares more than 64 parameters.  Generated clients can therefore exhaustively switch on &#x60;code&#x60; without a fall-through arm.  |  -  |
 **501** | The capability ingest surface is not yet provisioned in this build. The Problem body&#39;s &#x60;code&#x60; field is &#x60;capabilities_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state. Resolves once the CapabilitiesRecorder, NSKResolver, and NodeRepo ports are wired into the v1 handler dependency cone.  |  -  |
 **500** | Internal server error. Body is a &#x60;Problem&#x60; with &#x60;code: internal&#x60;.  |  -  |
 

@@ -25,6 +25,7 @@ from plexsphere.models.alert_rule_list import AlertRuleList
 from plexsphere.models.alert_rule_update import AlertRuleUpdate
 from plexsphere.models.alert_severity import AlertSeverity
 from plexsphere.models.approval import Approval
+from plexsphere.models.approval_kind import ApprovalKind
 from plexsphere.models.approval_list import ApprovalList
 from plexsphere.models.approval_policy import ApprovalPolicy
 from plexsphere.models.approval_policy_rules_inner import ApprovalPolicyRulesInner
@@ -78,6 +79,8 @@ from plexsphere.models.bridge_user_access_provider_kind import BridgeUserAccessP
 from plexsphere.models.bridge_user_access_provider_list import BridgeUserAccessProviderList
 from plexsphere.models.bridge_user_access_provider_response import BridgeUserAccessProviderResponse
 from plexsphere.models.bridge_user_access_provider_update_request import BridgeUserAccessProviderUpdateRequest
+from plexsphere.models.builtin_action import BuiltinAction
+from plexsphere.models.builtin_action_parameter import BuiltinActionParameter
 from plexsphere.models.capability_manifest_request import CapabilityManifestRequest
 from plexsphere.models.capability_manifest_response import CapabilityManifestResponse
 from plexsphere.models.capability_row import CapabilityRow
@@ -229,11 +232,13 @@ from plexsphere.models.node_state_bridge_relay_assignment import NodeStateBridge
 from plexsphere.models.node_state_bridge_site_to_site import NodeStateBridgeSiteToSite
 from plexsphere.models.node_state_bridge_user_access import NodeStateBridgeUserAccess
 from plexsphere.models.node_state_compiled_rule import NodeStateCompiledRule
+from plexsphere.models.node_state_execution import NodeStateExecution
 from plexsphere.models.node_state_peer import NodeStatePeer
 from plexsphere.models.node_state_policy import NodeStatePolicy
 from plexsphere.models.node_state_report_request import NodeStateReportRequest
 from plexsphere.models.node_state_report_response import NodeStateReportResponse
 from plexsphere.models.node_state_reports import NodeStateReports
+from plexsphere.models.node_state_session import NodeStateSession
 from plexsphere.models.node_state_snapshot import NodeStateSnapshot
 from plexsphere.models.node_summary import NodeSummary
 from plexsphere.models.object_search_request import ObjectSearchRequest
@@ -301,6 +306,7 @@ from plexsphere.models.revoke_session_request import RevokeSessionRequest
 from plexsphere.models.rotation_impact_edge import RotationImpactEdge
 from plexsphere.models.rotation_impact_preview import RotationImpactPreview
 from plexsphere.models.rotation_trigger_response import RotationTriggerResponse
+from plexsphere.models.sse_event_action_request import SSEEventActionRequest
 from plexsphere.models.sse_event_session_revoked import SSEEventSessionRevoked
 from plexsphere.models.sse_event_session_setup import SSEEventSessionSetup
 from plexsphere.models.service_federation_kind import ServiceFederationKind

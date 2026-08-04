@@ -42,6 +42,28 @@ class TestNodeStateSnapshot(unittest.TestCase):
                         public_key = 'izA9LCSLv1C1ylmgd0/Y2TA5TkIRHRRA401iz1CiIyk=012345678910111213141516171819202122232425262728293031323334353637383940414243', 
                         fallback_endpoint = '', )
                     ],
+                executions = [
+                    plexsphere.models.node_state_execution.NodeStateExecution(
+                        execution_id = '', 
+                        action = '', 
+                        type = 'builtin', 
+                        parameters = { }, 
+                        status = 'pending', 
+                        requested_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
+                    ],
+                sessions = [
+                    plexsphere.models.node_state_session.NodeStateSession(
+                        session_id = '', 
+                        jti = '', 
+                        kind = 'ssh', 
+                        target = plexsphere.models.session_target.SessionTarget(
+                            ssh = null, 
+                            k8s = null, 
+                            tcp = null, ), 
+                        expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        idle_timeout_seconds = 0, )
+                    ],
                 reachability = plexsphere.models.reachability.Reachability(
                     state = 'healthy', 
                     last_heartbeat_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
@@ -105,6 +127,28 @@ class TestNodeStateSnapshot(unittest.TestCase):
                         mesh_ip = '0', 
                         public_key = 'izA9LCSLv1C1ylmgd0/Y2TA5TkIRHRRA401iz1CiIyk=012345678910111213141516171819202122232425262728293031323334353637383940414243', 
                         fallback_endpoint = '', )
+                    ],
+                executions = [
+                    plexsphere.models.node_state_execution.NodeStateExecution(
+                        execution_id = '', 
+                        action = '', 
+                        type = 'builtin', 
+                        parameters = { }, 
+                        status = 'pending', 
+                        requested_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
+                    ],
+                sessions = [
+                    plexsphere.models.node_state_session.NodeStateSession(
+                        session_id = '', 
+                        jti = '', 
+                        kind = 'ssh', 
+                        target = plexsphere.models.session_target.SessionTarget(
+                            ssh = null, 
+                            k8s = null, 
+                            tcp = null, ), 
+                        expires_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        idle_timeout_seconds = 0, )
                     ],
                 reachability = plexsphere.models.reachability.Reachability(
                     state = 'healthy', 

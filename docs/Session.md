@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **revoked_at** | **datetime** | Revocation timestamp (UTC); absent while the Session is live.  | [optional] 
 **revoke_reason** | [**RevokeReason**](RevokeReason.md) | Reason the Session was revoked. Omitted while the Session is live.  | [optional] 
 **target** | [**SessionTarget**](SessionTarget.md) |  | 
+**listener_endpoint** | **str** | The &#x60;host:port&#x60; the target Node reported for this Session, and the endpoint the attach gateway dials. Absent until the Node&#39;s first &#x60;session_started&#x60; activity row for a &#x60;tcp&#x60; session settles it.  | [optional] 
 
 ## Example
 

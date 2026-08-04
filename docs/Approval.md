@@ -1,23 +1,26 @@
 # Approval
 
-Metadata projection of an Approval. The shape is shared by `ListApprovals`, `GetApproval`, `ApproveApproval`, `RejectApproval`, and `BreakGlassApproval` so clients only need one binding. 
+Metadata projection of one approval-queue row. The shape is shared by `ListApprovals`, `GetApproval`, `ApproveApproval`, `RejectApproval`, and `BreakGlassApproval` so clients only need one binding, and it covers all three queue sources: generic Approvals, Credential Assignments, and Cloud Assignments. `kind` names the source, and a client reads it before any field a single source owns. `project_id` and `materialised` are set on assignment rows; `expires_at`, `payload`, and `caveat_context` are set on `approval` rows. 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **UUID** | Approval identifier (UUIDv7). | 
+**kind** | [**ApprovalKind**](ApprovalKind.md) |  | 
 **domain_id** | **UUID** | Identifier of the owning Domain — the residency pivot the ReBAC gate authorises against.  | 
+**project_id** | **UUID** | Identifier of the consuming Project the assignment binds into. Set on &#x60;credential_assignment&#x60; and &#x60;cloud_assignment&#x60; rows; absent on &#x60;approval&#x60; rows.  | [optional] 
 **proposer_subject** | **str** | ReBAC subject string of the principal that raised the proposal. A caller may never approve a proposal whose &#x60;proposer_subject&#x60; is themselves.  | 
 **action_kind** | **str** | Kind of action the proposal would perform once approved. Matched against the Domain &#x60;ApprovalPolicy&#x60; rules to decide whether the proposal is gated.  | 
 **target_resource** | **str** | Resource the proposed action targets. Matched against the optional &#x60;target_resource&#x60; of a policy rule.  | 
 **payload** | **Dict[str, object]** | Raw JSON action payload applied verbatim once the proposal is approved. Opaque to the approval workflow — it carries the parameters of the action the proposer intends to run.  | [optional] 
 **state** | [**ApprovalState**](ApprovalState.md) |  | 
+**materialised** | **bool** | Whether the assignment&#39;s ReBAC binding is currently live. &#x60;true&#x60; only while the assignment is in the &#x60;approved&#x60; state. Set on &#x60;credential_assignment&#x60; and &#x60;cloud_assignment&#x60; rows; absent on &#x60;approval&#x60; rows.  | [optional] 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 **decided_at** | **datetime** | Timestamp the proposal reached a terminal state (UTC). Absent while the proposal is still &#x60;proposed&#x60; or &#x60;pending-approval&#x60;.  | [optional] 
 **decided_by_subject** | **str** | ReBAC subject string of the principal that decided the proposal. Absent while undecided and for the unattended &#x60;expired&#x60; path.  | [optional] 
 **decision_reason** | **str** | Free-text rationale recorded with the decision. Absent while undecided and for the unattended &#x60;expired&#x60; path. For a break-glass override the rationale value is PII and is NOT surfaced here verbatim — only its field name is projected onto &#x60;caveat_context&#x60;.  | [optional] 
-**expires_at** | **datetime** | Deadline past which the background sweeper expires an un-decided proposal (UTC).  | 
+**expires_at** | **datetime** | Deadline past which the background sweeper expires an un-decided proposal (UTC). Set on &#x60;approval&#x60; rows only. Assignment rows carry no deadline and never expire, so the field is absent on &#x60;credential_assignment&#x60; and &#x60;cloud_assignment&#x60; rows.  | [optional] 
 **caveat_context** | **Dict[str, List[str]]** | Names-only projection of the caveat field NAMES referenced on the decision&#39;s audit row — for a break-glass override this carries the &#x60;reason&#x60; field name. Values never cross this boundary: the map keys are caveat NAMES and the arrays are caveat-parameter NAMES, mirroring the Platform Audit Log invariant. Absent while the proposal carries no decision audit row.  | [optional] 
 
 ## Example

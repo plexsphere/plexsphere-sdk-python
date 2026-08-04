@@ -16,7 +16,10 @@ Returns a cursor-paginated page of per-Node capability rows in
 the named Project. Each row pairs a Node's reported agent binary
 with a checksum status — `match` when the reported checksum
 equals a known-good artifact, `drift` when it differs, and
-`unknown` when no known-good artifact is on record. The handler
+`unknown` when no known-good artifact is on record — and carries
+the built-in action inventory the Node's agent advertised, so a
+caller can answer what a Node can do without dispatching
+anything. The handler
 runs the platform read gate before the persistence read, then
 layers a per-row visibility filter on the Domain owning each
 Node so `items` is the subset the caller is authorised to see.

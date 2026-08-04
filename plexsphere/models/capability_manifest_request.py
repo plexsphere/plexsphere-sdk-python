@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBytes, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
+from plexsphere.models.builtin_action import BuiltinAction
 from plexsphere.models.declared_hook import DeclaredHook
 from plexsphere.models.plexd_hook import PlexdHook
 from typing import Optional, Set
@@ -28,15 +29,16 @@ from pydantic_core import to_jsonable_python
 
 class CapabilityManifestRequest(BaseModel):
     """
-    Body for PUT /v1/nodes/{id}/capabilities. Carries the per-Node capability manifest snapshot plexd reports on agent boot and whenever the running binary, host-key, or declared hooks change: the agent binary semver, the SHA-256 of the running binary (for tamper-evidence and rollout tracking), the optional SSH host-key fingerprint (for the downstream integrity correlator), and the optional list of hooks the agent advertises. The handler canonicalises the envelope through the `tenancy.NewCapabilityManifest` value-object constructor; every invariant is enforced at the aggregate boundary before the recorder ever touches Postgres. 
+    Body for PUT /v1/nodes/{id}/capabilities. Carries the per-Node capability manifest snapshot plexd reports on agent boot and whenever the running binary, host-key, declared hooks, or built-in action inventory change: the agent binary semver, the SHA-256 of the running binary (for tamper-evidence and rollout tracking), the optional SSH host-key fingerprint (for the downstream integrity correlator), the optional list of hooks the agent advertises, and the optional inventory of built-in actions the agent implements. The handler canonicalises the envelope through the `tenancy.NewCapabilityManifest` value-object constructor; every invariant is enforced at the aggregate boundary before the recorder ever touches Postgres. 
     """ # noqa: E501
     binary_version: Annotated[str, Field(min_length=1, strict=True, max_length=4096)] = Field(description="Human-readable plexd agent version string (e.g. `plexd-v0.4.2-ge5f3a1c`). Non-empty after trimming whitespace — the handler rejects an empty value with 400 `binary_version_empty`. ")
     binary_checksum: Union[StrictBytes, StrictStr] = Field(description="SHA-256 digest of the running plexd binary, 32 bytes base64-encoded with standard padding. Anything that does not decode to exactly 32 bytes is rejected with 400 `binary_checksum_invalid`. ")
     ssh_host_key_fingerprint: Optional[Annotated[str, Field(strict=True, max_length=4096)]] = Field(default=None, description="Optional OpenSSH SHA-256 host-key fingerprint of the running agent, rendered as `SHA256:<base64>`. Empty or absent values are accepted; a non-empty value that does not match the canonical form is rejected with 400 `ssh_host_key_fingerprint_invalid`. Downstream integrity correlators branch on `host_key_changed` in the response to detect a host-key rotation between snapshots. ")
     declared_hooks: Optional[Annotated[List[DeclaredHook], Field(max_length=128)]] = Field(default=None, description="Optional list of hook declarations the agent advertises. Each entry pairs a hook name with the SHA-256 digest of the hook payload so the integrity correlator can detect a hook-content change without re-fetching the payload. The manifest invariants reject duplicate names (400 `declared_hook_duplicate`), more than 128 entries (400 `declared_hooks_too_many`), and any per-entry violation (400 `declared_hook_invalid`). ")
     plexd_hooks: Optional[Annotated[List[PlexdHook], Field(max_length=128)]] = Field(default=None, description="Optional list of Kubernetes PlexdHook custom resources the agent discovered in its cluster and advertises read-only. Distinct from `declared_hooks`: each entry carries an OCI image digest, a free-form parameter map, an execution timeout, and a sandbox flag rather than a payload checksum. Discovery is read-only — plexsphere records what plexd observed and never writes PlexdHook objects back. The manifest invariants reject duplicate names (422 `plexd_hook_duplicate`), more than 128 entries (422 `plexd_hooks_too_many`), and any per-entry violation (422 `plexd_hook_invalid`). ")
+    builtin_actions: Optional[Annotated[List[BuiltinAction], Field(max_length=128)]] = Field(default=None, description="Optional inventory of the built-in actions the agent implements — the operations `POST /v1/projects/{project_id}/resources/{resource_id}/actions` can dispatch against this Node with `kind: builtin`. Each entry names an action, describes it, and declares the parameters it accepts.  The inventory is advisory and read-only. Dispatch does not consult it: an execution names its action, the Node is the authority on whether it can run it, and an unknown action fails at the Node. What the inventory buys is the ability to answer \"what can this Node do?\" without dispatching anything — so an operator surface can offer a Node's actual actions rather than a fixed list, and so a fleet-wide capability query has data to read.  Absent and empty are distinct in intent but not in effect: an agent that reports no inventory is simply one the platform cannot answer that question for. It is not an agent whose actions are known to be none, and nothing refuses a dispatch on that basis.  The manifest invariants reject duplicate action names (422 `builtin_action_duplicate`), more than 128 entries (422 `builtin_actions_too_many`), and any per-entry violation (422 `builtin_action_invalid`). ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["binary_version", "binary_checksum", "ssh_host_key_fingerprint", "declared_hooks", "plexd_hooks"]
+    __properties: ClassVar[List[str]] = ["binary_version", "binary_checksum", "ssh_host_key_fingerprint", "declared_hooks", "plexd_hooks", "builtin_actions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -93,6 +95,13 @@ class CapabilityManifestRequest(BaseModel):
                 if _item_plexd_hooks:
                     _items.append(_item_plexd_hooks.to_dict())
             _dict['plexd_hooks'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in builtin_actions (list)
+        _items = []
+        if self.builtin_actions:
+            for _item_builtin_actions in self.builtin_actions:
+                if _item_builtin_actions:
+                    _items.append(_item_builtin_actions.to_dict())
+            _dict['builtin_actions'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -114,7 +123,8 @@ class CapabilityManifestRequest(BaseModel):
             "binary_checksum": obj.get("binary_checksum"),
             "ssh_host_key_fingerprint": obj.get("ssh_host_key_fingerprint"),
             "declared_hooks": [DeclaredHook.from_dict(_item) for _item in obj["declared_hooks"]] if obj.get("declared_hooks") is not None else None,
-            "plexd_hooks": [PlexdHook.from_dict(_item) for _item in obj["plexd_hooks"]] if obj.get("plexd_hooks") is not None else None
+            "plexd_hooks": [PlexdHook.from_dict(_item) for _item in obj["plexd_hooks"]] if obj.get("plexd_hooks") is not None else None,
+            "builtin_actions": [BuiltinAction.from_dict(_item) for _item in obj["builtin_actions"]] if obj.get("builtin_actions") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

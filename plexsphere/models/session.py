@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
@@ -48,8 +48,22 @@ class Session(BaseModel):
     revoked_at: Optional[datetime] = Field(default=None, description="Revocation timestamp (UTC); absent while the Session is live. ")
     revoke_reason: Optional[RevokeReason] = Field(default=None, description="Reason the Session was revoked. Omitted while the Session is live. ")
     target: SessionTarget
+    listener_endpoint: Optional[Annotated[str, Field(strict=True, max_length=261)]] = Field(default=None, description="The `host:port` the target Node reported for this Session, and the endpoint the attach gateway dials. Absent until the Node's first `session_started` activity row for a `tcp` session settles it. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "project_id", "domain_id", "resource_id", "identity_id", "kind", "status", "issued_at", "expires_at", "last_active_at", "idle_timeout_seconds", "revoked_at", "revoke_reason", "target"]
+    __properties: ClassVar[List[str]] = ["id", "project_id", "domain_id", "resource_id", "identity_id", "kind", "status", "issued_at", "expires_at", "last_active_at", "idle_timeout_seconds", "revoked_at", "revoke_reason", "target", "listener_endpoint"]
+
+    @field_validator('listener_endpoint')
+    def listener_endpoint_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^.+:[0-9]{1,5}$", value):
+            raise ValueError(r"must validate the regular expression /^.+:[0-9]{1,5}$/")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -125,7 +139,8 @@ class Session(BaseModel):
             "idle_timeout_seconds": obj.get("idle_timeout_seconds"),
             "revoked_at": obj.get("revoked_at"),
             "revoke_reason": obj.get("revoke_reason"),
-            "target": SessionTarget.from_dict(obj["target"]) if obj.get("target") is not None else None
+            "target": SessionTarget.from_dict(obj["target"]) if obj.get("target") is not None else None,
+            "listener_endpoint": obj.get("listener_endpoint")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

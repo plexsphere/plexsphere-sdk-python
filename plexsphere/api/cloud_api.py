@@ -59,568 +59,6 @@ class CloudApi:
 
 
     @validate_call
-    def approve_cloud_assignment(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CloudAssignmentResponse:
-        """Approve a Cloud Assignment request.
-
-        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_cloud_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def approve_cloud_assignment_with_http_info(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CloudAssignmentResponse]:
-        """Approve a Cloud Assignment request.
-
-        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_cloud_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def approve_cloud_assignment_without_preload_content(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Approve a Cloud Assignment request.
-
-        Approves the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `approved` state, materialises the `cloud#uses` binding so the Cloud is usable in the Project, and appends a `CloudAssignmentMaterialised` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_cloud_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _approve_cloud_assignment_serialize(
-        self,
-        id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'operatorBearer', 
-            'sessionCookie'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/cloud-assignments/{id}/approve',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def approve_credential_assignment(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CredentialAssignmentResponse:
-        """Approve a Credential Assignment.
-
-        Approves the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `approved` state, materialises the binding, and appends a `CredentialAssignmentApproved` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_credential_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def approve_credential_assignment_with_http_info(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CredentialAssignmentResponse]:
-        """Approve a Credential Assignment.
-
-        Approves the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `approved` state, materialises the binding, and appends a `CredentialAssignmentApproved` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_credential_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def approve_credential_assignment_without_preload_content(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Approve a Credential Assignment.
-
-        Approves the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `approved` state, materialises the binding, and appends a `CredentialAssignmentApproved` outbox event in a single transaction.  Approval is only legal from the `requested` state — any other source state returns `409 illegal_transition`. The caller may not approve an assignment they themselves requested; that self-approval is rejected with `403 self_approval_denied`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._approve_credential_assignment_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _approve_credential_assignment_serialize(
-        self,
-        id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'operatorBearer', 
-            'sessionCookie'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/credential-assignments/{id}/approve',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
     def attach_cloud_credential_cloud(
         self,
         id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
@@ -4217,7 +3655,7 @@ class CloudApi:
     ) -> CredentialAssignmentList:
         """List the Credential Assignments owned by a Project.
 
-        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `observe` ReBAC check on the parent Project BEFORE the persistence read, then layers a per-row `observe` filter on top so the response items are the subset of the persistence-level page the caller is authorised to see.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
         :type id: UUID
@@ -4296,7 +3734,7 @@ class CloudApi:
     ) -> ApiResponse[CredentialAssignmentList]:
         """List the Credential Assignments owned by a Project.
 
-        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `observe` ReBAC check on the parent Project BEFORE the persistence read, then layers a per-row `observe` filter on top so the response items are the subset of the persistence-level page the caller is authorised to see.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
         :type id: UUID
@@ -4375,7 +3813,7 @@ class CloudApi:
     ) -> RESTResponseType:
         """List the Credential Assignments owned by a Project.
 
-        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `observe` ReBAC check on the parent Project BEFORE the persistence read, then layers a per-row `observe` filter on top so the response items are the subset of the persistence-level page the caller is authorised to see.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+        Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
         :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
         :type id: UUID
@@ -4799,630 +4237,6 @@ class CloudApi:
         return self.api_client.param_serialize(
             method='PATCH',
             resource_path='/v1/clouds/{id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def reject_cloud_assignment(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CloudAssignmentResponse:
-        """Reject a Cloud Assignment request.
-
-        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param cloud_assignment_decision_request: (required)
-        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_cloud_assignment_serialize(
-            id=id,
-            cloud_assignment_decision_request=cloud_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def reject_cloud_assignment_with_http_info(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CloudAssignmentResponse]:
-        """Reject a Cloud Assignment request.
-
-        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param cloud_assignment_decision_request: (required)
-        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_cloud_assignment_serialize(
-            id=id,
-            cloud_assignment_decision_request=cloud_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def reject_cloud_assignment_without_preload_content(
-        self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
-        cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Reject a Cloud Assignment request.
-
-        Rejects the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `rejected` state and appends a `CloudAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
-        :type id: UUID
-        :param cloud_assignment_decision_request: (required)
-        :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_cloud_assignment_serialize(
-            id=id,
-            cloud_assignment_decision_request=cloud_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CloudAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _reject_cloud_assignment_serialize(
-        self,
-        id,
-        cloud_assignment_decision_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if cloud_assignment_decision_request is not None:
-            _body_params = cloud_assignment_decision_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'operatorBearer', 
-            'sessionCookie'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/cloud-assignments/{id}/reject',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    def reject_credential_assignment(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CredentialAssignmentResponse:
-        """Reject a Credential Assignment.
-
-        Rejects the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `rejected` state and appends a `CredentialAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an approver-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param credential_assignment_decision_request: (required)
-        :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_credential_assignment_serialize(
-            id=id,
-            credential_assignment_decision_request=credential_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    def reject_credential_assignment_with_http_info(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CredentialAssignmentResponse]:
-        """Reject a Credential Assignment.
-
-        Rejects the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `rejected` state and appends a `CredentialAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an approver-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param credential_assignment_decision_request: (required)
-        :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_credential_assignment_serialize(
-            id=id,
-            credential_assignment_decision_request=credential_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    def reject_credential_assignment_without_preload_content(
-        self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
-        credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Reject a Credential Assignment.
-
-        Rejects the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `rejected` state and appends a `CredentialAssignmentRejected` outbox event in a single transaction. The `reason` from the body is recorded on the event as an approver-supplied audit string.  Rejection is only legal from the `requested` state — any other source state returns `409 illegal_transition`. 
-
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
-        :type id: UUID
-        :param credential_assignment_decision_request: (required)
-        :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._reject_credential_assignment_serialize(
-            id=id,
-            credential_assignment_decision_request=credential_assignment_decision_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CredentialAssignmentResponse",
-            '400': "Problem",
-            '401': "Problem",
-            '403': "PermissionDenied",
-            '404': "Problem",
-            '409': "Problem",
-            '413': "Problem",
-            '500': "Problem",
-        }
-        response_data = self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _reject_credential_assignment_serialize(
-        self,
-        id,
-        credential_assignment_decision_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if credential_assignment_decision_request is not None:
-            _body_params = credential_assignment_decision_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json', 
-                    'application/problem+json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'operatorBearer', 
-            'sessionCookie'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/credential-assignments/{id}/reject',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -6062,7 +4876,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_assignment(
         self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface. ")],
         cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6079,9 +4893,9 @@ class CloudApi:
     ) -> CloudAssignmentResponse:
         """Revoke a Cloud Assignment.
 
-        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Cloud they were granted without holding the Cloud-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface.  (required)
         :type id: UUID
         :param cloud_assignment_decision_request: (required)
         :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
@@ -6140,7 +4954,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_assignment_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface. ")],
         cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6157,9 +4971,9 @@ class CloudApi:
     ) -> ApiResponse[CloudAssignmentResponse]:
         """Revoke a Cloud Assignment.
 
-        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Cloud they were granted without holding the Cloud-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface.  (required)
         :type id: UUID
         :param cloud_assignment_decision_request: (required)
         :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
@@ -6218,7 +5032,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_assignment_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface. ")],
         cloud_assignment_decision_request: CloudAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6235,9 +5049,9 @@ class CloudApi:
     ) -> RESTResponseType:
         """Revoke a Cloud Assignment.
 
-        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud, runs the `assign` ReBAC check on that Cloud, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Cloud Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Cloud Assignment application service which moves the assignment to the `revoked` state, narrow-deletes the `cloud#uses` binding so the Cloud is no longer usable in the Project, and appends a `CloudAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Cloud they were granted without holding the Cloud-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/approve`, `/v1/cloud-assignments/{id}/reject`, and `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment decision surface.  (required)
+        :param id: Cloud Assignment identifier (UUIDv7). Bound on `/v1/cloud-assignments/{id}/revoke` for the Cloud Assignment revocation surface.  (required)
         :type id: UUID
         :param cloud_assignment_decision_request: (required)
         :type cloud_assignment_decision_request: CloudAssignmentDecisionRequest
@@ -6683,7 +5497,7 @@ class CloudApi:
     @validate_call
     def revoke_credential_assignment(
         self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface. ")],
         credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6700,9 +5514,9 @@ class CloudApi:
     ) -> CredentialAssignmentResponse:
         """Revoke a Credential Assignment.
 
-        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud Credential and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud Credential, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Credential they were granted without holding the Credential-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
+        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface.  (required)
         :type id: UUID
         :param credential_assignment_decision_request: (required)
         :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest
@@ -6761,7 +5575,7 @@ class CloudApi:
     @validate_call
     def revoke_credential_assignment_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface. ")],
         credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6778,9 +5592,9 @@ class CloudApi:
     ) -> ApiResponse[CredentialAssignmentResponse]:
         """Revoke a Credential Assignment.
 
-        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud Credential and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud Credential, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Credential they were granted without holding the Credential-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
+        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface.  (required)
         :type id: UUID
         :param credential_assignment_decision_request: (required)
         :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest
@@ -6839,7 +5653,7 @@ class CloudApi:
     @validate_call
     def revoke_credential_assignment_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface. ")],
+        id: Annotated[UUID, Field(description="Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface. ")],
         credential_assignment_decision_request: CredentialAssignmentDecisionRequest,
         _request_timeout: Union[
             None,
@@ -6856,9 +5670,9 @@ class CloudApi:
     ) -> RESTResponseType:
         """Revoke a Credential Assignment.
 
-        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the parent Project, runs the `manage` ReBAC check on that Project, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
+        Revokes the Credential Assignment identified by `{id}`. The handler reads the row to resolve the owning Cloud Credential and the consuming Project, runs the dual ReBAC gate described below, then delegates to the Credential Assignment application service which moves the assignment to the `revoked` state, tears down the materialised binding, and appends a `CredentialAssignmentRevoked` outbox event in a single transaction. The `reason` from the body is recorded on the event as an operator-supplied audit string.  The gate has two legs: `assign` on the owning Cloud Credential, the object the assignment spends, and on its denial `deploy` on the consuming Project. Either leg authorises the revocation; the call is denied only when both deny. The second leg lets a Project owner hand back a Credential they were granted without holding the Credential-side `assign` relation.  Revocation is only legal from the `approved` state — any other source state returns `409 illegal_transition`. 
 
-        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/approve`, `/v1/credential-assignments/{id}/reject`, and `/v1/credential-assignments/{id}/revoke` for the Credential Assignment decision surface.  (required)
+        :param id: Credential Assignment identifier (UUIDv7). Bound on `/v1/credential-assignments/{id}/revoke` for the Credential Assignment revocation surface.  (required)
         :type id: UUID
         :param credential_assignment_decision_request: (required)
         :type credential_assignment_decision_request: CredentialAssignmentDecisionRequest

@@ -18,9 +18,10 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
+from plexsphere.models.approval_kind import ApprovalKind
 from plexsphere.models.approval_state import ApprovalState
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,23 +29,26 @@ from pydantic_core import to_jsonable_python
 
 class Approval(BaseModel):
     """
-    Metadata projection of an Approval. The shape is shared by `ListApprovals`, `GetApproval`, `ApproveApproval`, `RejectApproval`, and `BreakGlassApproval` so clients only need one binding. 
+    Metadata projection of one approval-queue row. The shape is shared by `ListApprovals`, `GetApproval`, `ApproveApproval`, `RejectApproval`, and `BreakGlassApproval` so clients only need one binding, and it covers all three queue sources: generic Approvals, Credential Assignments, and Cloud Assignments. `kind` names the source, and a client reads it before any field a single source owns. `project_id` and `materialised` are set on assignment rows; `expires_at`, `payload`, and `caveat_context` are set on `approval` rows. 
     """ # noqa: E501
     id: UUID = Field(description="Approval identifier (UUIDv7).")
+    kind: ApprovalKind
     domain_id: UUID = Field(description="Identifier of the owning Domain — the residency pivot the ReBAC gate authorises against. ")
+    project_id: Optional[UUID] = Field(default=None, description="Identifier of the consuming Project the assignment binds into. Set on `credential_assignment` and `cloud_assignment` rows; absent on `approval` rows. ")
     proposer_subject: StrictStr = Field(description="ReBAC subject string of the principal that raised the proposal. A caller may never approve a proposal whose `proposer_subject` is themselves. ")
     action_kind: StrictStr = Field(description="Kind of action the proposal would perform once approved. Matched against the Domain `ApprovalPolicy` rules to decide whether the proposal is gated. ")
     target_resource: StrictStr = Field(description="Resource the proposed action targets. Matched against the optional `target_resource` of a policy rule. ")
     payload: Optional[Dict[str, Any]] = Field(default=None, description="Raw JSON action payload applied verbatim once the proposal is approved. Opaque to the approval workflow — it carries the parameters of the action the proposer intends to run. ")
     state: ApprovalState
+    materialised: Optional[StrictBool] = Field(default=None, description="Whether the assignment's ReBAC binding is currently live. `true` only while the assignment is in the `approved` state. Set on `credential_assignment` and `cloud_assignment` rows; absent on `approval` rows. ")
     created_at: datetime = Field(description="Aggregate creation timestamp (UTC).")
     decided_at: Optional[datetime] = Field(default=None, description="Timestamp the proposal reached a terminal state (UTC). Absent while the proposal is still `proposed` or `pending-approval`. ")
     decided_by_subject: Optional[StrictStr] = Field(default=None, description="ReBAC subject string of the principal that decided the proposal. Absent while undecided and for the unattended `expired` path. ")
     decision_reason: Optional[StrictStr] = Field(default=None, description="Free-text rationale recorded with the decision. Absent while undecided and for the unattended `expired` path. For a break-glass override the rationale value is PII and is NOT surfaced here verbatim — only its field name is projected onto `caveat_context`. ")
-    expires_at: datetime = Field(description="Deadline past which the background sweeper expires an un-decided proposal (UTC). ")
+    expires_at: Optional[datetime] = Field(default=None, description="Deadline past which the background sweeper expires an un-decided proposal (UTC). Set on `approval` rows only. Assignment rows carry no deadline and never expire, so the field is absent on `credential_assignment` and `cloud_assignment` rows. ")
     caveat_context: Optional[Dict[str, List[StrictStr]]] = Field(default=None, description="Names-only projection of the caveat field NAMES referenced on the decision's audit row — for a break-glass override this carries the `reason` field name. Values never cross this boundary: the map keys are caveat NAMES and the arrays are caveat-parameter NAMES, mirroring the Platform Audit Log invariant. Absent while the proposal carries no decision audit row. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "domain_id", "proposer_subject", "action_kind", "target_resource", "payload", "state", "created_at", "decided_at", "decided_by_subject", "decision_reason", "expires_at", "caveat_context"]
+    __properties: ClassVar[List[str]] = ["id", "kind", "domain_id", "project_id", "proposer_subject", "action_kind", "target_resource", "payload", "state", "materialised", "created_at", "decided_at", "decided_by_subject", "decision_reason", "expires_at", "caveat_context"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -105,12 +109,15 @@ class Approval(BaseModel):
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
+            "kind": obj.get("kind"),
             "domain_id": obj.get("domain_id"),
+            "project_id": obj.get("project_id"),
             "proposer_subject": obj.get("proposer_subject"),
             "action_kind": obj.get("action_kind"),
             "target_resource": obj.get("target_resource"),
             "payload": obj.get("payload"),
             "state": obj.get("state"),
+            "materialised": obj.get("materialised"),
             "created_at": obj.get("created_at"),
             "decided_at": obj.get("decided_at"),
             "decided_by_subject": obj.get("decided_by_subject"),

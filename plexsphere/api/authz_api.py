@@ -112,6 +112,7 @@ class AuthzApi:
             '404': "Problem",
             '413': "Problem",
             '500': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -189,6 +190,7 @@ class AuthzApi:
             '404': "Problem",
             '413': "Problem",
             '500': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -266,6 +268,7 @@ class AuthzApi:
             '404': "Problem",
             '413': "Problem",
             '500': "Problem",
+            '503': "Problem",
         }
         response_data = self.api_client.call_api(
             *_param,

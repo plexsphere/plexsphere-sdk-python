@@ -69,6 +69,7 @@ __all__ = [
     "AlertRuleUpdate",
     "AlertSeverity",
     "Approval",
+    "ApprovalKind",
     "ApprovalList",
     "ApprovalPolicy",
     "ApprovalPolicyRulesInner",
@@ -122,6 +123,8 @@ __all__ = [
     "BridgeUserAccessProviderList",
     "BridgeUserAccessProviderResponse",
     "BridgeUserAccessProviderUpdateRequest",
+    "BuiltinAction",
+    "BuiltinActionParameter",
     "CapabilityManifestRequest",
     "CapabilityManifestResponse",
     "CapabilityRow",
@@ -273,11 +276,13 @@ __all__ = [
     "NodeStateBridgeSiteToSite",
     "NodeStateBridgeUserAccess",
     "NodeStateCompiledRule",
+    "NodeStateExecution",
     "NodeStatePeer",
     "NodeStatePolicy",
     "NodeStateReportRequest",
     "NodeStateReportResponse",
     "NodeStateReports",
+    "NodeStateSession",
     "NodeStateSnapshot",
     "NodeSummary",
     "ObjectSearchRequest",
@@ -345,6 +350,7 @@ __all__ = [
     "RotationImpactEdge",
     "RotationImpactPreview",
     "RotationTriggerResponse",
+    "SSEEventActionRequest",
     "SSEEventSessionRevoked",
     "SSEEventSessionSetup",
     "ServiceFederationKind",
@@ -432,6 +438,7 @@ from plexsphere.models.alert_rule_list import AlertRuleList as AlertRuleList
 from plexsphere.models.alert_rule_update import AlertRuleUpdate as AlertRuleUpdate
 from plexsphere.models.alert_severity import AlertSeverity as AlertSeverity
 from plexsphere.models.approval import Approval as Approval
+from plexsphere.models.approval_kind import ApprovalKind as ApprovalKind
 from plexsphere.models.approval_list import ApprovalList as ApprovalList
 from plexsphere.models.approval_policy import ApprovalPolicy as ApprovalPolicy
 from plexsphere.models.approval_policy_rules_inner import ApprovalPolicyRulesInner as ApprovalPolicyRulesInner
@@ -485,6 +492,8 @@ from plexsphere.models.bridge_user_access_provider_kind import BridgeUserAccessP
 from plexsphere.models.bridge_user_access_provider_list import BridgeUserAccessProviderList as BridgeUserAccessProviderList
 from plexsphere.models.bridge_user_access_provider_response import BridgeUserAccessProviderResponse as BridgeUserAccessProviderResponse
 from plexsphere.models.bridge_user_access_provider_update_request import BridgeUserAccessProviderUpdateRequest as BridgeUserAccessProviderUpdateRequest
+from plexsphere.models.builtin_action import BuiltinAction as BuiltinAction
+from plexsphere.models.builtin_action_parameter import BuiltinActionParameter as BuiltinActionParameter
 from plexsphere.models.capability_manifest_request import CapabilityManifestRequest as CapabilityManifestRequest
 from plexsphere.models.capability_manifest_response import CapabilityManifestResponse as CapabilityManifestResponse
 from plexsphere.models.capability_row import CapabilityRow as CapabilityRow
@@ -636,11 +645,13 @@ from plexsphere.models.node_state_bridge_relay_assignment import NodeStateBridge
 from plexsphere.models.node_state_bridge_site_to_site import NodeStateBridgeSiteToSite as NodeStateBridgeSiteToSite
 from plexsphere.models.node_state_bridge_user_access import NodeStateBridgeUserAccess as NodeStateBridgeUserAccess
 from plexsphere.models.node_state_compiled_rule import NodeStateCompiledRule as NodeStateCompiledRule
+from plexsphere.models.node_state_execution import NodeStateExecution as NodeStateExecution
 from plexsphere.models.node_state_peer import NodeStatePeer as NodeStatePeer
 from plexsphere.models.node_state_policy import NodeStatePolicy as NodeStatePolicy
 from plexsphere.models.node_state_report_request import NodeStateReportRequest as NodeStateReportRequest
 from plexsphere.models.node_state_report_response import NodeStateReportResponse as NodeStateReportResponse
 from plexsphere.models.node_state_reports import NodeStateReports as NodeStateReports
+from plexsphere.models.node_state_session import NodeStateSession as NodeStateSession
 from plexsphere.models.node_state_snapshot import NodeStateSnapshot as NodeStateSnapshot
 from plexsphere.models.node_summary import NodeSummary as NodeSummary
 from plexsphere.models.object_search_request import ObjectSearchRequest as ObjectSearchRequest
@@ -708,6 +719,7 @@ from plexsphere.models.revoke_session_request import RevokeSessionRequest as Rev
 from plexsphere.models.rotation_impact_edge import RotationImpactEdge as RotationImpactEdge
 from plexsphere.models.rotation_impact_preview import RotationImpactPreview as RotationImpactPreview
 from plexsphere.models.rotation_trigger_response import RotationTriggerResponse as RotationTriggerResponse
+from plexsphere.models.sse_event_action_request import SSEEventActionRequest as SSEEventActionRequest
 from plexsphere.models.sse_event_session_revoked import SSEEventSessionRevoked as SSEEventSessionRevoked
 from plexsphere.models.sse_event_session_setup import SSEEventSessionSetup as SSEEventSessionSetup
 from plexsphere.models.service_federation_kind import ServiceFederationKind as ServiceFederationKind

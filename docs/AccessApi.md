@@ -21,9 +21,12 @@ Upgrades the request to a WebSocket and bridges the browser to the
 mediated SSH session identified by `{session_id}` within the owning
 Project. The handler re-runs the issuance-equivalent ReBAC check on
 the session's Resource BEFORE dialing anything, validates the Session
-is `active` and `ssh`-kind, then dials the target plexd
-`listener_endpoint` over the mesh and copies bytes bidirectionally
-between the client socket and the mesh connection.
+is `active` and `ssh`-kind, then dials the `listener_endpoint` the
+target Node reported for the Session over the mesh and copies bytes
+bidirectionally between the client socket and the mesh connection.
+The reported endpoint is the only dial target: a Session whose Node
+has not reported one yet is refused with 409
+`session_listener_pending` instead of being dialed.
 
 This operation does NOT speak JSON. On a successful upgrade the
 response is `101 Switching Protocols` and the connection body is an
@@ -104,7 +107,7 @@ void (empty response body)
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to attach to this Session&#39;s Resource. Body is a &#x60;PermissionDenied&#x60; problem; the gateway closes the socket with WebSocket close code &#x60;1008&#x60; (policy violation) when the denial is detected after the upgrade.  |  -  |
 **404** | The owning Project or the addressed Session does not exist or is not visible. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;project_not_found&#x60;, &#x60;session_not_found&#x60; }.  |  -  |
-**409** | The addressed Session cannot be attached. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;session_not_active&#x60; (the Session is revoked, expired, or otherwise not live), &#x60;session_not_ssh&#x60; (the Session is &#x60;k8s&#x60;- or &#x60;tcp&#x60;-kind — only the &#x60;ssh&#x60; kind has a browser terminal) }. The gateway rejects with this status BEFORE any mesh dial is attempted.  |  -  |
+**409** | The addressed Session cannot be attached. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;session_not_active&#x60; (the Session is revoked, expired, or otherwise not live), &#x60;session_not_ssh&#x60; (the Session is &#x60;k8s&#x60;- or &#x60;tcp&#x60;-kind — only the &#x60;ssh&#x60; kind has a browser terminal), &#x60;session_listener_pending&#x60; (the Session is live, but its target Node has not reported a &#x60;listener_endpoint&#x60; yet; retry after the Node&#39;s next reconcile) }. The gateway rejects with this status BEFORE any mesh dial is attempted.  |  -  |
 **426** | Upgrade Required. The request did not carry the WebSocket upgrade handshake headers, so the gateway refuses to proceed. Body is a &#x60;Problem&#x60; with &#x60;code: upgrade_required&#x60; and the response advertises &#x60;Connection: Upgrade&#x60; / &#x60;Upgrade: websocket&#x60;.  |  * Upgrade - Advertises the protocol the client must upgrade to (&#x60;websocket&#x60;).  <br>  |
 **501** | The access attach gateway is not yet provisioned in this build. The Problem body&#39;s &#x60;code&#x60; field is &#x60;access_attach_not_provisioned&#x60; so log scrapers can alert on the deferred-wiring state. Resolves once the session-lookup and mesh-dialer ports are wired into the v1 handler dependency cone.  |  -  |
 **500** | Internal server error. |  -  |
@@ -297,7 +300,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Session issued. Body carries the metadata-only Session projection, the signed EdDSA JWT (delivered exactly once), the per-kind plexd listener endpoint, and the expiry. The &#x60;Location&#x60; header points at the single-Session read path.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Session issued. Body carries the metadata-only Session projection, the signed EdDSA JWT (delivered exactly once), and the expiry. It carries no listener endpoint: the endpoint settles on the Session read projection once the target Node reports it. The &#x60;Location&#x60; header points at the single-Session read path.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
 **400** | Invalid request — typically a malformed body, a &#x60;kind&#x60; that does not match the supplied &#x60;target&#x60; variant, or a per-kind target that fails a domain invariant. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_body&#x60;, &#x60;invalid_target&#x60; }.  |  -  |
 **401** | Caller is not authenticated, OR the targeted kind requires a fresh step-up the caller has not satisfied. On the step-up path the body is a &#x60;Problem&#x60; with &#x60;code: step_up_required&#x60; and the response carries an RFC 9470 &#x60;WWW-Authenticate: Bearer error&#x3D;\&quot;insufficient_user_authentication\&quot;&#x60; challenge — with an &#x60;acr_values&#x60; parameter naming the required assurance set when the unmet requirement is an ACR, or the bare challenge when the unmet requirement is an AMR.  |  * WWW-Authenticate - RFC 9470 step-up challenge, present only on the step-up-required path.  <br>  |
 **403** | Caller is not authorized to issue sessions on the targeted Resource, or the target lies outside the caller&#39;s authorised scope. Body is a &#x60;PermissionDenied&#x60; problem whose &#x60;reason&#x60; is &#x60;insufficient_relation&#x60; or &#x60;out_of_scope&#x60;.  |  -  |
@@ -438,6 +441,13 @@ sees progress. The handler:
      records exactly a `session_started` and a `session_ended`
      pair — the TCP shape is deliberately payload-blind, with no
      L7 parsing.
+
+A `tcp` `session_started` row may carry a `listener_endpoint`, the
+`host:port` the Node bound for the session on its mesh address.
+The platform persists it as the session's authoritative dial
+target and serves it on the Session read projection; a repeated
+`session_started` overwrites the stored value, so the last report
+wins.
 
 DEFERRED-WIRING POSTURE: until the production composition root
 supplies the callback service and its NSK validator, every request

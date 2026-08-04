@@ -54,6 +54,13 @@ class TestMeshApi(unittest.TestCase):
         """
         pass
 
+    def test_get_node_peer_psk(self) -> None:
+        """Test case for get_node_peer_psk
+
+        Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+        """
+        pass
+
     def test_get_node_reachability(self) -> None:
         """Test case for get_node_reachability
 

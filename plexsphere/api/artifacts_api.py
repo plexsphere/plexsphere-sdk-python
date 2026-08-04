@@ -58,7 +58,7 @@ class ArtifactsApi:
     ) -> PlexdArtifact:
         """Fetch one indexed plexd release by version.
 
-        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently. 
+        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node pulling its own upgrade verdict — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -128,7 +128,7 @@ class ArtifactsApi:
     ) -> ApiResponse[PlexdArtifact]:
         """Fetch one indexed plexd release by version.
 
-        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently. 
+        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node pulling its own upgrade verdict — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -198,7 +198,7 @@ class ArtifactsApi:
     ) -> RESTResponseType:
         """Fetch one indexed plexd release by version.
 
-        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently. 
+        Returns the indexed plexd release line identified by `{version}` — every per-architecture build with its recorded SHA-256 checksum, the lifecycle `support_status`, and the `verdict` the supply-chain verification gate pronounced. The record is read-only; indexing happens out of band against the upstream OCI release stream. A version that has never been indexed surfaces as `404 release_not_found`.  The verbatim Sigstore bundle attesting each build is NOT inlined in this record; fetch it from the `{version}/sigstore` companion endpoint so an operator can re-verify the attestation independently.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node pulling its own upgrade verdict — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -289,6 +289,7 @@ class ArtifactsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'nskBearer', 
             'operatorBearer', 
             'sessionCookie'
         ]
@@ -330,7 +331,7 @@ class ArtifactsApi:
     ) -> bytes:
         """Fetch the verbatim Sigstore bundle for a plexd release.
 
-        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`. 
+        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node verifying its own build provenance — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -400,7 +401,7 @@ class ArtifactsApi:
     ) -> ApiResponse[bytes]:
         """Fetch the verbatim Sigstore bundle for a plexd release.
 
-        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`. 
+        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node verifying its own build provenance — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -470,7 +471,7 @@ class ArtifactsApi:
     ) -> RESTResponseType:
         """Fetch the verbatim Sigstore bundle for a plexd release.
 
-        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`. 
+        Returns the raw, verbatim upstream Sigstore bundle the registry cached for the plexd release identified by `{version}`, served back byte-for-byte as `application/octet-stream`. The bundle is the canonical keyless attestation an operator re-verifies independently — pipe it into `cosign verify-blob` or a `sigstore-go` verifier against the pinned release-signing identity to confirm the build provenance without trusting this server. A version that has never been indexed, or whose cached bundle is absent, surfaces as `404 release_not_found`.  A registered Node's NSK authenticates this read directly: the plexd release registry is platform-global and read-only, so a valid, non-revoked NSK is sufficient authorization for a node verifying its own build provenance — the NSK arm adds no 403. The operator path (the platform read relation, with a denial collapsing onto the same `404 release_not_found`) is unchanged. 
 
         :param version: plexd release version the registry indexes — the upstream release tag, for example a semver tag such as `v1.4.2`. Bound on `/v1/artifacts/plexd/{version}` and its `.sigstore` companion for the read-only plexd release registry surface.  (required)
         :type version: str
@@ -561,6 +562,7 @@ class ArtifactsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'nskBearer', 
             'operatorBearer', 
             'sessionCookie'
         ]

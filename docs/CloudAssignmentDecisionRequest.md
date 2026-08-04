@@ -1,6 +1,6 @@
 # CloudAssignmentDecisionRequest
 
-Body for `POST /v1/cloud-assignments/{id}/reject` and `POST /v1/cloud-assignments/{id}/revoke`. The `reason` is recorded on the lifecycle outbox event so the decision carries an operator-supplied audit string. 
+Body for `POST /v1/cloud-assignments/{id}/revoke`. The `reason` is recorded on the lifecycle outbox event so the decision carries an operator-supplied audit string. Approving and rejecting an assignment happens on the approvals queue via `POST /v1/approvals/{id}/approve` and `POST /v1/approvals/{id}/reject`. 
 
 ## Properties
 

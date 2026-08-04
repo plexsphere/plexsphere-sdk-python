@@ -26,7 +26,7 @@ from pydantic_core import to_jsonable_python
 
 class CredentialAssignmentDecisionRequest(BaseModel):
     """
-    Body for `POST /v1/credential-assignments/{id}/reject` and `POST /v1/credential-assignments/{id}/revoke`. The `reason` is recorded on the lifecycle outbox event so the decision carries an approver- or operator-supplied audit string. 
+    Body for `POST /v1/credential-assignments/{id}/revoke`. The `reason` is recorded on the lifecycle outbox event so the decision carries an operator-supplied audit string. Approving and rejecting an assignment happens on the approvals queue via `POST /v1/approvals/{id}/approve` and `POST /v1/approvals/{id}/reject`. 
     """ # noqa: E501
     reason: Annotated[str, Field(min_length=1, strict=True, max_length=1024)] = Field(description="Decision rationale. Non-empty — whitespace-only is rejected with `400 invalid_decision_reason`. ")
     __properties: ClassVar[List[str]] = ["reason"]

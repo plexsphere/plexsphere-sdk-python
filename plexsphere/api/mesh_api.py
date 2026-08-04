@@ -649,7 +649,7 @@ class MeshApi:
     ) -> str:
         """Stream signed envelope events for a Node over SSE.
 
-        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  DESCOPED FOR THE FIRST PRODUCTION RELEASE: the signed SSE event bus does not ship in the first production release — reconciliation-pull (GET /v1/nodes/{id}/state) is the working delivery channel for mesh state. The production composition root wires none of the load-bearing EventStream, NonceStore, SignatureVerifier, RelationChecker, or NodeRepo ports, so every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned`, fail-closed by construction. See docs/architecture/mesh-event-bus-roadmap.md for the descope decision and the full un-descope checklist. 
+        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot subscribe to a sibling Node's stream, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  CONDITIONAL POSTURE: the signed SSE event bus is a latency optimisation layered over the reconciliation-pull baseline (GET /v1/nodes/{id}/state), which stays the authoritative delivery channel for mesh state. This endpoint answers 501 with `code: signed_event_bus_not_provisioned` until the operator configures the event-bus seams — the EventStream, NonceStore, SignatureVerifier, RelationChecker, and NodeRepo ports — after which it streams signed envelopes. The bus is single-replica: the backing PLEXSPHERE_NODE_EVENTS JetStream stream and the in-memory replay-protection store require the API server to run a single replica until a distributed nonce store is wired. See docs/architecture/mesh-event-bus-roadmap.md for the un-descope checklist and the single-replica constraint. 
 
         :param id: Node identifier (UUIDv7) — the SSE stream scope. (required)
         :type id: UUID
@@ -727,7 +727,7 @@ class MeshApi:
     ) -> ApiResponse[str]:
         """Stream signed envelope events for a Node over SSE.
 
-        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  DESCOPED FOR THE FIRST PRODUCTION RELEASE: the signed SSE event bus does not ship in the first production release — reconciliation-pull (GET /v1/nodes/{id}/state) is the working delivery channel for mesh state. The production composition root wires none of the load-bearing EventStream, NonceStore, SignatureVerifier, RelationChecker, or NodeRepo ports, so every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned`, fail-closed by construction. See docs/architecture/mesh-event-bus-roadmap.md for the descope decision and the full un-descope checklist. 
+        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot subscribe to a sibling Node's stream, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  CONDITIONAL POSTURE: the signed SSE event bus is a latency optimisation layered over the reconciliation-pull baseline (GET /v1/nodes/{id}/state), which stays the authoritative delivery channel for mesh state. This endpoint answers 501 with `code: signed_event_bus_not_provisioned` until the operator configures the event-bus seams — the EventStream, NonceStore, SignatureVerifier, RelationChecker, and NodeRepo ports — after which it streams signed envelopes. The bus is single-replica: the backing PLEXSPHERE_NODE_EVENTS JetStream stream and the in-memory replay-protection store require the API server to run a single replica until a distributed nonce store is wired. See docs/architecture/mesh-event-bus-roadmap.md for the un-descope checklist and the single-replica constraint. 
 
         :param id: Node identifier (UUIDv7) — the SSE stream scope. (required)
         :type id: UUID
@@ -805,7 +805,7 @@ class MeshApi:
     ) -> RESTResponseType:
         """Stream signed envelope events for a Node over SSE.
 
-        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  DESCOPED FOR THE FIRST PRODUCTION RELEASE: the signed SSE event bus does not ship in the first production release — reconciliation-pull (GET /v1/nodes/{id}/state) is the working delivery channel for mesh state. The production composition root wires none of the load-bearing EventStream, NonceStore, SignatureVerifier, RelationChecker, or NodeRepo ports, so every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned`, fail-closed by construction. See docs/architecture/mesh-event-bus-roadmap.md for the descope decision and the full un-descope checklist. 
+        Opens a Server-Sent Events stream of canonical signed `Envelope` records scoped to the addressed Node. Each `data:` frame is the JSON wire body produced by `internal/signing/envelope.CanonicalBytes`. The server runs ed25519 verification against the per-Domain signing public key before emitting the frame; consumers SHOULD verify the trailing `signature:` field again as a defence-in-depth measure.  The `id:` field on every event frame is the JetStream stream sequence number for that envelope. Clients resume by re- connecting with `Last-Event-ID: <numeric>` set to the last sequence they durably processed; the server replays from the next sequence (`> last`). When the header is absent or empty the stream tails from now — historical events are NOT backfilled.  The server emits a 25-second SSE comment-frame keep-alive (`:keep-alive\\n\\n`) so idle proxies do not collapse the connection. The `X-Plexsphere-API-Version` response header carries the contract version the stream conforms to; `Cache-Control: no-cache` opts the response out of any intermediary caching layer.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot subscribe to a sibling Node's stream, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  CONDITIONAL POSTURE: the signed SSE event bus is a latency optimisation layered over the reconciliation-pull baseline (GET /v1/nodes/{id}/state), which stays the authoritative delivery channel for mesh state. This endpoint answers 501 with `code: signed_event_bus_not_provisioned` until the operator configures the event-bus seams — the EventStream, NonceStore, SignatureVerifier, RelationChecker, and NodeRepo ports — after which it streams signed envelopes. The bus is single-replica: the backing PLEXSPHERE_NODE_EVENTS JetStream stream and the in-memory replay-protection store require the API server to run a single replica until a distributed nonce store is wired. See docs/architecture/mesh-event-bus-roadmap.md for the un-descope checklist and the single-replica constraint. 
 
         :param id: Node identifier (UUIDv7) — the SSE stream scope. (required)
         :type id: UUID
@@ -906,6 +906,7 @@ class MeshApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'nskBearer', 
             'operatorBearer', 
             'sessionCookie'
         ]
@@ -1207,6 +1208,304 @@ class MeshApi:
 
 
     @validate_call
+    def get_node_peer_psk(
+        self,
+        id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node. ")],
+        peer_node_id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> bytes:
+        """Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+
+        Returns the WireGuard preshared key (PSK) for the tunnel between the addressed Node and the named peer, as an AES-256-GCM ciphertext envelope rewrapped under the calling Node's Node Secret Key (NSK). WireGuard requires the SAME preshared key on both ends of a tunnel, but the control plane persists one wrapped PSK per Node. The server therefore derives the per-tunnel edge key from the two endpoints' stored per-Node PSKs via HKDF-SHA256 — both edges derive a byte-identical value — and serves it rewrapped under the calling Node's NSK so that ONLY NSK-wrapped ciphertext ever crosses the wire. The transient per-Node plaintexts, the derived edge key, and the recovered NSK are zeroed on every exit path; no plaintext is ever persisted, logged, cached, or placed on the event bus.  The 200 body is the raw envelope `<12-byte nonce> || <ciphertext + 16-byte GCM tag>` — exactly 60 bytes for the 32-byte edge PSK — served as `application/octet-stream`. The caller recovers the edge PSK byte-for-byte with `AES-256-GCM-Open` under its NSK. The response carries the NSK key id used for the wrap in `X-Plexsphere-PSK-KID` (so plexd can pick the right NSK during a rotation overlap), the PSK epoch the envelope is bound to in `X-Plexsphere-PSK-Epoch`, and `Cache-Control: no-store` so no intermediary ever retains the ciphertext.  An agent re-fetches the edge PSK for a peer P when P first appears in a projection, when P's `public_key` changes, and after the agent completes its own key rotation.  DEFERRED-WIRING POSTURE: when the edge-PSK delivery bundle is not wired into the composition root every request returns 501 with `code: psk_delivery_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+
+        :param id: Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node.  (required)
+        :type id: UUID
+        :param peer_node_id: Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched.  (required)
+        :type peer_node_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_node_peer_psk_serialize(
+            id=id,
+            peer_node_id=peer_node_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '429': "Problem",
+            '501': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_node_peer_psk_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node. ")],
+        peer_node_id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[bytes]:
+        """Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+
+        Returns the WireGuard preshared key (PSK) for the tunnel between the addressed Node and the named peer, as an AES-256-GCM ciphertext envelope rewrapped under the calling Node's Node Secret Key (NSK). WireGuard requires the SAME preshared key on both ends of a tunnel, but the control plane persists one wrapped PSK per Node. The server therefore derives the per-tunnel edge key from the two endpoints' stored per-Node PSKs via HKDF-SHA256 — both edges derive a byte-identical value — and serves it rewrapped under the calling Node's NSK so that ONLY NSK-wrapped ciphertext ever crosses the wire. The transient per-Node plaintexts, the derived edge key, and the recovered NSK are zeroed on every exit path; no plaintext is ever persisted, logged, cached, or placed on the event bus.  The 200 body is the raw envelope `<12-byte nonce> || <ciphertext + 16-byte GCM tag>` — exactly 60 bytes for the 32-byte edge PSK — served as `application/octet-stream`. The caller recovers the edge PSK byte-for-byte with `AES-256-GCM-Open` under its NSK. The response carries the NSK key id used for the wrap in `X-Plexsphere-PSK-KID` (so plexd can pick the right NSK during a rotation overlap), the PSK epoch the envelope is bound to in `X-Plexsphere-PSK-Epoch`, and `Cache-Control: no-store` so no intermediary ever retains the ciphertext.  An agent re-fetches the edge PSK for a peer P when P first appears in a projection, when P's `public_key` changes, and after the agent completes its own key rotation.  DEFERRED-WIRING POSTURE: when the edge-PSK delivery bundle is not wired into the composition root every request returns 501 with `code: psk_delivery_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+
+        :param id: Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node.  (required)
+        :type id: UUID
+        :param peer_node_id: Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched.  (required)
+        :type peer_node_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_node_peer_psk_serialize(
+            id=id,
+            peer_node_id=peer_node_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '429': "Problem",
+            '501': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_node_peer_psk_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node. ")],
+        peer_node_id: Annotated[UUID, Field(description="Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Fetch the pairwise edge PSK for a tunnel, rewrapped under the calling Node's NSK.
+
+        Returns the WireGuard preshared key (PSK) for the tunnel between the addressed Node and the named peer, as an AES-256-GCM ciphertext envelope rewrapped under the calling Node's Node Secret Key (NSK). WireGuard requires the SAME preshared key on both ends of a tunnel, but the control plane persists one wrapped PSK per Node. The server therefore derives the per-tunnel edge key from the two endpoints' stored per-Node PSKs via HKDF-SHA256 — both edges derive a byte-identical value — and serves it rewrapped under the calling Node's NSK so that ONLY NSK-wrapped ciphertext ever crosses the wire. The transient per-Node plaintexts, the derived edge key, and the recovered NSK are zeroed on every exit path; no plaintext is ever persisted, logged, cached, or placed on the event bus.  The 200 body is the raw envelope `<12-byte nonce> || <ciphertext + 16-byte GCM tag>` — exactly 60 bytes for the 32-byte edge PSK — served as `application/octet-stream`. The caller recovers the edge PSK byte-for-byte with `AES-256-GCM-Open` under its NSK. The response carries the NSK key id used for the wrap in `X-Plexsphere-PSK-KID` (so plexd can pick the right NSK during a rotation overlap), the PSK epoch the envelope is bound to in `X-Plexsphere-PSK-Epoch`, and `Cache-Control: no-store` so no intermediary ever retains the ciphertext.  An agent re-fetches the edge PSK for a peer P when P first appears in a projection, when P's `public_key` changes, and after the agent completes its own key rotation.  DEFERRED-WIRING POSTURE: when the edge-PSK delivery bundle is not wired into the composition root every request returns 501 with `code: psk_delivery_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+
+        :param id: Node identifier (UUIDv7) of the addressed Node — the edge endpoint fetching the PSK. Must equal the NSK-authenticated calling Node.  (required)
+        :type id: UUID
+        :param peer_node_id: Node identifier (UUIDv7) of the peer at the other end of the edge whose pairwise PSK is fetched.  (required)
+        :type peer_node_id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_node_peer_psk_serialize(
+            id=id,
+            peer_node_id=peer_node_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '409': "Problem",
+            '429': "Problem",
+            '501': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_node_peer_psk_serialize(
+        self,
+        id,
+        peer_node_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if peer_node_id is not None:
+            _path_params['peer_node_id'] = peer_node_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/octet-stream', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'nskBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/nodes/{id}/peers/{peer_node_id}/psk',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def get_node_reachability(
         self,
         id: Annotated[UUID, Field(description="Node identifier (UUIDv7) — the reachability scope.")],
@@ -1225,7 +1524,7 @@ class MeshApi:
     ) -> Reachability:
         """Read the reachability projection for a Node.
 
-        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot read a sibling Node's reachability projection, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the reachability scope. (required)
         :type id: UUID
@@ -1297,7 +1596,7 @@ class MeshApi:
     ) -> ApiResponse[Reachability]:
         """Read the reachability projection for a Node.
 
-        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot read a sibling Node's reachability projection, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the reachability scope. (required)
         :type id: UUID
@@ -1369,7 +1668,7 @@ class MeshApi:
     ) -> RESTResponseType:
         """Read the reachability projection for a Node.
 
-        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the latest `Reachability` projection for the addressed Node — the per-Node state-machine the heartbeat handler advances on every accepted heartbeat. The projection is the authoritative health view the operator UI and reconciliation surface consume; it transitions `healthy` → `stale` after 90s without a heartbeat and `stale` → `unreachable` after 300s, with `changed_at` tracking the most recent transition.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/state` and `GET /v1/nodes/{id}/events`, so any caller authorised to issue a reconciliation pull is also authorised to read the reachability projection. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot read a sibling Node's reachability projection, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the ReachabilityRepo, RelationChecker, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: reachability_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the reachability scope. (required)
         :type id: UUID
@@ -1462,6 +1761,7 @@ class MeshApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'nskBearer', 
             'operatorBearer', 
             'sessionCookie'
         ]
@@ -1818,7 +2118,7 @@ class MeshApi:
     ) -> NodeStateSnapshot:
         """Reconciliation pull for a Node — return the canonical NodeStateSnapshot.
 
-        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, `reports`, `executions`, and `sessions` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The `executions` and `sessions` blocks carry the Node's pending action dispatches and its live mediated sessions. With no event channel delivering dispatches, this reconciliation pull is the correctness-baseline delivery path for both: a Node learns of a pending dispatch or a session setup by pulling the snapshot and acknowledges it through the existing callbacks. An entry drains from `executions` when its target reaches a terminal status and from `sessions` on revocation or expiry.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot pull a sibling Node's snapshot, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the snapshot scope. (required)
         :type id: UUID
@@ -1891,7 +2191,7 @@ class MeshApi:
     ) -> ApiResponse[NodeStateSnapshot]:
         """Reconciliation pull for a Node — return the canonical NodeStateSnapshot.
 
-        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, `reports`, `executions`, and `sessions` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The `executions` and `sessions` blocks carry the Node's pending action dispatches and its live mediated sessions. With no event channel delivering dispatches, this reconciliation pull is the correctness-baseline delivery path for both: a Node learns of a pending dispatch or a session setup by pulling the snapshot and acknowledges it through the existing callbacks. An entry drains from `executions` when its target reaches a terminal status and from `sessions` on revocation or expiry.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot pull a sibling Node's snapshot, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the snapshot scope. (required)
         :type id: UUID
@@ -1964,7 +2264,7 @@ class MeshApi:
     ) -> RESTResponseType:
         """Reconciliation pull for a Node — return the canonical NodeStateSnapshot.
 
-        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, and `reports` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Returns the canonical `NodeStateSnapshot` for the addressed Node. The snapshot is the authoritative cold-start view that plexd consumes when it first comes up, when its SSE connection has been disconnected for longer than the replay window, or when an out-of-band request arrives to re-derive the desired state. The wire blocks — `peers`, `policy`, `bridge`, `state`, `reports`, `executions`, and `sessions` — are always present so plexd's reconcile loop can diff by field presence rather than absence; later stories populate the currently-empty blocks without changing the wire shape.  The `executions` and `sessions` blocks carry the Node's pending action dispatches and its live mediated sessions. With no event channel delivering dispatches, this reconciliation pull is the correctness-baseline delivery path for both: a Node learns of a pending dispatch or a session setup by pulling the snapshot and acknowledges it through the existing callbacks. An entry drains from `executions` when its target reaches a terminal status and from `sessions` on revocation or expiry.  The peer projection is a single SQL round-trip ordered by `node_id ASC` so two consecutive pulls against the same ledger snapshot are byte-equal — plexd's reconcile loop reduces redundant rewrites by hashing the response.  The endpoint reuses the `node-agent` ReBAC relation already guarding `GET /v1/nodes/{id}/events`, so any caller authorised to subscribe to a Node's SSE event stream is also authorised to issue a reconciliation pull. Unauthenticated callers receive 401; authenticated callers without the relation receive 403; an unknown Node id surfaces as 404 only after the authorisation gate passes so the endpoint cannot be used as a Node-id oracle.  This read is a dual-credential surface. A node agent authenticates with its NSK carried in the `Authorization: Bearer` header; the NSK arm enforces an equality gate — the authenticated Node must equal the addressed `{id}` — and runs no ReBAC relation check. A cross-Node NSK is refused with `403 node_id_mismatch` so a leaked credential cannot pull a sibling Node's snapshot, and a revoked NSK is refused with `401 nsk_revoked`. The operator arm (session cookie or operator bearer JWT plus the `node-agent` relation on the Node) is unchanged.  DEFERRED-WIRING POSTURE: until the production composition root supplies the `SnapshotProvider`, `RelationChecker`, and `NodeRepo` ports the handler depends on, every request to this endpoint returns 501 with `code: signed_event_bus_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the snapshot scope. (required)
         :type id: UUID
@@ -2058,6 +2358,7 @@ class MeshApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'nskBearer', 
             'operatorBearer', 
             'sessionCookie'
         ]
@@ -2735,7 +3036,7 @@ class MeshApi:
     ) -> HeartbeatResponse:
         """Record a Node liveness heartbeat and return reconcile/rotate hints.
 
-        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read. A Node starts in `never_reported` and      stays there until its first heartbeat is admitted. The      evaluator's recovery sweep observes that heartbeat on the      next tick and moves the Node to a heartbeat-derived      verdict (`healthy`, or `stale`/`unreachable` when the lone      heartbeat is already older than the thresholds), and a      transition event records the exit.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the heartbeat scope. (required)
         :type id: UUID
@@ -2811,7 +3112,7 @@ class MeshApi:
     ) -> ApiResponse[HeartbeatResponse]:
         """Record a Node liveness heartbeat and return reconcile/rotate hints.
 
-        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read. A Node starts in `never_reported` and      stays there until its first heartbeat is admitted. The      evaluator's recovery sweep observes that heartbeat on the      next tick and moves the Node to a heartbeat-derived      verdict (`healthy`, or `stale`/`unreachable` when the lone      heartbeat is already older than the thresholds), and a      transition event records the exit.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the heartbeat scope. (required)
         :type id: UUID
@@ -2887,7 +3188,7 @@ class MeshApi:
     ) -> RESTResponseType:
         """Record a Node liveness heartbeat and return reconcile/rotate hints.
 
-        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
+        Accepts a per-Node liveness heartbeat from plexd and updates the reachability projection that drives the mesh-wide health view. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      rejecting revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Validates the request body — `client_now` MUST be within      60s of server now (otherwise 400 `clock_skew`),      `binary_checksum` MUST be present and decode to a 32-byte      SHA-256 digest (otherwise 400 `binary_checksum_empty`).   4. Persists the heartbeat fact and updates the per-Node      reachability state-machine (`healthy` → `stale` after 90s,      `stale` → `unreachable` after 300s) so the projection at      `GET /v1/nodes/{id}/reachability` reflects the new fact      on the next read. A Node starts in `never_reported` and      stays there until its first heartbeat is admitted. The      evaluator's recovery sweep observes that heartbeat on the      next tick and moves the Node to a heartbeat-derived      verdict (`healthy`, or `stale`/`unreachable` when the lone      heartbeat is already older than the thresholds), and a      transition event records the exit.  The 200 response carries `accepted_at` (server timestamp at commit) and two reconciliation flags. `reconcile` defaults to `false` and later stories flip it when the controller wants plexd to issue a fresh reconciliation pull. `rotate_keys` is load-bearing: it is set to `true` whenever a `peer_key_rotation` row is pending for the heartbeating Node, telling the caller to generate a fresh Curve25519 keypair and complete the rotation via `POST /v1/keys/rotate`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the NSK validator, ReachabilityRepo, and clock-skew evaluator the handler depends on, every request to this endpoint returns 501 with `code: heartbeat_not_provisioned` so log scrapers can alert on the deferred-wiring state. See docs/architecture/mesh-event-bus-roadmap.md for the deferred work tracking. 
 
         :param id: Node identifier (UUIDv7) — the heartbeat scope. (required)
         :type id: UUID
@@ -4295,7 +4596,7 @@ class MeshApi:
     ) -> CapabilityManifestResponse:
         """Record the per-Node capability manifest snapshot.
 
-        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, and every hook's `checksum`      exactly 32 bytes.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, every hook's `checksum`      exactly 32 bytes, and — for the advertised      `builtin_actions` inventory — no duplicate action names,      no duplicate parameter names within one action, and both      counts within their caps.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
 
         :param id: Node identifier (UUIDv7) — the capability manifest scope. (required)
         :type id: UUID
@@ -4374,7 +4675,7 @@ class MeshApi:
     ) -> ApiResponse[CapabilityManifestResponse]:
         """Record the per-Node capability manifest snapshot.
 
-        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, and every hook's `checksum`      exactly 32 bytes.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, every hook's `checksum`      exactly 32 bytes, and — for the advertised      `builtin_actions` inventory — no duplicate action names,      no duplicate parameter names within one action, and both      counts within their caps.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
 
         :param id: Node identifier (UUIDv7) — the capability manifest scope. (required)
         :type id: UUID
@@ -4453,7 +4754,7 @@ class MeshApi:
     ) -> RESTResponseType:
         """Record the per-Node capability manifest snapshot.
 
-        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, and every hook's `checksum`      exactly 32 bytes.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
+        Accepts a CapabilityManifest snapshot from plexd describing the running agent binary, its SSH host-key fingerprint, and any hooks the agent advertises. The handler:    1. Authenticates the caller against the Node Secret Key (NSK)      plaintext supplied in the `Authorization: Bearer` header,      refusing missing or revoked credentials with 401.   2. Asserts that the NSK belongs to the Node addressed by the      path `id`, refusing cross-Node use with 403      `node_id_mismatch` so a leaked NSK cannot be replayed      against a sibling Node.   3. Caps the request body at 32 KiB; oversize bodies receive      413 `capabilities_body_too_large` without ever touching      the JSON decoder.   4. Decodes the body with `DisallowUnknownFields`; a malformed      envelope or an unknown field surfaces as 400      `malformed_capabilities_request`.   5. Canonicalises the envelope through the      `tenancy.NewCapabilityManifest` value-object constructor      which enforces every manifest invariant: `binary_version`      non-empty, `binary_checksum` exactly 32 bytes,      `ssh_host_key_fingerprint` empty or matching      `SHA256:<base64>`, no duplicate hook names, hook count      within the per-manifest cap, every hook's `checksum`      exactly 32 bytes, and — for the advertised      `builtin_actions` inventory — no duplicate action names,      no duplicate parameter names within one action, and both      counts within their caps.   6. Persists the snapshot inside a single transaction. When      the supplied manifest differs from the prior persisted      row, the recorder appends a `NodeCapabilitiesUpdated`      outbox event in the same transaction so downstream      integrity correlators and dashboard projectors observe      the change atomically.  The 200 response carries `accepted_at` (server commit timestamp), the alphabetically-sorted `fields_changed` list of manifest fields that transitioned versus the prior snapshot, and the dedicated `host_key_changed` flag so downstream security correlators can branch on SSH host-key transitions without parsing `fields_changed`. An idempotent PUT (no diff) emits an empty `fields_changed` array and `host_key_changed: false`.  DEFERRED-WIRING POSTURE: until the production composition root supplies the CapabilitiesRecorder, NSKResolver, and NodeRepo ports the handler depends on, every request to this endpoint returns 501 with `code: capabilities_not_provisioned` so log scrapers can alert on the deferred-wiring state. 
 
         :param id: Node identifier (UUIDv7) — the capability manifest scope. (required)
         :type id: UUID
