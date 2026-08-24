@@ -20,7 +20,7 @@ from typing_extensions import Self
 
 class CloudProvider(str, Enum):
     """
-    Closed-set discriminator naming the upstream cloud provider for a Cloud aggregate. The two values mirror the `cloud.ParseProvider` allowlist and the SQL CHECK constraint on `plexsphere.clouds.provider`. The provider is the validator-routing key for the per-provider validator family and is INTENTIONALLY immutable post-creation — see the `cloud` tag description for the rationale. 
+    Closed-set discriminator naming the upstream cloud provider for a Cloud aggregate. The values mirror the `cloud.ParseProvider` allowlist and the SQL CHECK constraint on `plexsphere.clouds.provider`. The provider is the validator-routing key for the per-provider validator family and is INTENTIONALLY immutable post-creation — see the `cloud` tag description for the rationale.  Each provider requires its own `endpoint` and `region_defaults` fields; the per-provider table is in the Clouds API reference. 
     """
 
     """
@@ -28,6 +28,9 @@ class CloudProvider(str, Enum):
     """
     CloudProviderAws = 'aws'
     CloudProviderAzure = 'azure'
+    CloudProviderGcp = 'gcp'
+    CloudProviderHetzner = 'hetzner'
+    CloudProviderOpenstack = 'openstack'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **materialised** | **bool** | Whether the assignment&#39;s &#x60;cloud#uses&#x60; binding is currently live. &#x60;true&#x60; only while the assignment is in the &#x60;approved&#x60; state; &#x60;false&#x60; for &#x60;requested&#x60;, &#x60;rejected&#x60;, and &#x60;revoked&#x60;.  | 
 **created_at** | **datetime** | Aggregate creation timestamp (UTC). | 
 **updated_at** | **datetime** | Last-modified timestamp (UTC). Bumped by every lifecycle transition — approve, reject, revoke.  | 
+**provider_installs** | [**List[CloudAssignmentProviderInstall]**](CloudAssignmentProviderInstall.md) | Readiness of every Crossplane provider package the assigned Cloud declares, one entry per package, ordered by &#x60;source&#x60; the same way &#x60;provider_packages&#x60; is on the Cloud itself. Present only while the assignment is &#x60;approved&#x60;: a &#x60;requested&#x60;, &#x60;rejected&#x60;, or &#x60;revoked&#x60; assignment installs nothing, so the property is absent rather than reporting phases that do not apply. An absent array means nothing is installed for this assignment; a readiness the platform cannot read fails the request instead.  Assigning a Cloud to a Project is what causes its provider packages to be installed, so this is the answer to \&quot;can the Project provision against this Cloud yet\&quot;: yes only once every entry reports &#x60;Serving&#x60;.  | [optional] 
 
 ## Example
 

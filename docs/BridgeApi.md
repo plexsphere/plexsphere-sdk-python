@@ -220,7 +220,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Public-ingress rule created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Public-ingress rule created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;target_node_not_in_domain&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -324,7 +324,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Site-to-site tunnel created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Site-to-site tunnel created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;allowed_subnet_empty&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -427,7 +427,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | User-access provider created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | User-access provider created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Body rejected. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;port_out_of_range&#x60;, &#x60;secret_ref_malformed&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the addressed Resource. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

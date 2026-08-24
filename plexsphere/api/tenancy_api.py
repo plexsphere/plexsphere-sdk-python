@@ -1552,7 +1552,7 @@ class TenancyApi:
     @validate_call
     def delete_project(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1570,7 +1570,7 @@ class TenancyApi:
 
         Deletes the Project identified by `{id}`. The empty-aggregate guard runs inside the same transaction as the row delete; at least one persisted Resource, Node, or relation tuple forces `409 project_not_empty` with the `ProjectChildCounts` payload in the Problem detail so the operator knows which sub-aggregate to drain first. A concurrent INSERT racing the guard is caught by defense-in-depth — the foreign-key violation surfaces as the same `409` so the caller never observes a half-deleted Project. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1625,7 +1625,7 @@ class TenancyApi:
     @validate_call
     def delete_project_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1643,7 +1643,7 @@ class TenancyApi:
 
         Deletes the Project identified by `{id}`. The empty-aggregate guard runs inside the same transaction as the row delete; at least one persisted Resource, Node, or relation tuple forces `409 project_not_empty` with the `ProjectChildCounts` payload in the Problem detail so the operator knows which sub-aggregate to drain first. A concurrent INSERT racing the guard is caught by defense-in-depth — the foreign-key violation surfaces as the same `409` so the caller never observes a half-deleted Project. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1698,7 +1698,7 @@ class TenancyApi:
     @validate_call
     def delete_project_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1716,7 +1716,7 @@ class TenancyApi:
 
         Deletes the Project identified by `{id}`. The empty-aggregate guard runs inside the same transaction as the row delete; at least one persisted Resource, Node, or relation tuple forces `409 project_not_empty` with the `ProjectChildCounts` payload in the Problem detail so the operator knows which sub-aggregate to drain first. A concurrent INSERT racing the guard is caught by defense-in-depth — the foreign-key violation surfaces as the same `409` so the caller never observes a half-deleted Project. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2696,7 +2696,7 @@ class TenancyApi:
     @validate_call
     def get_project(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2714,7 +2714,7 @@ class TenancyApi:
 
         Returns the Project identified by `{id}`. The handler runs the `read` ReBAC check BEFORE the persistence read; an unauthorised caller therefore receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 project_not_found`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2768,7 +2768,7 @@ class TenancyApi:
     @validate_call
     def get_project_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2786,7 +2786,7 @@ class TenancyApi:
 
         Returns the Project identified by `{id}`. The handler runs the `read` ReBAC check BEFORE the persistence read; an unauthorised caller therefore receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 project_not_found`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2840,7 +2840,7 @@ class TenancyApi:
     @validate_call
     def get_project_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2858,7 +2858,7 @@ class TenancyApi:
 
         Returns the Project identified by `{id}`. The handler runs the `read` ReBAC check BEFORE the persistence read; an unauthorised caller therefore receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 project_not_found`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -4552,7 +4552,7 @@ class TenancyApi:
     @validate_call
     def patch_project(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         project_patch_request: ProjectPatchRequest,
         _request_timeout: Union[
             None,
@@ -4571,7 +4571,7 @@ class TenancyApi:
 
         Patches the Project identified by `{id}`. The body MUST set at least one of `name`, `description`, `sub_range_cidr`, or `release_sub_range` — an empty body surfaces as `400 empty_patch`.  DECISION: `slug` is intentionally NOT a patchable field — it is the URL handle exported into cached dashboard links and outbox projections. The handler rejects any body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`.  Retargeting `sub_range_cidr` triggers an in-tx sibling-overlap guard inside the parent Domain. A patch that would overlap a sibling Project's reservation surfaces as `422 sub_range_invalidates_allocation` carrying the offending `project_id` and `sub_range` in the Problem detail. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param project_patch_request: (required)
         :type project_patch_request: ProjectPatchRequest
@@ -4631,7 +4631,7 @@ class TenancyApi:
     @validate_call
     def patch_project_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         project_patch_request: ProjectPatchRequest,
         _request_timeout: Union[
             None,
@@ -4650,7 +4650,7 @@ class TenancyApi:
 
         Patches the Project identified by `{id}`. The body MUST set at least one of `name`, `description`, `sub_range_cidr`, or `release_sub_range` — an empty body surfaces as `400 empty_patch`.  DECISION: `slug` is intentionally NOT a patchable field — it is the URL handle exported into cached dashboard links and outbox projections. The handler rejects any body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`.  Retargeting `sub_range_cidr` triggers an in-tx sibling-overlap guard inside the parent Domain. A patch that would overlap a sibling Project's reservation surfaces as `422 sub_range_invalidates_allocation` carrying the offending `project_id` and `sub_range` in the Problem detail. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param project_patch_request: (required)
         :type project_patch_request: ProjectPatchRequest
@@ -4710,7 +4710,7 @@ class TenancyApi:
     @validate_call
     def patch_project_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         project_patch_request: ProjectPatchRequest,
         _request_timeout: Union[
             None,
@@ -4729,7 +4729,7 @@ class TenancyApi:
 
         Patches the Project identified by `{id}`. The body MUST set at least one of `name`, `description`, `sub_range_cidr`, or `release_sub_range` — an empty body surfaces as `400 empty_patch`.  DECISION: `slug` is intentionally NOT a patchable field — it is the URL handle exported into cached dashboard links and outbox projections. The handler rejects any body that carries a `slug` key (even with the same value) at decode time with `400 slug_immutable`.  Retargeting `sub_range_cidr` triggers an in-tx sibling-overlap guard inside the parent Domain. A patch that would overlap a sibling Project's reservation surfaces as `422 sub_range_invalidates_allocation` carrying the offending `project_id` and `sub_range` in the Problem detail. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param project_patch_request: (required)
         :type project_patch_request: ProjectPatchRequest

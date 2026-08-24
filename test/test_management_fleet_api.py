@@ -47,6 +47,13 @@ class TestManagementFleetApi(unittest.TestCase):
         """
         pass
 
+    def test_list_management_cluster_provider_packages(self) -> None:
+        """Test case for list_management_cluster_provider_packages
+
+        List the provider packages the platform manages on a cluster.
+        """
+        pass
+
     def test_list_management_clusters(self) -> None:
         """Test case for list_management_clusters
 

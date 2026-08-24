@@ -6,18 +6,26 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**attach_cloud_credential_cloud**](CloudApi.md#attach_cloud_credential_cloud) | **POST** /v1/cloud-credentials/{id}/clouds | Attach a usage Cloud to a Cloud Credential.
 [**create_cloud**](CloudApi.md#create_cloud) | **POST** /v1/clouds | Create a Cloud Inventory entry.
+[**create_provider_bundle**](CloudApi.md#create_provider_bundle) | **POST** /v1/provider-bundles | Create a provider bundle.
 [**delete_cloud**](CloudApi.md#delete_cloud) | **DELETE** /v1/clouds/{id} | Delete a Cloud.
+[**delete_provider_bundle**](CloudApi.md#delete_provider_bundle) | **DELETE** /v1/provider-bundles/{id} | Delete a provider bundle.
 [**detach_cloud_credential_cloud**](CloudApi.md#detach_cloud_credential_cloud) | **DELETE** /v1/cloud-credentials/{id}/clouds/{cloud_id} | Detach a usage Cloud from a Cloud Credential.
 [**get_cloud**](CloudApi.md#get_cloud) | **GET** /v1/clouds/{id} | Fetch a Cloud by identifier.
 [**get_cloud_credential**](CloudApi.md#get_cloud_credential) | **GET** /v1/cloud-credentials/{id} | Fetch a Cloud Credential&#39;s lifecycle metadata.
+[**get_provider_bundle**](CloudApi.md#get_provider_bundle) | **GET** /v1/provider-bundles/{id} | Fetch a provider bundle by identifier.
 [**grant_cloud_assignment**](CloudApi.md#grant_cloud_assignment) | **POST** /v1/clouds/{id}/cloud-assignments | Grant a Cloud to a Project (operator push).
+[**grant_credential_assignment**](CloudApi.md#grant_credential_assignment) | **POST** /v1/cloud-credentials/{id}/credential-assignments | Grant a Cloud Credential to a Project (owner push).
 [**issue_cloud_credential**](CloudApi.md#issue_cloud_credential) | **POST** /v1/clouds/{id}/cloud-credentials | Issue a new Cloud Credential under a Cloud.
 [**list_cloud_assignments**](CloudApi.md#list_cloud_assignments) | **GET** /v1/projects/{id}/cloud-assignments | List the Cloud Assignments owned by a Project.
 [**list_cloud_credential_clouds**](CloudApi.md#list_cloud_credential_clouds) | **GET** /v1/cloud-credentials/{id}/clouds | List the Clouds a Cloud Credential serves.
 [**list_cloud_credentials**](CloudApi.md#list_cloud_credentials) | **GET** /v1/clouds/{id}/cloud-credentials | List Cloud Credentials owned by a Cloud.
 [**list_clouds**](CloudApi.md#list_clouds) | **GET** /v1/clouds | List Cloud Inventory entries.
 [**list_credential_assignments**](CloudApi.md#list_credential_assignments) | **GET** /v1/projects/{id}/credential-assignments | List the Credential Assignments owned by a Project.
+[**list_provider_bundle_clouds**](CloudApi.md#list_provider_bundle_clouds) | **GET** /v1/provider-bundles/{id}/clouds | List the Clouds that reference a provider bundle.
+[**list_provider_bundle_versions**](CloudApi.md#list_provider_bundle_versions) | **GET** /v1/provider-bundles/{id}/versions | List the published versions of a provider bundle.
+[**list_provider_bundles**](CloudApi.md#list_provider_bundles) | **GET** /v1/provider-bundles | List provider bundles.
 [**patch_cloud**](CloudApi.md#patch_cloud) | **PATCH** /v1/clouds/{id} | Patch mutable fields on a Cloud.
+[**patch_provider_bundle**](CloudApi.md#patch_provider_bundle) | **PATCH** /v1/provider-bundles/{id} | Patch mutable fields on a provider bundle.
 [**request_cloud_assignment**](CloudApi.md#request_cloud_assignment) | **POST** /v1/projects/{id}/cloud-assignments | Request usage of a Cloud for a Project.
 [**request_credential_assignment**](CloudApi.md#request_credential_assignment) | **POST** /v1/projects/{id}/credential-assignments | Request a Credential Assignment for a Project.
 [**revoke_cloud_assignment**](CloudApi.md#revoke_cloud_assignment) | **POST** /v1/cloud-assignments/{id}/revoke | Revoke a Cloud Assignment.
@@ -85,7 +93,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
     cloud_credential_attach_request = {"cloud_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0c2"} # CloudCredentialAttachRequest | 
 
     try:
@@ -104,7 +112,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
  **cloud_credential_attach_request** | [**CloudCredentialAttachRequest**](CloudCredentialAttachRequest.md)|  | 
 
 ### Return type
@@ -195,7 +203,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    cloud_create_request = {"display_name":"Acme AWS Production","slug":"acme-aws-prod","provider":"aws","endpoint":{"region":"us-east-1","role_arn":"arn:aws:iam::123456789012:role/PlexsphereProvisioner"},"region_defaults":{"vpc_cidr":"10.42.0.0/16"},"external_id":"123456789012"} # CloudCreateRequest | 
+    cloud_create_request = {"display_name":"Acme AWS Production","slug":"acme-aws-prod","provider":"aws","endpoint":{"region":"us-east-1","role_arn":"arn:aws:iam::123456789012:role/PlexsphereProvisioner"},"region_defaults":{"vpc_cidr":"10.42.0.0/16"},"external_id":"123456789012","provider_packages":[{"source":"xpkg.upbound.io/upbound/provider-aws-ec2","version":"v2.6.1"},{"source":"xpkg.upbound.io/upbound/provider-aws-s3","version":"v2.6.1"}],"provider_config_api_version":"aws.m.upbound.io/v1beta1"} # CloudCreateRequest | 
 
     try:
         # Create a Cloud Inventory entry.
@@ -232,12 +240,128 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Cloud created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
-**400** | Aggregate or validator rejected the body — empty &#x60;display_name&#x60;, malformed &#x60;slug&#x60;, malformed &#x60;endpoint&#x60; or &#x60;region_defaults&#x60;, unknown &#x60;provider&#x60;, or per-provider field-level validator rejection. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud&#x60;, &#x60;unknown_provider&#x60;, &#x60;invalid_cloud_endpoint&#x60;, &#x60;invalid_cloud_region_defaults&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**201** | Cloud created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
+**400** | Aggregate or validator rejected the body — empty &#x60;display_name&#x60;, malformed &#x60;slug&#x60;, malformed &#x60;endpoint&#x60; or &#x60;region_defaults&#x60;, unknown &#x60;provider&#x60;, per-provider field-level validator rejection, or a provider-mode admission failure. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud&#x60;, &#x60;unknown_provider&#x60;, &#x60;invalid_cloud_endpoint&#x60;, &#x60;invalid_cloud_region_defaults&#x60;, &#x60;invalid_cloud_provider_mode&#x60;, &#x60;unknown_provider_bundle&#x60;, &#x60;provider_bundle_provider_mismatch&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to create Clouds. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60;.  |  -  |
 **409** | Conflict — the proposed Cloud collides with a persisted row. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;cloud_slug_conflict&#x60;, &#x60;cloud_external_id_conflict&#x60; }.  |  -  |
 **413** | Request body exceeded the 8 KiB Cloud Inventory ceiling enforced by the handler.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **create_provider_bundle**
+> ProviderBundleResponse create_provider_bundle(provider_bundle_create_request)
+
+Create a provider bundle.
+
+Creates a new `ProviderBundle` aggregate — one reusable
+Crossplane provider-package declaration, authored once and
+addressed by a stable handle so a Cloud points at it instead of
+repeating the same packages inline. The aggregate enforces
+every issuance invariant — non-empty `display_name`, kebab-case
+`slug`, closed-enum `provider`, at least one provider package
+with each `source` named at most once, and a `<group>/<version>`
+`provider_config_api_version`. An invariant rejection surfaces
+as `400 invalid_provider_bundle`; a duplicate slug surfaces as
+`409 provider_bundle_slug_conflict`.
+
+On success the handler emits a `provider_bundle.create` audit
+row and appends a `ProviderBundleCreated` outbox event in the
+same transaction.
+
+The ReBAC grants that make the new bundle readable — the
+`platform` parent edge and the creating principal's
+`bundle_admin` grant — are written by the authz-sync consumer
+draining that outbox row, not by this request. The `201` is
+therefore ahead of the graph: until the consumer has drained,
+`GET /v1/provider-bundles/{id}` on the bundle just created
+answers `403` and `GET /v1/provider-bundles` omits the row. A
+client that reads back immediately should retry on `403` rather
+than treat it as a permanent denial.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_create_request import ProviderBundleCreateRequest
+from plexsphere.models.provider_bundle_response import ProviderBundleResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    provider_bundle_create_request = {"display_name":"AWS baseline packages","slug":"aws-baseline","provider":"aws","provider_packages":[{"source":"xpkg.upbound.io/upbound/provider-aws-ec2","version":"v2.6.1"},{"source":"xpkg.upbound.io/upbound/provider-aws-s3","version":"v2.6.1"}],"provider_config_api_version":"aws.m.upbound.io/v1beta1"} # ProviderBundleCreateRequest | 
+
+    try:
+        # Create a provider bundle.
+        api_response = api_instance.create_provider_bundle(provider_bundle_create_request)
+        print("The response of CloudApi->create_provider_bundle:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->create_provider_bundle: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **provider_bundle_create_request** | [**ProviderBundleCreateRequest**](ProviderBundleCreateRequest.md)|  | 
+
+### Return type
+
+[**ProviderBundleResponse**](ProviderBundleResponse.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Provider bundle created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
+**400** | The aggregate rejected the body — empty &#x60;display_name&#x60;, malformed &#x60;slug&#x60;, unknown &#x60;provider&#x60;, an empty package set or one naming the same &#x60;source&#x60; twice, or a malformed &#x60;provider_config_api_version&#x60;. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_bundle&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to create provider bundles. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60;.  |  -  |
+**409** | Conflict — the proposed bundle collides with a persisted row. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;provider_bundle_slug_conflict&#x60;, &#x60;provider_bundle_conflict&#x60; }.  |  -  |
+**413** | Request body exceeded the 8 KiB Cloud Inventory ceiling enforced by the handler. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -339,6 +463,104 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **delete_provider_bundle**
+> delete_provider_bundle(id)
+
+Delete a provider bundle.
+
+Deletes the `ProviderBundle` identified by `{id}`. The
+referenced-bundle guard runs inside the same transaction as the
+row delete: at least one Cloud that still takes its provider
+configuration from the bundle forces
+`409 provider_bundle_referenced` with the `referencing_clouds`
+count in the Problem body, so the operator knows how many
+Clouds to re-point before retrying. A Cloud that starts
+referencing the bundle between the guard's count and the
+DELETE is caught by defense-in-depth — the foreign-key
+violation surfaces as the same `409`, without the count.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. 
+
+    try:
+        # Delete a provider bundle.
+        api_instance.delete_provider_bundle(id)
+    except Exception as e:
+        print("Exception when calling CloudApi->delete_provider_bundle: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Provider bundle identifier (UUIDv7). Bound on &#x60;/v1/provider-bundles/{id}&#x60; for the Cloud Inventory provider-bundle CRUD surface, and on &#x60;/v1/provider-bundles/{id}/clouds&#x60; for the roster of Clouds that reference the bundle.  | 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**204** | Provider bundle deleted. |  -  |
+**400** | The path &#x60;{id}&#x60; is not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_provider_bundle_id&#x60;.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to delete the addressed provider bundle. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**404** | Provider bundle not found. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_not_found&#x60;.  |  -  |
+**409** | At least one Cloud still takes its provider configuration from the bundle. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_referenced&#x60; and the optional &#x60;referencing_clouds&#x60; extension carrying how many Clouds reference it. The extension is absent on the racing arm, where the foreign-key violation reaches the same code without a count.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **detach_cloud_credential_cloud**
 > detach_cloud_credential_cloud(id, cloud_id)
 
@@ -393,7 +615,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
     cloud_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. 
 
     try:
@@ -410,7 +632,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
  **cloud_id** | **UUID**| Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with &#x60;400 invalid_cloud_id&#x60;.  | 
 
 ### Return type
@@ -589,7 +811,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
 
     try:
         # Fetch a Cloud Credential's lifecycle metadata.
@@ -607,7 +829,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
 
 ### Return type
 
@@ -631,6 +853,107 @@ Name | Type | Description  | Notes
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to observe the parent Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Cloud Credential not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_credential_not_found&#x60;.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_provider_bundle**
+> ProviderBundleResponse get_provider_bundle(id)
+
+Fetch a provider bundle by identifier.
+
+Returns the `ProviderBundle` identified by `{id}`. The handler
+runs the `observe` ReBAC check BEFORE the persistence read, so
+an unauthorised caller receives `403` without the existence
+side-channel a "load-then-check" flow would leak. A missing
+aggregate surfaces as `404 provider_bundle_not_found` — but
+only for a caller the graph already grants `observe` on that
+id. An id no bundle ever answered to carries no tuples at all,
+so the gate denies it first and the caller reads `403`. That is
+the same withholding the check is there to perform: `404` and
+`403` are deliberately indistinguishable for an id the caller
+has no grant on.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_response import ProviderBundleResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. 
+
+    try:
+        # Fetch a provider bundle by identifier.
+        api_response = api_instance.get_provider_bundle(id)
+        print("The response of CloudApi->get_provider_bundle:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->get_provider_bundle: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Provider bundle identifier (UUIDv7). Bound on &#x60;/v1/provider-bundles/{id}&#x60; for the Cloud Inventory provider-bundle CRUD surface, and on &#x60;/v1/provider-bundles/{id}/clouds&#x60; for the roster of Clouds that reference the bundle.  | 
+
+### Return type
+
+[**ProviderBundleResponse**](ProviderBundleResponse.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Provider bundle found. |  -  |
+**400** | The path &#x60;{id}&#x60; is not a non-zero UUID. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_provider_bundle_id&#x60;.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to read the addressed provider bundle. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**404** | Provider bundle not found. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_not_found&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -742,6 +1065,131 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **grant_credential_assignment**
+> CredentialAssignmentResponse grant_credential_assignment(id, credential_assignment_grant_request)
+
+Grant a Cloud Credential to a Project (owner push).
+
+Binds the Cloud Credential identified by `{id}` to the Project
+named in the body as a single authoritative action. The handler
+runs an `assign` ReBAC check on the credential BEFORE the
+persistence write, then delegates to the Credential Assignment
+application service which creates the assignment already approved
+AND materialised in one step — the credential is immediately
+usable in the Project — and appends a
+`CredentialAssignmentGranted` outbox event in a single
+transaction.
+
+This is the owner-push counterpart to
+`RequestCredentialAssignment`, which the consuming Project
+initiates and a second party decides. The grant bypasses the
+second-party approval rule by design: there is no separate
+requester to compare against, which is also why it exists —
+requesting and then approving one's own request is refused by
+the self-approval guard, so without this route a credential's
+owner could not place it at all. Mirrors `GrantCloudAssignment`
+on the Cloud side.
+
+The receiving Project must already be able to use the Cloud the
+credential belongs to — an approved Cloud Assignment — otherwise
+the grant is rejected with `422 cloud_not_usable_in_project`. A
+credential is only usable where both assignments are in place, so
+a grant without the Cloud Assignment would bind the credential and
+still be refused at deploy time. A `{id}` naming no credential at
+all is rejected with `422 credential_not_assignable`.
+
+A second live assignment for the same (Project, Credential) pair
+is rejected with `409 duplicate_live_assignment`.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.credential_assignment_grant_request import CredentialAssignmentGrantRequest
+from plexsphere.models.credential_assignment_response import CredentialAssignmentResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    credential_assignment_grant_request = {"project_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0c1"} # CredentialAssignmentGrantRequest | 
+
+    try:
+        # Grant a Cloud Credential to a Project (owner push).
+        api_response = api_instance.grant_credential_assignment(id, credential_assignment_grant_request)
+        print("The response of CloudApi->grant_credential_assignment:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->grant_credential_assignment: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **credential_assignment_grant_request** | [**CredentialAssignmentGrantRequest**](CredentialAssignmentGrantRequest.md)|  | 
+
+### Return type
+
+[**CredentialAssignmentResponse**](CredentialAssignmentResponse.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**201** | Credential Assignment granted, already approved and materialised. No &#x60;Location&#x60; header is sent — the aggregate has no by-id read surface; poll it through the Project&#39;s assignment list.  |  -  |
+**400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud_credential_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_project_id&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to assign the Cloud Credential. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**409** | A live Credential Assignment already exists for the same (Project, Credential) pair. Body is a &#x60;Problem&#x60; with &#x60;code: duplicate_live_assignment&#x60;.  |  -  |
+**413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
+**422** | Semantic rejection. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;cloud_not_usable_in_project&#x60;, &#x60;credential_not_assignable&#x60; }. &#x60;cloud_not_usable_in_project&#x60; — the receiving Project holds no approved Cloud Assignment for the Cloud the credential belongs to, so the grant would bind a credential the Project still could not deploy with. &#x60;credential_not_assignable&#x60; — &#x60;{id}&#x60; names no Cloud Credential (a missing reference is unusable for the same reason a revoked one is).  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **issue_cloud_credential**
 > CloudCredentialResponse issue_cloud_credential(id, cloud_credential_issue_request)
 
@@ -838,7 +1286,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Cloud Credential issued. The &#x60;Location&#x60; header carries the canonical URL of the new credential.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Cloud Credential issued. The &#x60;Location&#x60; header carries the canonical URL of the new credential.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Malformed id or body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud_id&#x60;, &#x60;invalid_body&#x60;, &#x60;invalid_display_name&#x60;, &#x60;invalid_payload&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the parent Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -903,7 +1351,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. 
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
     limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
@@ -923,7 +1371,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces, on &#x60;/v1/projects/{id}/blueprints&#x60; for the project-scoped Blueprint offer list, and on &#x60;/v1/projects/{id}/sink-enablements&#x60; and &#x60;/v1/projects/{id}/telemetry-routes&#x60; for the sink-enablement and Telemetry Route surfaces.  | 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
  **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
@@ -1008,7 +1456,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
     limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
@@ -1028,7 +1476,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
  **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
@@ -1330,7 +1778,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. 
     cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
     limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
 
@@ -1350,7 +1798,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces, on &#x60;/v1/projects/{id}/blueprints&#x60; for the project-scoped Blueprint offer list, and on &#x60;/v1/projects/{id}/sink-enablements&#x60; and &#x60;/v1/projects/{id}/telemetry-routes&#x60; for the sink-enablement and Telemetry Route surfaces.  | 
  **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
  **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
 
@@ -1375,6 +1823,354 @@ Name | Type | Description  | Notes
 **400** | Invalid query parameters — typically a tampered or malformed cursor, an out-of-range &#x60;limit&#x60;, or a malformed Project id.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to read the parent Project (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_provider_bundle_clouds**
+> ProviderBundleCloudList list_provider_bundle_clouds(id, cursor=cursor, limit=limit)
+
+List the Clouds that reference a provider bundle.
+
+Returns a cloud_id-ordered page of the Clouds that take their
+provider configuration from the provider bundle identified by
+`{id}`. Each item carries the Cloud's id, slug, and display
+name, so a console rendering the roster needs no follow-up read
+per row.
+
+The gate is `provider_bundle#manage` on the addressed bundle —
+the permission `PatchProviderBundle` and `DeleteProviderBundle`
+require, NOT the `observe` the other read verbs use — run BEFORE
+the persistence read. A roster row names a Cloud in whatever
+Domain holds it, and holding a permission on a bundle grants no
+`cloud#observe` anywhere, so the roster is scoped to the caller
+who is about to edit or delete the bundle rather than to every
+caller who may read it.
+
+Under that gate the items are deliberately NOT filtered per
+Cloud: a per-row visibility filter would drop the Clouds the
+caller cannot observe individually and under-report how far a
+bundle edit reaches, which is the question the endpoint exists
+to answer, and would contradict the unfiltered
+`referencing_clouds` count a refused delete already carries.
+
+The pagination cursor is HMAC-signed and bound to the
+per-(caller, pepper) pseudonym, so a cursor minted by one
+principal cannot be replayed by another — the cross-caller
+replay surfaces as `403 cursor_binding_mismatch`. It is bound to
+this operation as well: a cursor minted by `ListProviderBundles`
+carries a different surface version byte and is refused with
+`400 invalid_cursor`, and so is a roster cursor presented there.
+A tampered envelope stays on `400 invalid_cursor` too.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_cloud_list import ProviderBundleCloudList
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+
+    try:
+        # List the Clouds that reference a provider bundle.
+        api_response = api_instance.list_provider_bundle_clouds(id, cursor=cursor, limit=limit)
+        print("The response of CloudApi->list_provider_bundle_clouds:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->list_provider_bundle_clouds: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Provider bundle identifier (UUIDv7). Bound on &#x60;/v1/provider-bundles/{id}&#x60; for the Cloud Inventory provider-bundle CRUD surface, and on &#x60;/v1/provider-bundles/{id}/clouds&#x60; for the roster of Clouds that reference the bundle.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+
+### Return type
+
+[**ProviderBundleCloudList**](ProviderBundleCloudList.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Page of Clouds referencing the provider bundle. |  -  |
+**400** | Invalid request parameters — a malformed provider bundle id, a tampered or malformed cursor, or an out-of-range &#x60;limit&#x60;. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_bundle_id&#x60;, &#x60;invalid_cursor&#x60;, &#x60;invalid_limit&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to manage the addressed provider bundle (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
+**404** | Provider bundle not found. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_not_found&#x60;. Reached only by a caller the graph already grants &#x60;manage&#x60; on that id, for the reason &#x60;GetProviderBundle&#x60; records.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_provider_bundle_versions**
+> ProviderBundleVersionList list_provider_bundle_versions(id, cursor=cursor, limit=limit)
+
+List the published versions of a provider bundle.
+
+Returns a newest-first page of the content versions the provider
+bundle identified by `{id}` has published. Each item carries the
+whole declaration that version froze — its package set and the
+apiVersion those packages serve their ProviderConfig under — so
+a client comparing two versions needs no follow-up read per row.
+
+A published version is immutable. A content patch on the bundle
+appends the next one and rewrites none of the existing rows, so
+the declaration a Cloud pins answers the same bytes for as long
+as the pin stands.
+
+The gate is `provider_bundle#observe` on the addressed bundle —
+the permission `GetProviderBundle` requires — run BEFORE the
+persistence read, so an unauthorised caller never learns from the
+response whether the bundle exists. The history is bundle
+content rather than a roster of the Clouds holding it, which is
+why the gate is the read one and not the `manage`
+`ListProviderBundleClouds` requires.
+
+The pagination cursor is HMAC-signed and bound to the
+per-(caller, pepper) pseudonym, so a cursor minted by one
+principal cannot be replayed by another — the cross-caller
+replay surfaces as `403 cursor_binding_mismatch`. It is bound to
+this operation as well: a cursor minted by `ListProviderBundles`
+or `ListProviderBundleClouds` carries a different surface version
+byte and is refused with `400 invalid_cursor`. A tampered
+envelope stays on `400 invalid_cursor` too.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_version_list import ProviderBundleVersionList
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+
+    try:
+        # List the published versions of a provider bundle.
+        api_response = api_instance.list_provider_bundle_versions(id, cursor=cursor, limit=limit)
+        print("The response of CloudApi->list_provider_bundle_versions:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->list_provider_bundle_versions: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Provider bundle identifier (UUIDv7). Bound on &#x60;/v1/provider-bundles/{id}&#x60; for the Cloud Inventory provider-bundle CRUD surface, and on &#x60;/v1/provider-bundles/{id}/clouds&#x60; for the roster of Clouds that reference the bundle.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+
+### Return type
+
+[**ProviderBundleVersionList**](ProviderBundleVersionList.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Page of versions the provider bundle has published. |  -  |
+**400** | Invalid request parameters — a malformed provider bundle id, a tampered or malformed cursor, or an out-of-range &#x60;limit&#x60;. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_bundle_id&#x60;, &#x60;invalid_cursor&#x60;, &#x60;invalid_limit&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to observe the addressed provider bundle (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
+**404** | Provider bundle not found. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_not_found&#x60;. Reached only by a caller the graph already grants &#x60;observe&#x60; on that id, for the reason &#x60;GetProviderBundle&#x60; records.  |  -  |
+**500** | Internal server error. |  -  |
+**503** | The authorization backend is temporarily unreachable, so the &#x60;observe&#x60; gate could not be decided. Body is a &#x60;Problem&#x60; with &#x60;code: authz_unavailable&#x60;. The call is retryable — the code is distinct from the &#x60;403&#x60; a real denial answers.  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_provider_bundles**
+> ProviderBundleList list_provider_bundles(cursor=cursor, limit=limit)
+
+List provider bundles.
+
+Returns a slug-ordered page of `ProviderBundle` aggregates the
+caller is authorised to see. Per-row visibility is layered on
+top of the page: rows the caller cannot `observe` are filtered
+out so the response items are a subset of the persistence-level
+page.
+
+The pagination cursor is HMAC-signed and bound to the
+per-(caller, pepper) pseudonym, so a cursor minted by one
+principal cannot be replayed by another — the cross-caller
+replay surfaces as `403 cursor_binding_mismatch`. A tampered
+envelope or unknown version byte stays on `400 invalid_cursor`.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_list import ProviderBundleList
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+
+    try:
+        # List provider bundles.
+        api_response = api_instance.list_provider_bundles(cursor=cursor, limit=limit)
+        print("The response of CloudApi->list_provider_bundles:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->list_provider_bundles: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+
+### Return type
+
+[**ProviderBundleList**](ProviderBundleList.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Page of provider bundles. |  -  |
+**400** | Invalid query parameters — typically a tampered or malformed cursor or an out-of-range &#x60;limit&#x60;. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cursor&#x60;, &#x60;invalid_limit&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to list provider bundles (body is a &#x60;PermissionDenied&#x60; problem) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1485,11 +2281,147 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Cloud patched. |  -  |
-**400** | Invalid body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud&#x60;, &#x60;invalid_cloud_endpoint&#x60;, &#x60;invalid_cloud_region_defaults&#x60;, &#x60;slug_immutable&#x60;, &#x60;provider_immutable&#x60;, &#x60;empty_patch&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**400** | Invalid body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_cloud&#x60;, &#x60;invalid_cloud_endpoint&#x60;, &#x60;invalid_cloud_region_defaults&#x60;, &#x60;slug_immutable&#x60;, &#x60;provider_immutable&#x60;, &#x60;empty_patch&#x60;, &#x60;invalid_cloud_provider_mode&#x60;, &#x60;unknown_provider_bundle&#x60;, &#x60;provider_bundle_provider_mismatch&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
-**403** | Caller is not authorized to manage the addressed Cloud. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**403** | Caller is not authorized to manage the addressed Cloud, or — when the body touches the bundle reference — holds NEITHER &#x60;platform#manage&#x60; NOR &#x60;observe&#x60; on the provider bundle involved. &#x60;cloud#manage&#x60; is a grant on the Cloud alone and confers nothing on the platform-scoped bundle catalogue, so the reference is authorized separately; &#x60;platform#manage&#x60; — the permission &#x60;CreateCloud&#x60; requires to make the same reference — satisfies it on its own, so a bundle created moments earlier is referenceable before its authorization tuples have replicated.  A body naming a well-formed &#x60;provider_bundle_id&#x60; is checked against that bundle. A promotion carries no id, so the bundle checked is the one the addressed Cloud already references: each &#x60;200&#x60; renders the frozen declaration of one historical version, which &#x60;GET /v1/provider-bundles/{id}/versions&#x60; refuses without &#x60;observe&#x60;, and the pin moves in both directions. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **404** | Cloud not found. Body is a &#x60;Problem&#x60; with &#x60;code: cloud_not_found&#x60;.  |  -  |
+**409** | The Cloud&#39;s bundle reference moved under the request. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_reference_moved&#x60;.  Two patch shapes carry the precondition, both of them naming no &#x60;provider_bundle_id&#x60; while depending on the one the Cloud holds. A promotion is authorized against the bundle the addressed Cloud referenced when the request was read; a &#x60;provider_package_overrides&#x60; patch states versions chosen against the declaration the Cloud pinned at that moment. The reference is asserted as the pair it is — the bundle AND the version pinned on it — because the write rewrites both. A competing writer that re-points the Cloud at a different bundle, or promotes it to another version, before the write would otherwise move the pin inside a bundle nobody authorized, or revert the competing write while reporting success. Nothing was written; re-read the Cloud and send the patch again.  The reference asserted is the one this request read, so the window covered runs from that read to the write. A writer that moved the reference between your own &#x60;GET&#x60; and this request is not reported: the patch is applied to the Cloud as it stands.  |  -  |
 **413** | Request body exceeded the 8 KiB Cloud Inventory ceiling.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **patch_provider_bundle**
+> ProviderBundleResponse patch_provider_bundle(id, provider_bundle_patch_request)
+
+Patch mutable fields on a provider bundle.
+
+Patches the `ProviderBundle` identified by `{id}`. The body
+MUST set at least one of `display_name`, `provider_packages`,
+or `provider_config_api_version` — an empty body surfaces as
+`400 empty_patch`. A `provider_packages` patch replaces the
+whole set: the packages the body names become the bundle's
+packages and every package it omits is dropped.
+
+A content patch — one carrying `provider_packages` or
+`provider_config_api_version` — publishes a NEW immutable
+version of the bundle rather than rewriting the current one.
+The two content fields publish one version between them even
+when the body names both, and the response reports the number
+that version was published under in `latest_version`. A
+rename-only patch publishes nothing.
+
+Publishing moves no Cloud. Every Cloud referencing the bundle
+keeps serving the version it pins and converges with that
+declaration until a Cloud write moves the pin — a
+`PATCH /v1/clouds/{id}` naming `provider_bundle_version`, which
+promotes that one Cloud. Read the published history at
+`GET /v1/provider-bundles/{id}/versions` to see which versions
+a Cloud can be promoted onto.
+
+DECISION: BOTH `slug` and `provider` are intentionally NOT
+patchable fields. The slug is the URL handle an operator types
+to address the bundle, so re-slugging in place breaks every
+bookmarked URL. The provider is the compatibility key a bundle
+is checked against before a Cloud may reference it: every
+stored reference was admitted against the provider the bundle
+carried at the time, and nothing re-checks a reference once it
+is stored. The handler rejects any body that carries a `slug`
+key (even with the same value) with `400 slug_immutable`, and
+any body that carries a `provider` key with
+`400 provider_immutable`.
+
+The read and the write are two transactions, so the merged
+aggregate can be stale by the time it is written. The write is
+gated on the version the read observed and a competing writer
+that got there first surfaces as `409 provider_bundle_stale`;
+nothing is written and no event is emitted in that case.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.provider_bundle_patch_request import ProviderBundlePatchRequest
+from plexsphere.models.provider_bundle_response import ProviderBundleResponse
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.CloudApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. 
+    provider_bundle_patch_request = {"display_name":"AWS baseline packages (2026 Q2)","provider_packages":[{"source":"xpkg.upbound.io/upbound/provider-aws-ec2","version":"v2.7.0"},{"source":"xpkg.upbound.io/upbound/provider-aws-s3","version":"v2.7.0"}]} # ProviderBundlePatchRequest | 
+
+    try:
+        # Patch mutable fields on a provider bundle.
+        api_response = api_instance.patch_provider_bundle(id, provider_bundle_patch_request)
+        print("The response of CloudApi->patch_provider_bundle:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling CloudApi->patch_provider_bundle: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Provider bundle identifier (UUIDv7). Bound on &#x60;/v1/provider-bundles/{id}&#x60; for the Cloud Inventory provider-bundle CRUD surface, and on &#x60;/v1/provider-bundles/{id}/clouds&#x60; for the roster of Clouds that reference the bundle.  | 
+ **provider_bundle_patch_request** | [**ProviderBundlePatchRequest**](ProviderBundlePatchRequest.md)|  | 
+
+### Return type
+
+[**ProviderBundleResponse**](ProviderBundleResponse.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Provider bundle patched. |  -  |
+**400** | Invalid body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_bundle&#x60;, &#x60;invalid_provider_bundle_id&#x60;, &#x60;slug_immutable&#x60;, &#x60;provider_immutable&#x60;, &#x60;empty_patch&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to manage the addressed provider bundle. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**404** | Provider bundle not found. Body is a &#x60;Problem&#x60; with &#x60;code: provider_bundle_not_found&#x60;.  |  -  |
+**409** | Conflict — a competing writer overtook the read the patch was derived from, or the merged state collides with a persisted row. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;provider_bundle_stale&#x60;, &#x60;provider_bundle_slug_conflict&#x60;, &#x60;provider_bundle_conflict&#x60; }.  |  -  |
+**413** | Request body exceeded the 8 KiB Cloud Inventory ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1551,7 +2483,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. 
     cloud_assignment_request_body = {"cloud_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0c1"} # CloudAssignmentRequestBody | 
 
     try:
@@ -1570,7 +2502,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces, on &#x60;/v1/projects/{id}/blueprints&#x60; for the project-scoped Blueprint offer list, and on &#x60;/v1/projects/{id}/sink-enablements&#x60; and &#x60;/v1/projects/{id}/telemetry-routes&#x60; for the sink-enablement and Telemetry Route surfaces.  | 
  **cloud_assignment_request_body** | [**CloudAssignmentRequestBody**](CloudAssignmentRequestBody.md)|  | 
 
 ### Return type
@@ -1625,9 +2557,17 @@ live is rejected with `409 duplicate_live_assignment`. A Cloud
 Credential that is not in an assignable lifecycle state is
 rejected with `422 credential_not_assignable`.
 
-For the `cloud_id` form: the Cloud must be usable in the Project
-(an approved Cloud Assignment) — otherwise
-`422 cloud_not_usable_in_project` — and at least one eligible
+Either form requires the Cloud the credential belongs to to be
+usable in the Project — an approved Cloud Assignment — otherwise
+the request is rejected with `422 cloud_not_usable_in_project`. A
+credential is only usable where both assignments are in place, so
+a request opened without the Cloud Assignment would be approved
+and still refused at deploy time. The `cloud_id` form checks the
+Cloud it names before auto-selecting, and both forms then check
+the Cloud the selected credential actually belongs to — which the
+credential-to-Cloud usage join may make a different one.
+
+For the `cloud_id` form additionally: at least one eligible
 credential must serve the Cloud — otherwise
 `422 no_eligible_credential_for_cloud`.
 
@@ -1670,7 +2610,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. 
     credential_assignment_request = {"cloud_credential_id":"0190a8b8-a0c0-7a0a-8a0a-a0a0a0a0a0d1"} # CredentialAssignmentRequest | 
 
     try:
@@ -1689,7 +2629,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, and on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces.  | 
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces, on &#x60;/v1/projects/{id}/blueprints&#x60; for the project-scoped Blueprint offer list, and on &#x60;/v1/projects/{id}/sink-enablements&#x60; and &#x60;/v1/projects/{id}/telemetry-routes&#x60; for the sink-enablement and Telemetry Route surfaces.  | 
  **credential_assignment_request** | [**CredentialAssignmentRequest**](CredentialAssignmentRequest.md)|  | 
 
 ### Return type
@@ -1714,7 +2654,7 @@ Name | Type | Description  | Notes
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to deploy in the parent Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
 **409** | A live Credential Assignment already exists for the same (Project, Cloud Credential) pair. Body is a &#x60;Problem&#x60; with &#x60;code: duplicate_live_assignment&#x60;.  |  -  |
-**422** | Semantic rejection. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;credential_not_assignable&#x60;, &#x60;cloud_not_usable_in_project&#x60;, &#x60;no_eligible_credential_for_cloud&#x60; }. &#x60;credential_not_assignable&#x60; — the named Cloud Credential is not in an assignable lifecycle state (a &#x60;cloud_credential_id&#x60; naming no credential at all surfaces through the same code — a missing reference is unusable for the same reason a revoked one is). &#x60;cloud_not_usable_in_project&#x60; — the &#x60;cloud_id&#x60; form named a Cloud with no approved assignment to the Project. &#x60;no_eligible_credential_for_cloud&#x60; — the &#x60;cloud_id&#x60; form named a usable Cloud that has no eligible credential.  |  -  |
+**422** | Semantic rejection. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;credential_not_assignable&#x60;, &#x60;cloud_not_usable_in_project&#x60;, &#x60;no_eligible_credential_for_cloud&#x60; }. &#x60;credential_not_assignable&#x60; — the named Cloud Credential is not in an assignable lifecycle state (a &#x60;cloud_credential_id&#x60; naming no credential at all surfaces through the same code — a missing reference is unusable for the same reason a revoked one is). &#x60;cloud_not_usable_in_project&#x60; — a Cloud with no approved assignment to the Project: either the Cloud the &#x60;cloud_id&#x60; form named, or the Cloud the requested credential belongs to. &#x60;no_eligible_credential_for_cloud&#x60; — the &#x60;cloud_id&#x60; form named a usable Cloud that has no eligible credential.  |  -  |
 **413** | Request body exceeded the 8 KiB ceiling. Body is a &#x60;Problem&#x60; with &#x60;code: request_body_too_large&#x60;.  |  -  |
 **500** | Internal server error. |  -  |
 
@@ -1890,7 +2830,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.CloudApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. 
     cloud_credential_revoke_request = {"reason":"rotated out of band by the platform on-call"} # CloudCredentialRevokeRequest | 
 
     try:
@@ -1909,7 +2849,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
+ **id** | **UUID**| Cloud Credential identifier (UUIDv7). Bound on &#x60;/v1/cloud-credentials/{id}&#x60;, &#x60;/v1/cloud-credentials/{id}/revoke&#x60;, &#x60;/v1/cloud-credentials/{id}/clouds&#x60;, &#x60;/v1/cloud-credentials/{id}/credential-assignments&#x60;, and &#x60;/v1/cloud-credentials/{id}/clouds/{cloud_id}&#x60; for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  | 
  **cloud_credential_revoke_request** | [**CloudCredentialRevokeRequest**](CloudCredentialRevokeRequest.md)|  | 
 
 ### Return type

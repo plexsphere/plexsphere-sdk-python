@@ -44,8 +44,8 @@ class BlueprintVersionResponse(BaseModel):
     def provider_kinds_validate_enum(cls, value):
         """Validates the enum"""
         for i in value:
-            if i not in set(['aws', 'gcp', 'hetzner', 'openstack']):
-                raise ValueError("each list item must be one of ('aws', 'gcp', 'hetzner', 'openstack')")
+            if i not in set(['aws', 'azure', 'gcp', 'hetzner', 'openstack']):
+                raise ValueError("each list item must be one of ('aws', 'azure', 'gcp', 'hetzner', 'openstack')")
         return value
 
     @field_validator('injection_strategy')

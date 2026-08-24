@@ -18,6 +18,7 @@ from typing_extensions import Annotated
 from pydantic import Field
 from typing_extensions import Annotated
 from uuid import UUID
+from plexsphere.models.cluster_provider_package_list import ClusterProviderPackageList
 from plexsphere.models.management_cluster_list import ManagementClusterList
 from plexsphere.models.management_cluster_response import ManagementClusterResponse
 from plexsphere.models.project_cluster_assignment_list import ProjectClusterAssignmentList
@@ -45,7 +46,7 @@ class ManagementFleetApi:
     @validate_call
     def get_management_cluster(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -63,7 +64,7 @@ class ManagementFleetApi:
 
         Returns the metadata for the management cluster identified by `{id}`. The handler runs an `observe` ReBAC check on `managementcluster:{id}` (which derives from the fleet singleton, so a fleet observer transitively observes every cluster). A missing row surfaces as `404 management_cluster_not_found`. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -117,7 +118,7 @@ class ManagementFleetApi:
     @validate_call
     def get_management_cluster_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -135,7 +136,7 @@ class ManagementFleetApi:
 
         Returns the metadata for the management cluster identified by `{id}`. The handler runs an `observe` ReBAC check on `managementcluster:{id}` (which derives from the fleet singleton, so a fleet observer transitively observes every cluster). A missing row surfaces as `404 management_cluster_not_found`. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -189,7 +190,7 @@ class ManagementFleetApi:
     @validate_call
     def get_management_cluster_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -207,7 +208,7 @@ class ManagementFleetApi:
 
         Returns the metadata for the management cluster identified by `{id}`. The handler runs an `observe` ReBAC check on `managementcluster:{id}` (which derives from the fleet singleton, so a fleet observer transitively observes every cluster). A missing row surfaces as `404 management_cluster_not_found`. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -601,7 +602,7 @@ class ManagementFleetApi:
     @validate_call
     def list_management_cluster_assignments(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -619,7 +620,7 @@ class ManagementFleetApi:
 
         Returns the project-id-ordered set of Project ↔ cluster assignments placed on the management cluster identified by `{id}`, including each namespace's lifecycle phase. The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the assignment table carries no cluster existence oracle and the gate already authorised the caller against the cluster object. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -672,7 +673,7 @@ class ManagementFleetApi:
     @validate_call
     def list_management_cluster_assignments_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -690,7 +691,7 @@ class ManagementFleetApi:
 
         Returns the project-id-ordered set of Project ↔ cluster assignments placed on the management cluster identified by `{id}`, including each namespace's lifecycle phase. The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the assignment table carries no cluster existence oracle and the gate already authorised the caller against the cluster object. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -743,7 +744,7 @@ class ManagementFleetApi:
     @validate_call
     def list_management_cluster_assignments_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. ")],
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -761,7 +762,7 @@ class ManagementFleetApi:
 
         Returns the project-id-ordered set of Project ↔ cluster assignments placed on the management cluster identified by `{id}`, including each namespace's lifecycle phase. The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the assignment table carries no cluster existence oracle and the gate already authorised the caller against the cluster object. 
 
-        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface.  (required)
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -858,6 +859,281 @@ class ManagementFleetApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/management-clusters/{id}/assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_management_cluster_provider_packages(
+        self,
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ClusterProviderPackageList:
+        """List the provider packages the platform manages on a cluster.
+
+        Returns the package-source-ordered set of Crossplane provider packages the platform has converged onto the management cluster identified by `{id}`, each with the version it was converged to and its last observed phase. A package is desired on a cluster when a Cloud that names it holds an approved assignment to a Project the cluster hosts.  The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the install table carries no cluster existence oracle and the gate already authorised the caller against the cluster object.  The list reports only what the platform manages. A provider installed on the cluster by hand is absent from it until a Cloud names that package. 
+
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_management_cluster_provider_packages_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ClusterProviderPackageList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_management_cluster_provider_packages_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ClusterProviderPackageList]:
+        """List the provider packages the platform manages on a cluster.
+
+        Returns the package-source-ordered set of Crossplane provider packages the platform has converged onto the management cluster identified by `{id}`, each with the version it was converged to and its last observed phase. A package is desired on a cluster when a Cloud that names it holds an approved assignment to a Project the cluster hosts.  The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the install table carries no cluster existence oracle and the gate already authorised the caller against the cluster object.  The list reports only what the platform manages. A provider installed on the cluster by hand is absent from it until a Cloud names that package. 
+
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_management_cluster_provider_packages_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ClusterProviderPackageList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_management_cluster_provider_packages_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the provider packages the platform manages on a cluster.
+
+        Returns the package-source-ordered set of Crossplane provider packages the platform has converged onto the management cluster identified by `{id}`, each with the version it was converged to and its last observed phase. A package is desired on a cluster when a Cloud that names it holds an approved assignment to a Project the cluster hosts.  The handler runs an `observe` ReBAC check on `managementcluster:{id}` before the read. An unknown cluster id yields an empty list — the install table carries no cluster existence oracle and the gate already authorised the caller against the cluster object.  The list reports only what the platform manages. A provider installed on the cluster by hand is absent from it until a Cloud names that package. 
+
+        :param id: Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_management_cluster_provider_packages_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ClusterProviderPackageList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_management_cluster_provider_packages_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/management-clusters/{id}/provider-packages',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

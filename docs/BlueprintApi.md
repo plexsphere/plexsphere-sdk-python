@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**get_blueprint**](BlueprintApi.md#get_blueprint) | **GET** /v1/blueprints/{id} | Fetch a Blueprint by identifier.
 [**list_blueprints**](BlueprintApi.md#list_blueprints) | **GET** /v1/blueprints | List the Blueprint Catalog.
+[**list_project_blueprints**](BlueprintApi.md#list_project_blueprints) | **GET** /v1/projects/{id}/blueprints | List the Blueprint Catalog with this Project&#39;s provisioning verdict.
 [**publish_blueprint_version**](BlueprintApi.md#publish_blueprint_version) | **POST** /v1/blueprints/{id}/versions | Publish a Blueprint version.
 [**register_blueprint**](BlueprintApi.md#register_blueprint) | **POST** /v1/blueprints | Register a Blueprint Catalog entry.
 
@@ -219,6 +220,135 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **list_project_blueprints**
+> ProjectBlueprintList list_project_blueprints(id, cursor=cursor, limit=limit)
+
+List the Blueprint Catalog with this Project's provisioning verdict.
+
+Returns a slug-ordered page of the Blueprint Catalog, each entry
+carrying a `provisionable` verdict for the Project identified by
+`{id}` plus the provider kinds its published versions accept. The
+response also names `reachable_provider_kinds`: the provider
+kinds the Project's Clouds reach.
+
+A Blueprint is `provisionable` when the union of `provider_kinds`
+across its published versions intersects that reachable set. The
+reachable set is derived from the Clouds the Project holds an
+`approved` Cloud Assignment for; `requested`, `rejected` and
+`revoked` assignments contribute nothing, and the
+Cloud-provider-to-Blueprint-kind correspondence is applied
+server-side rather than by comparing the two taxonomies as
+strings. A Cloud on a provider the correspondence does not know
+contributes nothing, so the verdict fails closed.
+
+Blueprints that are not provisionable stay in the response
+marked `provisionable: false` on purpose: the two kind sets in
+the same body name the exact gap, so an operator reads which
+Cloud to request next instead of a template that appears not to
+exist. A `true` verdict is assignment-level and does not promise
+an assigned credential; `CreateResource` still refuses an
+incompatible pairing with `422 blueprint_provider_mismatch`.
+
+Per-row visibility is layered on top of the page: rows whose
+`blueprint#user` ReBAC relation the caller does not hold are
+filtered out, so the response items are a subset of the
+persistence-level page. The whole surface is gated by a
+top-level `read` check on the Project, run BEFORE any
+persistence read.
+
+The pagination cursor is HMAC-signed and bound to the
+per-(caller, pepper) pseudonym, so a cursor minted by one
+principal cannot be replayed by another — the cross-caller
+replay surfaces as `403 cursor_binding_mismatch`. A tampered
+envelope or unknown version byte stays on `400 invalid_cursor`.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.project_blueprint_list import ProjectBlueprintList
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.BlueprintApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. 
+    cursor = 'cursor_example' # str | Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`.  (optional)
+    limit = 50 # int | Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped.  (optional) (default to 50)
+
+    try:
+        # List the Blueprint Catalog with this Project's provisioning verdict.
+        api_response = api_instance.list_project_blueprints(id, cursor=cursor, limit=limit)
+        print("The response of BlueprintApi->list_project_blueprints:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling BlueprintApi->list_project_blueprints: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Project identifier (UUIDv7). Bound on &#x60;/v1/projects/{id}&#x60; for the tenancy CRUD surface, on &#x60;/v1/projects/{id}/credentials&#x60; for the operator-facing OpenBao Credential Broker inventory list, on &#x60;/v1/projects/{id}/credential-assignments&#x60; and &#x60;/v1/projects/{id}/cloud-assignments&#x60; for the assignment request/list surfaces, on &#x60;/v1/projects/{id}/blueprints&#x60; for the project-scoped Blueprint offer list, and on &#x60;/v1/projects/{id}/sink-enablements&#x60; and &#x60;/v1/projects/{id}/telemetry-routes&#x60; for the sink-enablement and Telemetry Route surfaces.  | 
+ **cursor** | **str**| Opaque continuation token returned by a previous call&#39;s &#x60;next_cursor&#x60;. The encoding is HMAC-signed by the server so a tampered cursor surfaces as &#x60;400&#x60;.  | [optional] 
+ **limit** | **int**| Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a &#x60;400&#x60; Problem rather than silently clamped.  | [optional] [default to 50]
+
+### Return type
+
+[**ProjectBlueprintList**](ProjectBlueprintList.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Page of Blueprint offers for this Project. |  -  |
+**400** | Invalid parameters — a malformed Project id (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; invalid_project_id&#x60;), a tampered or malformed cursor, or an out-of-range &#x60;limit&#x60;.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to read the Project (body is a &#x60;PermissionDenied&#x60; problem; a Project that does not exist takes this same path, so no existence side-channel opens) OR the pagination cursor was minted by a different caller and the per-(caller, pepper) HMAC binding rejected the replay (body is a &#x60;Problem&#x60; with &#x60;code &#x3D; cursor_binding_mismatch&#x60;).  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **publish_blueprint_version**
 > BlueprintVersionResponse publish_blueprint_version(id, blueprint_version_create_request)
 
@@ -323,7 +453,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Version published. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Version published. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | The request was rejected before any write — a malformed &#x60;version&#x60;, an unknown &#x60;provider_kind&#x60;, an invalid &#x60;injection_strategy&#x60;, a structurally invalid &#x60;parameter_schema&#x60;, an invalid XRD/Composition manifest pair, an invalid path &#x60;{id}&#x60;, or an undecodable body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_provider_kind&#x60;, &#x60;invalid_injection_strategy&#x60;, &#x60;invalid_parameter_schema&#x60;, &#x60;invalid_manifest&#x60;, &#x60;invalid_blueprint&#x60;, &#x60;invalid_blueprint_id&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to publish versions of the addressed Blueprint. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -434,7 +564,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Blueprint registered. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Blueprint registered. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Aggregate rejected the body — malformed &#x60;slug&#x60;, empty &#x60;display_name&#x60;, or an undecodable request body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_blueprint&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to register Blueprints. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

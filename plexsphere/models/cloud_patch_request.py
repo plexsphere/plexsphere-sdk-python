@@ -17,22 +17,41 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from plexsphere.models.cloud_provider_package import CloudProviderPackage
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
 class CloudPatchRequest(BaseModel):
     """
-    Body for `PATCH /v1/clouds/{id}`. All properties are optional — but the body MUST set at least one of `display_name`, `endpoint`, or `region_defaults`. An empty body is rejected at the handler with `400 empty_patch`.  The immutable `slug` and `provider` are intentionally absent from this schema; the handler rejects a body carrying `slug` with `400 slug_immutable` and one carrying `provider` with `400 provider_immutable`. `provider` is the validator-routing key for the per-provider validator family — changing it would invalidate every previously-stored endpoint blob. See the `cloud` tag description and the DECISION on `cloud.Cloud`. 
+    Body for `PATCH /v1/clouds/{id}`. All properties are optional — but the body MUST set at least one of `display_name`, `endpoint`, `region_defaults`, `provider_packages`, `provider_config_api_version`, `provider_bundle_id`, `provider_bundle_version`, or `provider_package_overrides`. An empty body is rejected at the handler with `400 empty_patch`. A `provider_packages` patch replaces the whole set as one unit: the packages the body names become the Cloud's packages and every package it omits is dropped. An empty array, a duplicate `source`, or a package missing one of its two members is rejected with `400 invalid_cloud`.  The two provider-configuration modes are exclusive here the way they are on create: a patch names EITHER `provider_bundle_id` OR the inline pair, never both, and one that names both is rejected with `400 invalid_cloud_provider_mode`. Setting `provider_bundle_id` on a Cloud that declares its packages inline is the switch into bundle mode; setting BOTH inline fields on a Cloud that references a bundle is the switch back. A patch that takes a referencing Cloud only halfway out of bundle mode is rejected with `400 invalid_cloud_provider_mode` naming the field it left out, because such a Cloud has neither a package set nor an apiVersion of its own to fall back on.  `provider_bundle_version` belongs to bundle mode as well. Alongside `provider_bundle_id` it pins the version the new reference takes, and omitting it there takes the bundle's latest. On its own, against a Cloud already in bundle mode, it is the promotion: the one write that moves this Cloud onto another declaration of the bundle it already references, and it moves no other Cloud. Naming it while the Cloud is not in bundle mode, and the patch does not put it there, is rejected with `400 invalid_cloud_provider_mode`.  `provider_package_overrides` belongs to bundle mode on the same terms, and is rejected with `400 invalid_cloud_provider_mode` when the patched Cloud ends the write declaring its packages inline. It rides along with an attach or a promotion in the same patch, and the stated set is what the Cloud carries afterwards whichever of the two the patch also did.  The immutable `slug` and `provider` are intentionally absent from this schema; the handler rejects a body carrying `slug` with `400 slug_immutable` and one carrying `provider` with `400 provider_immutable`. `provider` is the validator-routing key for the per-provider validator family — changing it would invalidate every previously-stored endpoint blob. See the `cloud` tag description and the DECISION on `cloud.Cloud`. 
     """ # noqa: E501
     display_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, description="New human-readable Cloud name. The aggregate's `Rename` mutator validates the same constraints as `NewCloud`. ")
     endpoint: Optional[Dict[str, Any]] = Field(default=None, description="New provider-specific connection metadata. Triggers a re-run of the per-provider validator on the merged next- state. ")
     region_defaults: Optional[Dict[str, Any]] = Field(default=None, description="New provider-specific region/default metadata. Triggers a re-run of the per-provider validator on the merged next- state. ")
+    provider_packages: Optional[Annotated[List[CloudProviderPackage], Field(min_length=1, max_length=16)]] = Field(default=None, description="Replacement package set. The whole set is replaced rather than merged. Omit the field to leave the current set untouched. The read surfaces render the result in canonical source-ascending order. ")
+    provider_config_api_version: Optional[Annotated[str, Field(min_length=3, strict=True, max_length=270)]] = Field(default=None, description="New `<group>/<version>` every declared package serves its ProviderConfig under. Patchable independently of `provider_packages`, except on a Cloud leaving bundle mode, where both inline fields have to be stated together. ")
+    provider_bundle_id: Optional[StrictStr] = Field(default=None, description="Identifier (UUID) of the provider bundle the Cloud takes its provider configuration from after the patch. Forbidden alongside `provider_packages` and `provider_config_api_version`. The bundle must exist and must serve the same `provider` as the Cloud: an unknown id is rejected with `400 unknown_provider_bundle`, a bundle of another provider with `400 provider_bundle_provider_mismatch`.  DECISION: the field carries no `format: uuid`, for the reason the create request records — a format-annotated field is rejected during JSON decoding, so a malformed id would answer `400 invalid_body` before the service's admission check runs and the operator would never learn which field was wrong. ")
+    provider_bundle_version: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="The content version of the referenced bundle the Cloud pins after the patch. Omitted alongside a `provider_bundle_id` that puts the Cloud into bundle mode, the write pins that bundle's latest version; on its own it promotes a Cloud already in bundle mode onto the named version.  Naming it while the Cloud neither is nor becomes a bundle reference is rejected with `400 invalid_cloud_provider_mode`. A version the bundle never published is rejected with `400 provider_bundle_version_not_found`. ")
+    provider_package_overrides: Optional[Annotated[List[CloudProviderPackage], Field(max_length=16)]] = Field(default=None, description="Replacement override set. The whole set is replaced rather than merged. Omit the field to leave the current set untouched; state `[]` to clear it, which puts the Cloud back on the pinned bundle version as it stands. Each `source` may appear only once.  Stating it while the patched Cloud ends the write declaring its packages inline is rejected with `400 invalid_cloud_provider_mode`. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["display_name", "endpoint", "region_defaults"]
+    __properties: ClassVar[List[str]] = ["display_name", "endpoint", "region_defaults", "provider_packages", "provider_config_api_version", "provider_bundle_id", "provider_bundle_version", "provider_package_overrides"]
+
+    @field_validator('provider_config_api_version')
+    def provider_config_api_version_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$/")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -75,6 +94,20 @@ class CloudPatchRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_packages (list)
+        _items = []
+        if self.provider_packages:
+            for _item_provider_packages in self.provider_packages:
+                if _item_provider_packages:
+                    _items.append(_item_provider_packages.to_dict())
+            _dict['provider_packages'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_package_overrides (list)
+        _items = []
+        if self.provider_package_overrides:
+            for _item_provider_package_overrides in self.provider_package_overrides:
+                if _item_provider_package_overrides:
+                    _items.append(_item_provider_package_overrides.to_dict())
+            _dict['provider_package_overrides'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -94,7 +127,12 @@ class CloudPatchRequest(BaseModel):
         _obj = cls.model_validate({
             "display_name": obj.get("display_name"),
             "endpoint": obj.get("endpoint"),
-            "region_defaults": obj.get("region_defaults")
+            "region_defaults": obj.get("region_defaults"),
+            "provider_packages": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_packages"]] if obj.get("provider_packages") is not None else None,
+            "provider_config_api_version": obj.get("provider_config_api_version"),
+            "provider_bundle_id": obj.get("provider_bundle_id"),
+            "provider_bundle_version": obj.get("provider_bundle_version"),
+            "provider_package_overrides": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_package_overrides"]] if obj.get("provider_package_overrides") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

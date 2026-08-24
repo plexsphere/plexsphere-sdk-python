@@ -32,7 +32,7 @@ class BlueprintVersionCreateRequest(BaseModel):
     xrd: Dict[str, Any] = Field(description="Crossplane CompositeResourceDefinition manifest as a JSON object. Validated structurally against the Composition before any write; a malformed pair surfaces as `400 invalid_manifest`. ")
     composition: Dict[str, Any] = Field(description="Crossplane Composition manifest as a JSON object. Its composite-type reference must name the composite type the XRD declares. ")
     parameter_schema: Dict[str, Any] = Field(description="Typed parameter-schema document of the form `{\"parameters\":[{\"name\":…,\"type\":…,\"required\":…,\"default\"?:…}]}`. A structurally invalid document surfaces as `400 invalid_parameter_schema`. ")
-    provider_kinds: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Closed-set infrastructure substrates this version can target. The server re-validates each value through the domain provider-kind parser; an out-of-set value is rejected with `400 invalid_provider_kind`. Non-empty. The enum mirrors `BlueprintVersionResponse.provider_kinds` so generated clients validate before the round-trip. ")
+    provider_kinds: Annotated[List[StrictStr], Field(min_length=1)] = Field(description="Closed-set infrastructure substrates this version can target. The server re-validates each value through the domain provider-kind parser; an out-of-set value is rejected with `400 invalid_provider_kind`. Non-empty. The enum mirrors `BlueprintVersionResponse.provider_kinds` so generated clients validate before the round-trip.  Provisioning refuses a declaration whose Blueprint version accepts none of the kinds corresponding to the provider of the Cloud behind the chosen credential, with `422 blueprint_provider_mismatch`. ")
     injection_strategy: StrictStr = Field(description="Discriminator naming how this version threads request parameters into the rendered Composite Resource. The server re-validates the value; an out-of-set value is rejected with `400 invalid_injection_strategy`. The enum mirrors `BlueprintVersionResponse.injection_strategy`. ")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["version", "xrd", "composition", "parameter_schema", "provider_kinds", "injection_strategy"]
@@ -41,8 +41,8 @@ class BlueprintVersionCreateRequest(BaseModel):
     def provider_kinds_validate_enum(cls, value):
         """Validates the enum"""
         for i in value:
-            if i not in set(['aws', 'gcp', 'hetzner', 'openstack']):
-                raise ValueError("each list item must be one of ('aws', 'gcp', 'hetzner', 'openstack')")
+            if i not in set(['aws', 'azure', 'gcp', 'hetzner', 'openstack']):
+                raise ValueError("each list item must be one of ('aws', 'azure', 'gcp', 'hetzner', 'openstack')")
         return value
 
     @field_validator('injection_strategy')

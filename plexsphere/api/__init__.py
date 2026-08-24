@@ -30,5 +30,6 @@ from plexsphere.api.policy_api import PolicyApi
 from plexsphere.api.provisioning_credentials_api import ProvisioningCredentialsApi
 from plexsphere.api.resource_api import ResourceApi
 from plexsphere.api.secrets_api import SecretsApi
+from plexsphere.api.sinks_api import SinksApi
 from plexsphere.api.tenancy_api import TenancyApi
 

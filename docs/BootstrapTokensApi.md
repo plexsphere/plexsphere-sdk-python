@@ -203,7 +203,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | BootstrapToken issued. The &#x60;token&#x60; field carries the plaintext exactly once; subsequent reads return only the metadata view.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | BootstrapToken issued. The &#x60;token&#x60; field carries the plaintext exactly once; subsequent reads return only the metadata view.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Invalid issue body (unknown &#x60;kind&#x60;, malformed &#x60;env_prefix&#x60;, TTL out of range).  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to issue BootstrapTokens in the target Project. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and &#x60;correlation_id&#x60; that pairs with the audit entry.  |  -  |

@@ -110,7 +110,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Execution dispatched. Body is the metadata-only Execution projection with one target per resolved Node.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Execution dispatched. Body is the metadata-only Execution projection with one target per resolved Node.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Invalid request — typically a malformed body, a malformed label selector (&#x60;code: malformed_selector&#x60;), an action the target has not declared (&#x60;code: action_not_declared&#x60;), or a target specification that is not exactly one of &#x60;node_id&#x60; or &#x60;selector&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to dispatch actions in the owning Project. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

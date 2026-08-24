@@ -19,10 +19,11 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from plexsphere.models.cloud_provider import CloudProvider
+from plexsphere.models.cloud_provider_package import CloudProviderPackage
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -38,14 +39,43 @@ class CloudResponse(BaseModel):
     endpoint: Dict[str, Any] = Field(description="Provider-specific connection metadata stored as a JSONB blob. The per-provider validator owns the field-shape contract; this schema only declares the wire envelope. ")
     region_defaults: Dict[str, Any] = Field(description="Provider-specific region/default metadata stored as a JSONB blob. The per-provider validator owns the field- shape contract. ")
     external_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Upstream provider account identifier (e.g. AWS account id, Azure tenant id). Combined with `provider` it must be unique across all Clouds. ")
+    provider_packages: Annotated[List[CloudProviderPackage], Field(min_length=1, max_length=16)] = Field(description="The EFFECTIVE Crossplane provider packages for this Cloud: the pinned provider bundle version's set with the Cloud's `provider_package_overrides` merged over it when `provider_bundle_id` is present, otherwise the set the Cloud declares inline. Rendered in canonical source-ascending order regardless of the order the operator stated them in. A `PATCH /v1/clouds/{id}` carrying `provider_packages` replaces the whole inline set. ")
+    provider_config_api_version: Annotated[str, Field(min_length=3, strict=True, max_length=270)] = Field(description="The EFFECTIVE `<group>/<version>` every declared package serves its ProviderConfig under (e.g. `aws.m.upbound.io/v1beta1`): the referenced provider bundle's value when `provider_bundle_id` is present, otherwise the Cloud's own. The Provisioning Broker stamps this value as the rendered ProviderConfig's apiVersion. ")
+    provider_bundle_id: Optional[UUID] = Field(default=None, description="Identifier of the provider bundle this Cloud takes its provider configuration from. Present only for a Cloud in bundle mode; a Cloud that declares its packages inline omits the field. ")
+    provider_bundle_slug: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=63)]] = Field(default=None, description="Kebab-case handle of the referenced provider bundle, carried alongside the id so a client renders the reference without a second round-trip. Present only for a Cloud in bundle mode. ")
+    provider_bundle_version: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="The content version of that bundle the Cloud pins — the declaration `provider_packages` and `provider_config_api_version` above were resolved from. Present exactly when `provider_bundle_id` is; a Cloud that declares its packages inline omits all three fields. It moves only on a Cloud write, so a bundle patch that publishes a newer version leaves this value alone. ")
+    provider_package_overrides: Optional[Annotated[List[CloudProviderPackage], Field(max_length=16)]] = Field(default=None, description="The packages this Cloud runs differently from the version it pins, as the operator authored them, in canonical source-ascending order. Present exactly when `provider_bundle_id` is, and an empty array for a Cloud that states none; a Cloud that declares its packages inline omits the field.  An override whose source the pinned version carries replaces that member's version, and the merged entry reports `origin: override` under `provider_packages`. An override naming a source the pinned version does not carry joins the effective set and reports `origin: addition`. Nothing is ever removed, so the effective set is never smaller than the pinned version's. ")
     created_at: datetime = Field(description="Aggregate creation timestamp (UTC).")
-    updated_at: datetime = Field(description="Last-modified timestamp (UTC). Bumped by every mutator — `Rename`, `ChangeEndpoint`, `ChangeRegionDefaults`. ")
+    updated_at: datetime = Field(description="Last-modified timestamp (UTC). Bumped by every mutator — `Rename`, `ChangeEndpoint`, `ChangeRegionDefaults`, `ChangeProviderPackages`, `ChangeProviderConfigAPIVersion`, `ReferenceProviderBundle`, `DeclareInlinePackages`. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "display_name", "slug", "provider", "endpoint", "region_defaults", "external_id", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "display_name", "slug", "provider", "endpoint", "region_defaults", "external_id", "provider_packages", "provider_config_api_version", "provider_bundle_id", "provider_bundle_slug", "provider_bundle_version", "provider_package_overrides", "created_at", "updated_at"]
 
     @field_validator('slug')
     def slug_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z0-9]+(-[a-z0-9]+)*$/")
+        return value
+
+    @field_validator('provider_config_api_version')
+    def provider_config_api_version_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$/")
+        return value
+
+    @field_validator('provider_bundle_slug')
+    def provider_bundle_slug_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
         if not isinstance(value, str):
             value = str(value)
 
@@ -94,6 +124,20 @@ class CloudResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_packages (list)
+        _items = []
+        if self.provider_packages:
+            for _item_provider_packages in self.provider_packages:
+                if _item_provider_packages:
+                    _items.append(_item_provider_packages.to_dict())
+            _dict['provider_packages'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_package_overrides (list)
+        _items = []
+        if self.provider_package_overrides:
+            for _item_provider_package_overrides in self.provider_package_overrides:
+                if _item_provider_package_overrides:
+                    _items.append(_item_provider_package_overrides.to_dict())
+            _dict['provider_package_overrides'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -118,6 +162,12 @@ class CloudResponse(BaseModel):
             "endpoint": obj.get("endpoint"),
             "region_defaults": obj.get("region_defaults"),
             "external_id": obj.get("external_id"),
+            "provider_packages": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_packages"]] if obj.get("provider_packages") is not None else None,
+            "provider_config_api_version": obj.get("provider_config_api_version"),
+            "provider_bundle_id": obj.get("provider_bundle_id"),
+            "provider_bundle_slug": obj.get("provider_bundle_slug"),
+            "provider_bundle_version": obj.get("provider_bundle_version"),
+            "provider_package_overrides": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_package_overrides"]] if obj.get("provider_package_overrides") is not None else None,
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })
