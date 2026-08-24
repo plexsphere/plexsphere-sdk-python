@@ -598,7 +598,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Catalog source registered. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Catalog source registered. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Aggregate rejected the body — a malformed &#x60;name&#x60;, an invalid &#x60;oci_reference&#x60;, &#x60;verification&#x60;, &#x60;tracking&#x60;, or &#x60;credential_ref&#x60;, or an undecodable request body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_catalog_source&#x60;, &#x60;invalid_oci_reference&#x60;, &#x60;invalid_verification_policy&#x60;, &#x60;invalid_tracking_policy&#x60;, &#x60;invalid_credential_ref&#x60;, &#x60;invalid_body&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to register a catalog source in the requested scope. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

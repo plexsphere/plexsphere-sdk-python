@@ -17,13 +17,14 @@ Method | HTTP request | Description
 Approve a pending Approval.
 
 Approves the queue row identified by `{id}`. This is the one
-approve entry point for all three queue sources: the handler
+approve entry point for all four queue sources: the handler
 reads the row, then dispatches on its `kind` to the owning
 application service. The gate is the one the kind's source
 surface owns: `approve` on the owning Domain for an `approval`
 row, `assign` on the Cloud Credential for a
 `credential_assignment` row, `assign` on the Cloud for a
-`cloud_assignment` row.
+`cloud_assignment` row, `assign` on the telemetry sink for a
+`sink_enablement` row.
 
 Approval is only legal from the `pending-approval` state (or the
 `proposed` state under the empty-policy short-circuit) — any
@@ -345,8 +346,9 @@ Name | Type | Description  | Notes
 List dual-control Approvals.
 
 Returns a creation-ordered page of approval-queue rows. The
-queue is the union of three sources: generic Approvals,
-Credential Assignments, and Cloud Assignments. Every row carries
+queue is the union of four sources: generic Approvals,
+Credential Assignments, Cloud Assignments, and sink
+enablements. Every row carries
 a `kind` naming its source. The page is optionally narrowed to a
 single lifecycle `status`, a single owning `domain_id`, a single
 source `kind`, and a single `cloud_id`.
@@ -477,14 +479,15 @@ Name | Type | Description  | Notes
 Reject a pending Approval.
 
 Rejects the queue row identified by `{id}`. This is the one
-reject entry point for all three queue sources: the handler
+reject entry point for all four queue sources: the handler
 reads the row, then dispatches on its `kind` to the owning
 application service, which moves the row to the `rejected` state
 and appends the rejection outbox event in a single transaction.
 The gate is the one the kind's source surface owns: `approve` on
 the owning Domain for an `approval` row, `assign` on the Cloud
 Credential for a `credential_assignment` row, `assign` on the
-Cloud for a `cloud_assignment` row. The `reason` from the body
+Cloud for a `cloud_assignment` row, `assign` on the telemetry
+sink for a `sink_enablement` row. The `reason` from the body
 is recorded on the decision as an operator-supplied audit
 string.
 

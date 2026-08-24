@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**get_management_cluster**](ManagementFleetApi.md#get_management_cluster) | **GET** /v1/management-clusters/{id} | Fetch one management cluster.
 [**get_project_management_cluster_assignment**](ManagementFleetApi.md#get_project_management_cluster_assignment) | **GET** /v1/projects/{project_id}/management-cluster-assignment | Look up a Project&#39;s management-cluster assignment.
 [**list_management_cluster_assignments**](ManagementFleetApi.md#list_management_cluster_assignments) | **GET** /v1/management-clusters/{id}/assignments | List the Project assignments placed on a cluster.
+[**list_management_cluster_provider_packages**](ManagementFleetApi.md#list_management_cluster_provider_packages) | **GET** /v1/management-clusters/{id}/provider-packages | List the provider packages the platform manages on a cluster.
 [**list_management_clusters**](ManagementFleetApi.md#list_management_clusters) | **GET** /v1/management-clusters | List the registered management clusters.
 [**register_management_cluster**](ManagementFleetApi.md#register_management_cluster) | **POST** /v1/management-clusters | Register a management cluster into the fleet.
 [**terminate_project_management_cluster_assignment**](ManagementFleetApi.md#terminate_project_management_cluster_assignment) | **POST** /v1/projects/{project_id}/management-cluster-assignment/terminate | Request teardown of a Project&#39;s namespace.
@@ -62,7 +63,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ManagementFleetApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. 
 
     try:
         # Fetch one management cluster.
@@ -80,7 +81,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Management cluster identifier (UUIDv7). Bound on &#x60;/v1/management-clusters/{id}&#x60; and &#x60;/v1/management-clusters/{id}/assignments&#x60; for the operator-facing Management Fleet surface.  | 
+ **id** | **UUID**| Management cluster identifier (UUIDv7). Bound on &#x60;/v1/management-clusters/{id}&#x60;, &#x60;/v1/management-clusters/{id}/assignments&#x60; and &#x60;/v1/management-clusters/{id}/provider-packages&#x60; for the operator-facing Management Fleet surface.  | 
 
 ### Return type
 
@@ -258,7 +259,7 @@ configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
 with plexsphere.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = plexsphere.ManagementFleetApi(api_client)
-    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}` and `/v1/management-clusters/{id}/assignments` for the operator-facing Management Fleet surface. 
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. 
 
     try:
         # List the Project assignments placed on a cluster.
@@ -276,7 +277,7 @@ with plexsphere.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **UUID**| Management cluster identifier (UUIDv7). Bound on &#x60;/v1/management-clusters/{id}&#x60; and &#x60;/v1/management-clusters/{id}/assignments&#x60; for the operator-facing Management Fleet surface.  | 
+ **id** | **UUID**| Management cluster identifier (UUIDv7). Bound on &#x60;/v1/management-clusters/{id}&#x60;, &#x60;/v1/management-clusters/{id}/assignments&#x60; and &#x60;/v1/management-clusters/{id}/provider-packages&#x60; for the operator-facing Management Fleet surface.  | 
 
 ### Return type
 
@@ -296,6 +297,111 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | The Project assignments on the cluster. |  -  |
+**400** | Malformed cluster id. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_management_cluster_id&#x60;.  |  -  |
+**401** | Caller is not authenticated. |  -  |
+**403** | Caller is not authorized to observe the cluster. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
+**500** | Internal server error. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_management_cluster_provider_packages**
+> ClusterProviderPackageList list_management_cluster_provider_packages(id)
+
+List the provider packages the platform manages on a cluster.
+
+Returns the package-source-ordered set of Crossplane provider
+packages the platform has converged onto the management cluster
+identified by `{id}`, each with the version it was converged to
+and its last observed phase. A package is desired on a cluster
+when a Cloud that names it holds an approved assignment to a
+Project the cluster hosts.
+
+The handler runs an `observe` ReBAC check on
+`managementcluster:{id}` before the read. An unknown cluster id
+yields an empty list — the install table carries no cluster
+existence oracle and the gate already authorised the caller
+against the cluster object.
+
+The list reports only what the platform manages. A provider
+installed on the cluster by hand is absent from it until a Cloud
+names that package.
+
+
+### Example
+
+* Bearer (JWT) Authentication (operatorBearer):
+* Api Key Authentication (sessionCookie):
+
+```python
+import plexsphere
+from plexsphere.models.cluster_provider_package_list import ClusterProviderPackageList
+from plexsphere.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = plexsphere.Configuration(
+    host = "http://localhost"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization (JWT): operatorBearer
+configuration = plexsphere.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Configure API key authorization: sessionCookie
+configuration.api_key['sessionCookie'] = os.environ["API_KEY"]
+
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['sessionCookie'] = 'Bearer'
+
+# Enter a context with an instance of the API client
+with plexsphere.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = plexsphere.ManagementFleetApi(api_client)
+    id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID | Management cluster identifier (UUIDv7). Bound on `/v1/management-clusters/{id}`, `/v1/management-clusters/{id}/assignments` and `/v1/management-clusters/{id}/provider-packages` for the operator-facing Management Fleet surface. 
+
+    try:
+        # List the provider packages the platform manages on a cluster.
+        api_response = api_instance.list_management_cluster_provider_packages(id)
+        print("The response of ManagementFleetApi->list_management_cluster_provider_packages:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ManagementFleetApi->list_management_cluster_provider_packages: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **UUID**| Management cluster identifier (UUIDv7). Bound on &#x60;/v1/management-clusters/{id}&#x60;, &#x60;/v1/management-clusters/{id}/assignments&#x60; and &#x60;/v1/management-clusters/{id}/provider-packages&#x60; for the operator-facing Management Fleet surface.  | 
+
+### Return type
+
+[**ClusterProviderPackageList**](ClusterProviderPackageList.md)
+
+### Authorization
+
+[operatorBearer](../README.md#operatorBearer), [sessionCookie](../README.md#sessionCookie)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The provider packages managed on the cluster. |  -  |
 **400** | Malformed cluster id. Body is a &#x60;Problem&#x60; with &#x60;code: invalid_management_cluster_id&#x60;.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to observe the cluster. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |
@@ -487,7 +593,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Management cluster registered. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Management cluster registered. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Malformed body. Body is a &#x60;Problem&#x60; with &#x60;code&#x60; ∈ { &#x60;invalid_body&#x60;, &#x60;invalid_management_cluster&#x60; }.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage the management fleet. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

@@ -47,6 +47,7 @@ __all__ = [
     "ProvisioningCredentialsApi",
     "ResourceApi",
     "SecretsApi",
+    "SinksApi",
     "TenancyApi",
     "ApiResponse",
     "ApiClient",
@@ -140,6 +141,7 @@ __all__ = [
     "CloudAssignmentDecisionRequest",
     "CloudAssignmentGrantRequest",
     "CloudAssignmentList",
+    "CloudAssignmentProviderInstall",
     "CloudAssignmentRequestBody",
     "CloudAssignmentResponse",
     "CloudChildCounts",
@@ -154,9 +156,13 @@ __all__ = [
     "CloudList",
     "CloudPatchRequest",
     "CloudProvider",
+    "CloudProviderPackage",
     "CloudResponse",
     "CloudUsageRef",
+    "ClusterProviderPackageList",
+    "ClusterProviderPackageResponse",
     "CredentialAssignmentDecisionRequest",
+    "CredentialAssignmentGrantRequest",
     "CredentialAssignmentList",
     "CredentialAssignmentRequest",
     "CredentialAssignmentResponse",
@@ -315,6 +321,8 @@ __all__ = [
     "PolicyUpdateRequest",
     "PolicyUpdatedPayload",
     "Problem",
+    "ProjectBlueprintList",
+    "ProjectBlueprintOffer",
     "ProjectChildCounts",
     "ProjectClusterAssignmentList",
     "ProjectClusterAssignmentResponse",
@@ -324,6 +332,14 @@ __all__ = [
     "ProjectResponse",
     "ProjectSecretList",
     "ProjectSecretRef",
+    "ProviderBundleCloudList",
+    "ProviderBundleCloudRef",
+    "ProviderBundleCreateRequest",
+    "ProviderBundleList",
+    "ProviderBundlePatchRequest",
+    "ProviderBundleResponse",
+    "ProviderBundleVersion",
+    "ProviderBundleVersionList",
     "ProvisionedResourcePhase",
     "Reachability",
     "RebacCheckRequest",
@@ -371,7 +387,28 @@ __all__ = [
     "SessionTargetTCP",
     "SignInRequest",
     "SignInResponse",
+    "Sink",
+    "SinkCreateRequest",
+    "SinkCredential",
+    "SinkCredentialInput",
+    "SinkEnablement",
+    "SinkEnablementGrantBody",
+    "SinkEnablementPage",
+    "SinkEnablementRequestBody",
+    "SinkEnablementRevokeBody",
+    "SinkEnablementState",
+    "SinkList",
+    "SinkSettings",
+    "SinkTLS",
+    "SinkType",
+    "SinkUpdateRequest",
     "StateEntry",
+    "TelemetryRoute",
+    "TelemetryRouteList",
+    "TelemetryRouteRequest",
+    "TelemetrySeverity",
+    "TelemetrySignal",
+    "TenantSinkType",
     "TimelineEvent",
     "TimelineEventAppend",
     "TimelineEventKind",
@@ -412,6 +449,7 @@ from plexsphere.api.policy_api import PolicyApi as PolicyApi
 from plexsphere.api.provisioning_credentials_api import ProvisioningCredentialsApi as ProvisioningCredentialsApi
 from plexsphere.api.resource_api import ResourceApi as ResourceApi
 from plexsphere.api.secrets_api import SecretsApi as SecretsApi
+from plexsphere.api.sinks_api import SinksApi as SinksApi
 from plexsphere.api.tenancy_api import TenancyApi as TenancyApi
 
 # import ApiClient
@@ -509,6 +547,7 @@ from plexsphere.models.catalog_source_response import CatalogSourceResponse as C
 from plexsphere.models.cloud_assignment_decision_request import CloudAssignmentDecisionRequest as CloudAssignmentDecisionRequest
 from plexsphere.models.cloud_assignment_grant_request import CloudAssignmentGrantRequest as CloudAssignmentGrantRequest
 from plexsphere.models.cloud_assignment_list import CloudAssignmentList as CloudAssignmentList
+from plexsphere.models.cloud_assignment_provider_install import CloudAssignmentProviderInstall as CloudAssignmentProviderInstall
 from plexsphere.models.cloud_assignment_request_body import CloudAssignmentRequestBody as CloudAssignmentRequestBody
 from plexsphere.models.cloud_assignment_response import CloudAssignmentResponse as CloudAssignmentResponse
 from plexsphere.models.cloud_child_counts import CloudChildCounts as CloudChildCounts
@@ -523,9 +562,13 @@ from plexsphere.models.cloud_credential_status import CloudCredentialStatus as C
 from plexsphere.models.cloud_list import CloudList as CloudList
 from plexsphere.models.cloud_patch_request import CloudPatchRequest as CloudPatchRequest
 from plexsphere.models.cloud_provider import CloudProvider as CloudProvider
+from plexsphere.models.cloud_provider_package import CloudProviderPackage as CloudProviderPackage
 from plexsphere.models.cloud_response import CloudResponse as CloudResponse
 from plexsphere.models.cloud_usage_ref import CloudUsageRef as CloudUsageRef
+from plexsphere.models.cluster_provider_package_list import ClusterProviderPackageList as ClusterProviderPackageList
+from plexsphere.models.cluster_provider_package_response import ClusterProviderPackageResponse as ClusterProviderPackageResponse
 from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest as CredentialAssignmentDecisionRequest
+from plexsphere.models.credential_assignment_grant_request import CredentialAssignmentGrantRequest as CredentialAssignmentGrantRequest
 from plexsphere.models.credential_assignment_list import CredentialAssignmentList as CredentialAssignmentList
 from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest as CredentialAssignmentRequest
 from plexsphere.models.credential_assignment_response import CredentialAssignmentResponse as CredentialAssignmentResponse
@@ -684,6 +727,8 @@ from plexsphere.models.policy_selector import PolicySelector as PolicySelector
 from plexsphere.models.policy_update_request import PolicyUpdateRequest as PolicyUpdateRequest
 from plexsphere.models.policy_updated_payload import PolicyUpdatedPayload as PolicyUpdatedPayload
 from plexsphere.models.problem import Problem as Problem
+from plexsphere.models.project_blueprint_list import ProjectBlueprintList as ProjectBlueprintList
+from plexsphere.models.project_blueprint_offer import ProjectBlueprintOffer as ProjectBlueprintOffer
 from plexsphere.models.project_child_counts import ProjectChildCounts as ProjectChildCounts
 from plexsphere.models.project_cluster_assignment_list import ProjectClusterAssignmentList as ProjectClusterAssignmentList
 from plexsphere.models.project_cluster_assignment_response import ProjectClusterAssignmentResponse as ProjectClusterAssignmentResponse
@@ -693,6 +738,14 @@ from plexsphere.models.project_patch_request import ProjectPatchRequest as Proje
 from plexsphere.models.project_response import ProjectResponse as ProjectResponse
 from plexsphere.models.project_secret_list import ProjectSecretList as ProjectSecretList
 from plexsphere.models.project_secret_ref import ProjectSecretRef as ProjectSecretRef
+from plexsphere.models.provider_bundle_cloud_list import ProviderBundleCloudList as ProviderBundleCloudList
+from plexsphere.models.provider_bundle_cloud_ref import ProviderBundleCloudRef as ProviderBundleCloudRef
+from plexsphere.models.provider_bundle_create_request import ProviderBundleCreateRequest as ProviderBundleCreateRequest
+from plexsphere.models.provider_bundle_list import ProviderBundleList as ProviderBundleList
+from plexsphere.models.provider_bundle_patch_request import ProviderBundlePatchRequest as ProviderBundlePatchRequest
+from plexsphere.models.provider_bundle_response import ProviderBundleResponse as ProviderBundleResponse
+from plexsphere.models.provider_bundle_version import ProviderBundleVersion as ProviderBundleVersion
+from plexsphere.models.provider_bundle_version_list import ProviderBundleVersionList as ProviderBundleVersionList
 from plexsphere.models.provisioned_resource_phase import ProvisionedResourcePhase as ProvisionedResourcePhase
 from plexsphere.models.reachability import Reachability as Reachability
 from plexsphere.models.rebac_check_request import RebacCheckRequest as RebacCheckRequest
@@ -740,7 +793,28 @@ from plexsphere.models.session_target_ssh import SessionTargetSSH as SessionTarg
 from plexsphere.models.session_target_tcp import SessionTargetTCP as SessionTargetTCP
 from plexsphere.models.sign_in_request import SignInRequest as SignInRequest
 from plexsphere.models.sign_in_response import SignInResponse as SignInResponse
+from plexsphere.models.sink import Sink as Sink
+from plexsphere.models.sink_create_request import SinkCreateRequest as SinkCreateRequest
+from plexsphere.models.sink_credential import SinkCredential as SinkCredential
+from plexsphere.models.sink_credential_input import SinkCredentialInput as SinkCredentialInput
+from plexsphere.models.sink_enablement import SinkEnablement as SinkEnablement
+from plexsphere.models.sink_enablement_grant_body import SinkEnablementGrantBody as SinkEnablementGrantBody
+from plexsphere.models.sink_enablement_page import SinkEnablementPage as SinkEnablementPage
+from plexsphere.models.sink_enablement_request_body import SinkEnablementRequestBody as SinkEnablementRequestBody
+from plexsphere.models.sink_enablement_revoke_body import SinkEnablementRevokeBody as SinkEnablementRevokeBody
+from plexsphere.models.sink_enablement_state import SinkEnablementState as SinkEnablementState
+from plexsphere.models.sink_list import SinkList as SinkList
+from plexsphere.models.sink_settings import SinkSettings as SinkSettings
+from plexsphere.models.sink_tls import SinkTLS as SinkTLS
+from plexsphere.models.sink_type import SinkType as SinkType
+from plexsphere.models.sink_update_request import SinkUpdateRequest as SinkUpdateRequest
 from plexsphere.models.state_entry import StateEntry as StateEntry
+from plexsphere.models.telemetry_route import TelemetryRoute as TelemetryRoute
+from plexsphere.models.telemetry_route_list import TelemetryRouteList as TelemetryRouteList
+from plexsphere.models.telemetry_route_request import TelemetryRouteRequest as TelemetryRouteRequest
+from plexsphere.models.telemetry_severity import TelemetrySeverity as TelemetrySeverity
+from plexsphere.models.telemetry_signal import TelemetrySignal as TelemetrySignal
+from plexsphere.models.tenant_sink_type import TenantSinkType as TenantSinkType
 from plexsphere.models.timeline_event import TimelineEvent as TimelineEvent
 from plexsphere.models.timeline_event_append import TimelineEventAppend as TimelineEventAppend
 from plexsphere.models.timeline_event_kind import TimelineEventKind as TimelineEventKind

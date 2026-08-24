@@ -40,6 +40,13 @@ class TestBlueprintApi(unittest.TestCase):
         """
         pass
 
+    def test_list_project_blueprints(self) -> None:
+        """Test case for list_project_blueprints
+
+        List the Blueprint Catalog with this Project's provisioning verdict.
+        """
+        pass
+
     def test_publish_blueprint_version(self) -> None:
         """Test case for publish_blueprint_version
 

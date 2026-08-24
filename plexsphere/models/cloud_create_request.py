@@ -17,17 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from plexsphere.models.cloud_provider import CloudProvider
+from plexsphere.models.cloud_provider_package import CloudProviderPackage
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
 class CloudCreateRequest(BaseModel):
     """
-    Body for `POST /v1/clouds`. Field set mirrors the Cloud aggregate's `NewCloud` invariants. The handler authorises the call against the platform-level `manage` relation BEFORE invoking the service so an unauthorised caller never produces a `CloudCreated` outbox row. 
+    Body for `POST /v1/clouds`. Field set mirrors the Cloud aggregate's `NewCloud` invariants. The handler authorises the call against the platform-level `manage` relation BEFORE invoking the service so an unauthorised caller never produces a `CloudCreated` outbox row.  The Cloud holds its provider configuration in exactly one of two ways, so a request names EITHER `provider_bundle_id` OR the inline pair `provider_packages` + `provider_config_api_version`, never both. A request naming a bundle alongside either inline field is rejected with `400 invalid_cloud_provider_mode` naming every field that took part in the conflict; a request that sets neither, or only one half of the inline pair, is rejected with `400 invalid_cloud`.  A request in bundle mode may name `provider_bundle_version` to pin an older declaration; omitting it pins the bundle's latest. It may also name `provider_package_overrides` to run some of that declaration's packages at other versions. Both fields belong to bundle mode: stating either without `provider_bundle_id` is rejected with `400 invalid_cloud_provider_mode` naming the field. 
     """ # noqa: E501
     display_name: Annotated[str, Field(min_length=1, strict=True, max_length=256)] = Field(description="Human-readable Cloud name. Whitespace-only is rejected.")
     slug: Annotated[str, Field(min_length=1, strict=True, max_length=63)] = Field(description="Kebab-case URL handle. The aggregate's `ParseSlug` enforces the same regex; surfacing the pattern here lets the generated client validate before the round-trip. ")
@@ -35,8 +36,13 @@ class CloudCreateRequest(BaseModel):
     endpoint: Dict[str, Any] = Field(description="Provider-specific connection metadata. The per-provider validator runs at decode time; field-level rejections surface as `400 invalid_cloud_endpoint`. ")
     region_defaults: Dict[str, Any] = Field(description="Provider-specific region/default metadata. The per- provider validator runs at decode time; field-level rejections surface as `400 invalid_cloud_region_defaults`. ")
     external_id: Annotated[str, Field(min_length=1, strict=True, max_length=4096)] = Field(description="Upstream provider account identifier. Combined with `provider` must be unique across all Clouds. ")
+    provider_packages: Optional[Annotated[List[CloudProviderPackage], Field(min_length=1, max_length=16)]] = Field(default=None, description="The Crossplane provider packages the Cloud declares inline. Required in inline mode and forbidden alongside `provider_bundle_id`. Each `source` may appear only once. The read surfaces render the set in canonical source-ascending order, not in the order stated here. ")
+    provider_config_api_version: Optional[Annotated[str, Field(min_length=3, strict=True, max_length=270)]] = Field(default=None, description="The `<group>/<version>` every inline-declared package serves its ProviderConfig under (e.g. `aws.m.upbound.io/v1beta1`). Required in inline mode and forbidden alongside `provider_bundle_id`. The Provisioning Broker stamps this value as the rendered ProviderConfig's apiVersion. ")
+    provider_bundle_id: Optional[StrictStr] = Field(default=None, description="Identifier (UUID) of the provider bundle this Cloud takes its provider configuration from. Naming it puts the Cloud in bundle mode, which forbids `provider_packages` and `provider_config_api_version` in the same request. The bundle must exist and must serve the same `provider` as the Cloud: an unknown id is rejected with `400 unknown_provider_bundle`, a bundle of another provider with `400 provider_bundle_provider_mismatch`.  DECISION: the field carries no `format: uuid`. A format-annotated field is rejected during JSON decoding, so a malformed id would answer `400 invalid_body` before the service's admission check runs and the operator would never learn which field was wrong. The value is a canonical UUID string and a malformed one surfaces as `400 invalid_cloud_provider_mode` naming `provider_bundle_id`. ")
+    provider_bundle_version: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="The content version of the named bundle the new Cloud pins. Omit it and the write pins the bundle's latest version, which is the declaration an operator reads when they pick the bundle; name one to pin an older declaration instead.  The field belongs to bundle mode: setting it without `provider_bundle_id` is rejected with `400 invalid_cloud_provider_mode`. A version the bundle never published is rejected with `400 provider_bundle_version_not_found`. ")
+    provider_package_overrides: Optional[Annotated[List[CloudProviderPackage], Field(max_length=16)]] = Field(default=None, description="Packages the new Cloud runs differently from the version it pins. Each `source` may appear only once. Omit the field, or state the empty array, and the Cloud takes the pinned version as it stands.  The field belongs to bundle mode: setting it without `provider_bundle_id` is rejected with `400 invalid_cloud_provider_mode`. An override is a deviation from a referenced declaration, and a Cloud that owns its package set runs another version by editing that set. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["display_name", "slug", "provider", "endpoint", "region_defaults", "external_id"]
+    __properties: ClassVar[List[str]] = ["display_name", "slug", "provider", "endpoint", "region_defaults", "external_id", "provider_packages", "provider_config_api_version", "provider_bundle_id", "provider_bundle_version", "provider_package_overrides"]
 
     @field_validator('slug')
     def slug_validate_regular_expression(cls, value):
@@ -46,6 +52,19 @@ class CloudCreateRequest(BaseModel):
 
         if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", value):
             raise ValueError(r"must validate the regular expression /^[a-z0-9]+(-[a-z0-9]+)*$/")
+        return value
+
+    @field_validator('provider_config_api_version')
+    def provider_config_api_version_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\/v[0-9]+((alpha|beta)[0-9]+)?$/")
         return value
 
     model_config = ConfigDict(
@@ -89,6 +108,20 @@ class CloudCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_packages (list)
+        _items = []
+        if self.provider_packages:
+            for _item_provider_packages in self.provider_packages:
+                if _item_provider_packages:
+                    _items.append(_item_provider_packages.to_dict())
+            _dict['provider_packages'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_package_overrides (list)
+        _items = []
+        if self.provider_package_overrides:
+            for _item_provider_package_overrides in self.provider_package_overrides:
+                if _item_provider_package_overrides:
+                    _items.append(_item_provider_package_overrides.to_dict())
+            _dict['provider_package_overrides'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -111,7 +144,12 @@ class CloudCreateRequest(BaseModel):
             "provider": obj.get("provider"),
             "endpoint": obj.get("endpoint"),
             "region_defaults": obj.get("region_defaults"),
-            "external_id": obj.get("external_id")
+            "external_id": obj.get("external_id"),
+            "provider_packages": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_packages"]] if obj.get("provider_packages") is not None else None,
+            "provider_config_api_version": obj.get("provider_config_api_version"),
+            "provider_bundle_id": obj.get("provider_bundle_id"),
+            "provider_bundle_version": obj.get("provider_bundle_version"),
+            "provider_package_overrides": [CloudProviderPackage.from_dict(_item) for _item in obj["provider_package_overrides"]] if obj.get("provider_package_overrides") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

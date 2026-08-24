@@ -40,10 +40,24 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_create_provider_bundle(self) -> None:
+        """Test case for create_provider_bundle
+
+        Create a provider bundle.
+        """
+        pass
+
     def test_delete_cloud(self) -> None:
         """Test case for delete_cloud
 
         Delete a Cloud.
+        """
+        pass
+
+    def test_delete_provider_bundle(self) -> None:
+        """Test case for delete_provider_bundle
+
+        Delete a provider bundle.
         """
         pass
 
@@ -68,10 +82,24 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_get_provider_bundle(self) -> None:
+        """Test case for get_provider_bundle
+
+        Fetch a provider bundle by identifier.
+        """
+        pass
+
     def test_grant_cloud_assignment(self) -> None:
         """Test case for grant_cloud_assignment
 
         Grant a Cloud to a Project (operator push).
+        """
+        pass
+
+    def test_grant_credential_assignment(self) -> None:
+        """Test case for grant_credential_assignment
+
+        Grant a Cloud Credential to a Project (owner push).
         """
         pass
 
@@ -117,10 +145,38 @@ class TestCloudApi(unittest.TestCase):
         """
         pass
 
+    def test_list_provider_bundle_clouds(self) -> None:
+        """Test case for list_provider_bundle_clouds
+
+        List the Clouds that reference a provider bundle.
+        """
+        pass
+
+    def test_list_provider_bundle_versions(self) -> None:
+        """Test case for list_provider_bundle_versions
+
+        List the published versions of a provider bundle.
+        """
+        pass
+
+    def test_list_provider_bundles(self) -> None:
+        """Test case for list_provider_bundles
+
+        List provider bundles.
+        """
+        pass
+
     def test_patch_cloud(self) -> None:
         """Test case for patch_cloud
 
         Patch mutable fields on a Cloud.
+        """
+        pass
+
+    def test_patch_provider_bundle(self) -> None:
+        """Test case for patch_provider_bundle
+
+        Patch mutable fields on a provider bundle.
         """
         pass
 

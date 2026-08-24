@@ -420,7 +420,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | PlexdHook applied. Body is the read projection of the recorded push.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | PlexdHook applied. Body is the read projection of the recorded push.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | The path &#x60;{domain_id}&#x60; was not a non-zero UUID, or the request body was malformed. The Problem body&#39;s &#x60;code&#x60; field is &#x60;invalid_domain_id&#x60; for a malformed path identifier.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the managed-push write ReBAC relation on the addressed Domain.  |  -  |

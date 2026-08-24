@@ -105,7 +105,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Policy created. The &#x60;Location&#x60; header points at the new aggregate&#39;s canonical resource.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Policy created. The &#x60;Location&#x60; header points at the new aggregate&#39;s canonical resource.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Invalid body. |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller failed the dual ReBAC check. Body is a &#x60;PermissionDenied&#x60; problem.  |  -  |

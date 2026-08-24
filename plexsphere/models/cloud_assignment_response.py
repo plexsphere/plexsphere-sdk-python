@@ -19,8 +19,9 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
+from plexsphere.models.cloud_assignment_provider_install import CloudAssignmentProviderInstall
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -36,8 +37,9 @@ class CloudAssignmentResponse(BaseModel):
     materialised: StrictBool = Field(description="Whether the assignment's `cloud#uses` binding is currently live. `true` only while the assignment is in the `approved` state; `false` for `requested`, `rejected`, and `revoked`. ")
     created_at: datetime = Field(description="Aggregate creation timestamp (UTC).")
     updated_at: datetime = Field(description="Last-modified timestamp (UTC). Bumped by every lifecycle transition — approve, reject, revoke. ")
+    provider_installs: Optional[List[CloudAssignmentProviderInstall]] = Field(default=None, description="Readiness of every Crossplane provider package the assigned Cloud declares, one entry per package, ordered by `source` the same way `provider_packages` is on the Cloud itself. Present only while the assignment is `approved`: a `requested`, `rejected`, or `revoked` assignment installs nothing, so the property is absent rather than reporting phases that do not apply. An absent array means nothing is installed for this assignment; a readiness the platform cannot read fails the request instead.  Assigning a Cloud to a Project is what causes its provider packages to be installed, so this is the answer to \"can the Project provision against this Cloud yet\": yes only once every entry reports `Serving`. ")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "project_id", "cloud_id", "state", "materialised", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "project_id", "cloud_id", "state", "materialised", "created_at", "updated_at", "provider_installs"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -80,6 +82,13 @@ class CloudAssignmentResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in provider_installs (list)
+        _items = []
+        if self.provider_installs:
+            for _item_provider_installs in self.provider_installs:
+                if _item_provider_installs:
+                    _items.append(_item_provider_installs.to_dict())
+            _dict['provider_installs'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -103,7 +112,8 @@ class CloudAssignmentResponse(BaseModel):
             "state": obj.get("state"),
             "materialised": obj.get("materialised"),
             "created_at": obj.get("created_at"),
-            "updated_at": obj.get("updated_at")
+            "updated_at": obj.get("updated_at"),
+            "provider_installs": [CloudAssignmentProviderInstall.from_dict(_item) for _item in obj["provider_installs"]] if obj.get("provider_installs") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

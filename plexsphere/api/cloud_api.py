@@ -36,9 +36,16 @@ from plexsphere.models.cloud_patch_request import CloudPatchRequest
 from plexsphere.models.cloud_response import CloudResponse
 from plexsphere.models.cloud_usage_ref import CloudUsageRef
 from plexsphere.models.credential_assignment_decision_request import CredentialAssignmentDecisionRequest
+from plexsphere.models.credential_assignment_grant_request import CredentialAssignmentGrantRequest
 from plexsphere.models.credential_assignment_list import CredentialAssignmentList
 from plexsphere.models.credential_assignment_request import CredentialAssignmentRequest
 from plexsphere.models.credential_assignment_response import CredentialAssignmentResponse
+from plexsphere.models.provider_bundle_cloud_list import ProviderBundleCloudList
+from plexsphere.models.provider_bundle_create_request import ProviderBundleCreateRequest
+from plexsphere.models.provider_bundle_list import ProviderBundleList
+from plexsphere.models.provider_bundle_patch_request import ProviderBundlePatchRequest
+from plexsphere.models.provider_bundle_response import ProviderBundleResponse
+from plexsphere.models.provider_bundle_version_list import ProviderBundleVersionList
 
 from plexsphere.api_client import ApiClient, RequestSerialized
 from plexsphere.api_response import ApiResponse
@@ -61,7 +68,7 @@ class CloudApi:
     @validate_call
     def attach_cloud_credential_cloud(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_attach_request: CloudCredentialAttachRequest,
         _request_timeout: Union[
             None,
@@ -80,7 +87,7 @@ class CloudApi:
 
         Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_attach_request: (required)
         :type cloud_credential_attach_request: CloudCredentialAttachRequest
@@ -139,7 +146,7 @@ class CloudApi:
     @validate_call
     def attach_cloud_credential_cloud_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_attach_request: CloudCredentialAttachRequest,
         _request_timeout: Union[
             None,
@@ -158,7 +165,7 @@ class CloudApi:
 
         Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_attach_request: (required)
         :type cloud_credential_attach_request: CloudCredentialAttachRequest
@@ -217,7 +224,7 @@ class CloudApi:
     @validate_call
     def attach_cloud_credential_cloud_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_attach_request: CloudCredentialAttachRequest,
         _request_timeout: Union[
             None,
@@ -236,7 +243,7 @@ class CloudApi:
 
         Adds a usage edge so the Cloud Credential identified by `{id}` additionally serves the Cloud named in the body. The handler runs a `manage` ReBAC check on the credential's home Cloud BEFORE decoding the body, then — once the body names the target usage Cloud — a second `manage` check on that target Cloud, and only then delegates to the Cloud Credentials Custodian which records the usage edge. The caller must administer both Clouds: the home Cloud whose credential is mutated and the target Cloud that will start serving it.  Attach is idempotent: re-attaching an already-attached Cloud returns `201` without creating a second edge. A revoked credential cannot pick up further usage Clouds and is refused with `409 cloud_credential_revoked`; a body `cloud_id` that names no existing Cloud is refused with `404 cloud_not_found`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_attach_request: (required)
         :type cloud_credential_attach_request: CloudCredentialAttachRequest
@@ -665,6 +672,300 @@ class CloudApi:
 
 
     @validate_call
+    def create_provider_bundle(
+        self,
+        provider_bundle_create_request: ProviderBundleCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleResponse:
+        """Create a provider bundle.
+
+        Creates a new `ProviderBundle` aggregate — one reusable Crossplane provider-package declaration, authored once and addressed by a stable handle so a Cloud points at it instead of repeating the same packages inline. The aggregate enforces every issuance invariant — non-empty `display_name`, kebab-case `slug`, closed-enum `provider`, at least one provider package with each `source` named at most once, and a `<group>/<version>` `provider_config_api_version`. An invariant rejection surfaces as `400 invalid_provider_bundle`; a duplicate slug surfaces as `409 provider_bundle_slug_conflict`.  On success the handler emits a `provider_bundle.create` audit row and appends a `ProviderBundleCreated` outbox event in the same transaction.  The ReBAC grants that make the new bundle readable — the `platform` parent edge and the creating principal's `bundle_admin` grant — are written by the authz-sync consumer draining that outbox row, not by this request. The `201` is therefore ahead of the graph: until the consumer has drained, `GET /v1/provider-bundles/{id}` on the bundle just created answers `403` and `GET /v1/provider-bundles` omits the row. A client that reads back immediately should retry on `403` rather than treat it as a permanent denial. 
+
+        :param provider_bundle_create_request: (required)
+        :type provider_bundle_create_request: ProviderBundleCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_provider_bundle_serialize(
+            provider_bundle_create_request=provider_bundle_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def create_provider_bundle_with_http_info(
+        self,
+        provider_bundle_create_request: ProviderBundleCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleResponse]:
+        """Create a provider bundle.
+
+        Creates a new `ProviderBundle` aggregate — one reusable Crossplane provider-package declaration, authored once and addressed by a stable handle so a Cloud points at it instead of repeating the same packages inline. The aggregate enforces every issuance invariant — non-empty `display_name`, kebab-case `slug`, closed-enum `provider`, at least one provider package with each `source` named at most once, and a `<group>/<version>` `provider_config_api_version`. An invariant rejection surfaces as `400 invalid_provider_bundle`; a duplicate slug surfaces as `409 provider_bundle_slug_conflict`.  On success the handler emits a `provider_bundle.create` audit row and appends a `ProviderBundleCreated` outbox event in the same transaction.  The ReBAC grants that make the new bundle readable — the `platform` parent edge and the creating principal's `bundle_admin` grant — are written by the authz-sync consumer draining that outbox row, not by this request. The `201` is therefore ahead of the graph: until the consumer has drained, `GET /v1/provider-bundles/{id}` on the bundle just created answers `403` and `GET /v1/provider-bundles` omits the row. A client that reads back immediately should retry on `403` rather than treat it as a permanent denial. 
+
+        :param provider_bundle_create_request: (required)
+        :type provider_bundle_create_request: ProviderBundleCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_provider_bundle_serialize(
+            provider_bundle_create_request=provider_bundle_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def create_provider_bundle_without_preload_content(
+        self,
+        provider_bundle_create_request: ProviderBundleCreateRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a provider bundle.
+
+        Creates a new `ProviderBundle` aggregate — one reusable Crossplane provider-package declaration, authored once and addressed by a stable handle so a Cloud points at it instead of repeating the same packages inline. The aggregate enforces every issuance invariant — non-empty `display_name`, kebab-case `slug`, closed-enum `provider`, at least one provider package with each `source` named at most once, and a `<group>/<version>` `provider_config_api_version`. An invariant rejection surfaces as `400 invalid_provider_bundle`; a duplicate slug surfaces as `409 provider_bundle_slug_conflict`.  On success the handler emits a `provider_bundle.create` audit row and appends a `ProviderBundleCreated` outbox event in the same transaction.  The ReBAC grants that make the new bundle readable — the `platform` parent edge and the creating principal's `bundle_admin` grant — are written by the authz-sync consumer draining that outbox row, not by this request. The `201` is therefore ahead of the graph: until the consumer has drained, `GET /v1/provider-bundles/{id}` on the bundle just created answers `403` and `GET /v1/provider-bundles` omits the row. A client that reads back immediately should retry on `403` rather than treat it as a permanent denial. 
+
+        :param provider_bundle_create_request: (required)
+        :type provider_bundle_create_request: ProviderBundleCreateRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_provider_bundle_serialize(
+            provider_bundle_create_request=provider_bundle_create_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_provider_bundle_serialize(
+        self,
+        provider_bundle_create_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if provider_bundle_create_request is not None:
+            _body_params = provider_bundle_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/provider-bundles',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def delete_cloud(
         self,
         id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
@@ -945,9 +1246,289 @@ class CloudApi:
 
 
     @validate_call
+    def delete_provider_bundle(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Delete a provider bundle.
+
+        Deletes the `ProviderBundle` identified by `{id}`. The referenced-bundle guard runs inside the same transaction as the row delete: at least one Cloud that still takes its provider configuration from the bundle forces `409 provider_bundle_referenced` with the `referencing_clouds` count in the Problem body, so the operator knows how many Clouds to re-point before retrying. A Cloud that starts referencing the bundle between the guard's count and the DELETE is caught by defense-in-depth — the foreign-key violation surfaces as the same `409`, without the count. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_provider_bundle_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete a provider bundle.
+
+        Deletes the `ProviderBundle` identified by `{id}`. The referenced-bundle guard runs inside the same transaction as the row delete: at least one Cloud that still takes its provider configuration from the bundle forces `409 provider_bundle_referenced` with the `referencing_clouds` count in the Problem body, so the operator knows how many Clouds to re-point before retrying. A Cloud that starts referencing the bundle between the guard's count and the DELETE is caught by defense-in-depth — the foreign-key violation surfaces as the same `409`, without the count. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_provider_bundle_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete a provider bundle.
+
+        Deletes the `ProviderBundle` identified by `{id}`. The referenced-bundle guard runs inside the same transaction as the row delete: at least one Cloud that still takes its provider configuration from the bundle forces `409 provider_bundle_referenced` with the `referencing_clouds` count in the Problem body, so the operator knows how many Clouds to re-point before retrying. A Cloud that starts referencing the bundle between the guard's count and the DELETE is caught by defense-in-depth — the foreign-key violation surfaces as the same `409`, without the count. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_provider_bundle_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v1/provider-bundles/{id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def detach_cloud_credential_cloud(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
         _request_timeout: Union[
             None,
@@ -966,7 +1547,7 @@ class CloudApi:
 
         Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloud_id}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
         :type cloud_id: UUID
@@ -1024,7 +1605,7 @@ class CloudApi:
     @validate_call
     def detach_cloud_credential_cloud_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
         _request_timeout: Union[
             None,
@@ -1043,7 +1624,7 @@ class CloudApi:
 
         Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloud_id}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
         :type cloud_id: UUID
@@ -1101,7 +1682,7 @@ class CloudApi:
     @validate_call
     def detach_cloud_credential_cloud_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_id: Annotated[UUID, Field(description="Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`. ")],
         _request_timeout: Union[
             None,
@@ -1120,7 +1701,7 @@ class CloudApi:
 
         Removes the usage edge that binds the Cloud Credential identified by `{id}` to the usage Cloud `{cloud_id}`. The handler authorises the detach against a `manage` ReBAC check on EITHER the credential's home Cloud OR the target usage Cloud — so the target Cloud's owner can remove an edge attached to their Cloud — then delegates to the Cloud Credentials Custodian.  Detach is idempotent: detaching an absent edge returns `204`. The credential's home Cloud anchors the KV-v2 path and can never be detached — a detach targeting it is refused with `409 cannot_detach_home_cloud`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_id: Identifier of the usage Cloud to detach (UUIDv7). Must be a non-zero UUID — a malformed value is rejected with `400 invalid_cloud_id`.  (required)
         :type cloud_id: UUID
@@ -1520,7 +2101,7 @@ class CloudApi:
     @validate_call
     def get_cloud_credential(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1538,7 +2119,7 @@ class CloudApi:
 
         Returns the lifecycle metadata for the Cloud Credential identified by `{id}`. The credential id does not encode its owning Cloud, so the handler must read the row to learn which Cloud to authorise against; the ReBAC `observe` check runs on the resolved parent Cloud and a denial returns `403` via the audit-first permission-denied path. A missing row surfaces as `404 cloud_credential_not_found`.  The projection is metadata-only and NEVER exposes the KV mount, KV path, KV version, or any secret material. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1592,7 +2173,7 @@ class CloudApi:
     @validate_call
     def get_cloud_credential_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1610,7 +2191,7 @@ class CloudApi:
 
         Returns the lifecycle metadata for the Cloud Credential identified by `{id}`. The credential id does not encode its owning Cloud, so the handler must read the row to learn which Cloud to authorise against; the ReBAC `observe` check runs on the resolved parent Cloud and a denial returns `403` via the audit-first permission-denied path. A missing row surfaces as `404 cloud_credential_not_found`.  The projection is metadata-only and NEVER exposes the KV mount, KV path, KV version, or any secret material. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1664,7 +2245,7 @@ class CloudApi:
     @validate_call
     def get_cloud_credential_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1682,7 +2263,7 @@ class CloudApi:
 
         Returns the lifecycle metadata for the Cloud Credential identified by `{id}`. The credential id does not encode its owning Cloud, so the handler must read the row to learn which Cloud to authorise against; the ReBAC `observe` check runs on the resolved parent Cloud and a denial returns `403` via the audit-first permission-denied path. A missing row surfaces as `404 cloud_credential_not_found`.  The projection is metadata-only and NEVER exposes the KV mount, KV path, KV version, or any secret material. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1780,6 +2361,284 @@ class CloudApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/cloud-credentials/{id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_provider_bundle(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleResponse:
+        """Fetch a provider bundle by identifier.
+
+        Returns the `ProviderBundle` identified by `{id}`. The handler runs the `observe` ReBAC check BEFORE the persistence read, so an unauthorised caller receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 provider_bundle_not_found` — but only for a caller the graph already grants `observe` on that id. An id no bundle ever answered to carries no tuples at all, so the gate denies it first and the caller reads `403`. That is the same withholding the check is there to perform: `404` and `403` are deliberately indistinguishable for an id the caller has no grant on. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_provider_bundle_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleResponse]:
+        """Fetch a provider bundle by identifier.
+
+        Returns the `ProviderBundle` identified by `{id}`. The handler runs the `observe` ReBAC check BEFORE the persistence read, so an unauthorised caller receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 provider_bundle_not_found` — but only for a caller the graph already grants `observe` on that id. An id no bundle ever answered to carries no tuples at all, so the gate denies it first and the caller reads `403`. That is the same withholding the check is there to perform: `404` and `403` are deliberately indistinguishable for an id the caller has no grant on. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_provider_bundle_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Fetch a provider bundle by identifier.
+
+        Returns the `ProviderBundle` identified by `{id}`. The handler runs the `observe` ReBAC check BEFORE the persistence read, so an unauthorised caller receives `403` without the existence side-channel a \"load-then-check\" flow would leak. A missing aggregate surfaces as `404 provider_bundle_not_found` — but only for a caller the graph already grants `observe` on that id. An id no bundle ever answered to carries no tuples at all, so the gate denies it first and the caller reads `403`. That is the same withholding the check is there to perform: `404` and `403` are deliberately indistinguishable for an id the caller has no grant on. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_provider_bundle_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_provider_bundle_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/provider-bundles/{id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2105,6 +2964,318 @@ class CloudApi:
 
 
     @validate_call
+    def grant_credential_assignment(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        credential_assignment_grant_request: CredentialAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CredentialAssignmentResponse:
+        """Grant a Cloud Credential to a Project (owner push).
+
+        Binds the Cloud Credential identified by `{id}` to the Project named in the body as a single authoritative action. The handler runs an `assign` ReBAC check on the credential BEFORE the persistence write, then delegates to the Credential Assignment application service which creates the assignment already approved AND materialised in one step — the credential is immediately usable in the Project — and appends a `CredentialAssignmentGranted` outbox event in a single transaction.  This is the owner-push counterpart to `RequestCredentialAssignment`, which the consuming Project initiates and a second party decides. The grant bypasses the second-party approval rule by design: there is no separate requester to compare against, which is also why it exists — requesting and then approving one's own request is refused by the self-approval guard, so without this route a credential's owner could not place it at all. Mirrors `GrantCloudAssignment` on the Cloud side.  The receiving Project must already be able to use the Cloud the credential belongs to — an approved Cloud Assignment — otherwise the grant is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a grant without the Cloud Assignment would bind the credential and still be refused at deploy time. A `{id}` naming no credential at all is rejected with `422 credential_not_assignable`.  A second live assignment for the same (Project, Credential) pair is rejected with `409 duplicate_live_assignment`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :type id: UUID
+        :param credential_assignment_grant_request: (required)
+        :type credential_assignment_grant_request: CredentialAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_credential_assignment_serialize(
+            id=id,
+            credential_assignment_grant_request=credential_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CredentialAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def grant_credential_assignment_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        credential_assignment_grant_request: CredentialAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CredentialAssignmentResponse]:
+        """Grant a Cloud Credential to a Project (owner push).
+
+        Binds the Cloud Credential identified by `{id}` to the Project named in the body as a single authoritative action. The handler runs an `assign` ReBAC check on the credential BEFORE the persistence write, then delegates to the Credential Assignment application service which creates the assignment already approved AND materialised in one step — the credential is immediately usable in the Project — and appends a `CredentialAssignmentGranted` outbox event in a single transaction.  This is the owner-push counterpart to `RequestCredentialAssignment`, which the consuming Project initiates and a second party decides. The grant bypasses the second-party approval rule by design: there is no separate requester to compare against, which is also why it exists — requesting and then approving one's own request is refused by the self-approval guard, so without this route a credential's owner could not place it at all. Mirrors `GrantCloudAssignment` on the Cloud side.  The receiving Project must already be able to use the Cloud the credential belongs to — an approved Cloud Assignment — otherwise the grant is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a grant without the Cloud Assignment would bind the credential and still be refused at deploy time. A `{id}` naming no credential at all is rejected with `422 credential_not_assignable`.  A second live assignment for the same (Project, Credential) pair is rejected with `409 duplicate_live_assignment`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :type id: UUID
+        :param credential_assignment_grant_request: (required)
+        :type credential_assignment_grant_request: CredentialAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_credential_assignment_serialize(
+            id=id,
+            credential_assignment_grant_request=credential_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CredentialAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def grant_credential_assignment_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        credential_assignment_grant_request: CredentialAssignmentGrantRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Grant a Cloud Credential to a Project (owner push).
+
+        Binds the Cloud Credential identified by `{id}` to the Project named in the body as a single authoritative action. The handler runs an `assign` ReBAC check on the credential BEFORE the persistence write, then delegates to the Credential Assignment application service which creates the assignment already approved AND materialised in one step — the credential is immediately usable in the Project — and appends a `CredentialAssignmentGranted` outbox event in a single transaction.  This is the owner-push counterpart to `RequestCredentialAssignment`, which the consuming Project initiates and a second party decides. The grant bypasses the second-party approval rule by design: there is no separate requester to compare against, which is also why it exists — requesting and then approving one's own request is refused by the self-approval guard, so without this route a credential's owner could not place it at all. Mirrors `GrantCloudAssignment` on the Cloud side.  The receiving Project must already be able to use the Cloud the credential belongs to — an approved Cloud Assignment — otherwise the grant is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a grant without the Cloud Assignment would bind the credential and still be refused at deploy time. A `{id}` naming no credential at all is rejected with `422 credential_not_assignable`.  A second live assignment for the same (Project, Credential) pair is rejected with `409 duplicate_live_assignment`. 
+
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :type id: UUID
+        :param credential_assignment_grant_request: (required)
+        :type credential_assignment_grant_request: CredentialAssignmentGrantRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._grant_credential_assignment_serialize(
+            id=id,
+            credential_assignment_grant_request=credential_assignment_grant_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CredentialAssignmentResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '409': "Problem",
+            '413': "Problem",
+            '422': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _grant_credential_assignment_serialize(
+        self,
+        id,
+        credential_assignment_grant_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if credential_assignment_grant_request is not None:
+            _body_params = credential_assignment_grant_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/cloud-credentials/{id}/credential-assignments',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def issue_cloud_credential(
         self,
         id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
@@ -2413,7 +3584,7 @@ class CloudApi:
     @validate_call
     def list_cloud_assignments(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2433,7 +3604,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -2492,7 +3663,7 @@ class CloudApi:
     @validate_call
     def list_cloud_assignments_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2512,7 +3683,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -2571,7 +3742,7 @@ class CloudApi:
     @validate_call
     def list_cloud_assignments_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2591,7 +3762,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Cloud Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -2722,7 +3893,7 @@ class CloudApi:
     @validate_call
     def list_cloud_credential_clouds(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2742,7 +3913,7 @@ class CloudApi:
 
         Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -2802,7 +3973,7 @@ class CloudApi:
     @validate_call
     def list_cloud_credential_clouds_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2822,7 +3993,7 @@ class CloudApi:
 
         Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -2882,7 +4053,7 @@ class CloudApi:
     @validate_call
     def list_cloud_credential_clouds_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -2902,7 +4073,7 @@ class CloudApi:
 
         Returns a cloud_id-ordered page of the Clouds the Cloud Credential identified by `{id}` serves — its home Cloud plus every additional usage Cloud attached over the association API. The handler resolves the credential's home Cloud, runs an `observe` ReBAC check on it BEFORE the persistence read, then pages the usage join.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -3637,7 +4808,7 @@ class CloudApi:
     @validate_call
     def list_credential_assignments(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -3657,7 +4828,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -3716,7 +4887,7 @@ class CloudApi:
     @validate_call
     def list_credential_assignments_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -3736,7 +4907,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -3795,7 +4966,7 @@ class CloudApi:
     @validate_call
     def list_credential_assignments_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
         limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
         _request_timeout: Union[
@@ -3815,7 +4986,7 @@ class CloudApi:
 
         Returns a creation-ordered page of Credential Assignment lifecycle metadata for the Project identified by `{id}`. The handler runs a top-level `read` ReBAC check on the parent Project BEFORE the persistence read; every assignment in the page belongs to the one path Project, so the project `read` check authorises the whole page and no per-row filter runs.  The projection carries the assignment identity, the owning Project, the bound Cloud Credential, the lifecycle state, a derived `materialised` flag, and the lifecycle timestamps.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
         :type cursor: str
@@ -3944,6 +5115,927 @@ class CloudApi:
 
 
     @validate_call
+    def list_provider_bundle_clouds(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleCloudList:
+        """List the Clouds that reference a provider bundle.
+
+        Returns a cloud_id-ordered page of the Clouds that take their provider configuration from the provider bundle identified by `{id}`. Each item carries the Cloud's id, slug, and display name, so a console rendering the roster needs no follow-up read per row.  The gate is `provider_bundle#manage` on the addressed bundle — the permission `PatchProviderBundle` and `DeleteProviderBundle` require, NOT the `observe` the other read verbs use — run BEFORE the persistence read. A roster row names a Cloud in whatever Domain holds it, and holding a permission on a bundle grants no `cloud#observe` anywhere, so the roster is scoped to the caller who is about to edit or delete the bundle rather than to every caller who may read it.  Under that gate the items are deliberately NOT filtered per Cloud: a per-row visibility filter would drop the Clouds the caller cannot observe individually and under-report how far a bundle edit reaches, which is the question the endpoint exists to answer, and would contradict the unfiltered `referencing_clouds` count a refused delete already carries.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` carries a different surface version byte and is refused with `400 invalid_cursor`, and so is a roster cursor presented there. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_provider_bundle_clouds_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleCloudList]:
+        """List the Clouds that reference a provider bundle.
+
+        Returns a cloud_id-ordered page of the Clouds that take their provider configuration from the provider bundle identified by `{id}`. Each item carries the Cloud's id, slug, and display name, so a console rendering the roster needs no follow-up read per row.  The gate is `provider_bundle#manage` on the addressed bundle — the permission `PatchProviderBundle` and `DeleteProviderBundle` require, NOT the `observe` the other read verbs use — run BEFORE the persistence read. A roster row names a Cloud in whatever Domain holds it, and holding a permission on a bundle grants no `cloud#observe` anywhere, so the roster is scoped to the caller who is about to edit or delete the bundle rather than to every caller who may read it.  Under that gate the items are deliberately NOT filtered per Cloud: a per-row visibility filter would drop the Clouds the caller cannot observe individually and under-report how far a bundle edit reaches, which is the question the endpoint exists to answer, and would contradict the unfiltered `referencing_clouds` count a refused delete already carries.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` carries a different surface version byte and is refused with `400 invalid_cursor`, and so is a roster cursor presented there. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_provider_bundle_clouds_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the Clouds that reference a provider bundle.
+
+        Returns a cloud_id-ordered page of the Clouds that take their provider configuration from the provider bundle identified by `{id}`. Each item carries the Cloud's id, slug, and display name, so a console rendering the roster needs no follow-up read per row.  The gate is `provider_bundle#manage` on the addressed bundle — the permission `PatchProviderBundle` and `DeleteProviderBundle` require, NOT the `observe` the other read verbs use — run BEFORE the persistence read. A roster row names a Cloud in whatever Domain holds it, and holding a permission on a bundle grants no `cloud#observe` anywhere, so the roster is scoped to the caller who is about to edit or delete the bundle rather than to every caller who may read it.  Under that gate the items are deliberately NOT filtered per Cloud: a per-row visibility filter would drop the Clouds the caller cannot observe individually and under-report how far a bundle edit reaches, which is the question the endpoint exists to answer, and would contradict the unfiltered `referencing_clouds` count a refused delete already carries.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` carries a different surface version byte and is refused with `400 invalid_cursor`, and so is a roster cursor presented there. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_clouds_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleCloudList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_provider_bundle_clouds_serialize(
+        self,
+        id,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/provider-bundles/{id}/clouds',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_provider_bundle_versions(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleVersionList:
+        """List the published versions of a provider bundle.
+
+        Returns a newest-first page of the content versions the provider bundle identified by `{id}` has published. Each item carries the whole declaration that version froze — its package set and the apiVersion those packages serve their ProviderConfig under — so a client comparing two versions needs no follow-up read per row.  A published version is immutable. A content patch on the bundle appends the next one and rewrites none of the existing rows, so the declaration a Cloud pins answers the same bytes for as long as the pin stands.  The gate is `provider_bundle#observe` on the addressed bundle — the permission `GetProviderBundle` requires — run BEFORE the persistence read, so an unauthorised caller never learns from the response whether the bundle exists. The history is bundle content rather than a roster of the Clouds holding it, which is why the gate is the read one and not the `manage` `ListProviderBundleClouds` requires.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` or `ListProviderBundleClouds` carries a different surface version byte and is refused with `400 invalid_cursor`. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_versions_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleVersionList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+            '503': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_provider_bundle_versions_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleVersionList]:
+        """List the published versions of a provider bundle.
+
+        Returns a newest-first page of the content versions the provider bundle identified by `{id}` has published. Each item carries the whole declaration that version froze — its package set and the apiVersion those packages serve their ProviderConfig under — so a client comparing two versions needs no follow-up read per row.  A published version is immutable. A content patch on the bundle appends the next one and rewrites none of the existing rows, so the declaration a Cloud pins answers the same bytes for as long as the pin stands.  The gate is `provider_bundle#observe` on the addressed bundle — the permission `GetProviderBundle` requires — run BEFORE the persistence read, so an unauthorised caller never learns from the response whether the bundle exists. The history is bundle content rather than a roster of the Clouds holding it, which is why the gate is the read one and not the `manage` `ListProviderBundleClouds` requires.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` or `ListProviderBundleClouds` carries a different surface version byte and is refused with `400 invalid_cursor`. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_versions_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleVersionList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+            '503': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_provider_bundle_versions_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the published versions of a provider bundle.
+
+        Returns a newest-first page of the content versions the provider bundle identified by `{id}` has published. Each item carries the whole declaration that version froze — its package set and the apiVersion those packages serve their ProviderConfig under — so a client comparing two versions needs no follow-up read per row.  A published version is immutable. A content patch on the bundle appends the next one and rewrites none of the existing rows, so the declaration a Cloud pins answers the same bytes for as long as the pin stands.  The gate is `provider_bundle#observe` on the addressed bundle — the permission `GetProviderBundle` requires — run BEFORE the persistence read, so an unauthorised caller never learns from the response whether the bundle exists. The history is bundle content rather than a roster of the Clouds holding it, which is why the gate is the read one and not the `manage` `ListProviderBundleClouds` requires.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. It is bound to this operation as well: a cursor minted by `ListProviderBundles` or `ListProviderBundleClouds` carries a different surface version byte and is refused with `400 invalid_cursor`. A tampered envelope stays on `400 invalid_cursor` too. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundle_versions_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleVersionList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '404': "Problem",
+            '500': "Problem",
+            '503': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_provider_bundle_versions_serialize(
+        self,
+        id,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/provider-bundles/{id}/versions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_provider_bundles(
+        self,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleList:
+        """List provider bundles.
+
+        Returns a slug-ordered page of `ProviderBundle` aggregates the caller is authorised to see. Per-row visibility is layered on top of the page: rows the caller cannot `observe` are filtered out so the response items are a subset of the persistence-level page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundles_serialize(
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_provider_bundles_with_http_info(
+        self,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleList]:
+        """List provider bundles.
+
+        Returns a slug-ordered page of `ProviderBundle` aggregates the caller is authorised to see. Per-row visibility is layered on top of the page: rows the caller cannot `observe` are filtered out so the response items are a subset of the persistence-level page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundles_serialize(
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_provider_bundles_without_preload_content(
+        self,
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List provider bundles.
+
+        Returns a slug-ordered page of `ProviderBundle` aggregates the caller is authorised to see. Per-row visibility is layered on top of the page: rows the caller cannot `observe` are filtered out so the response items are a subset of the persistence-level page.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_provider_bundles_serialize(
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_provider_bundles_serialize(
+        self,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/provider-bundles',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def patch_cloud(
         self,
         id: Annotated[UUID, Field(description="Cloud identifier (UUIDv7). Bound on `/v1/clouds/{id}` for the Cloud Inventory CRUD surface. ")],
@@ -4006,6 +6098,7 @@ class CloudApi:
             '401': "Problem",
             '403': "PermissionDenied",
             '404': "Problem",
+            '409': "Problem",
             '413': "Problem",
             '500': "Problem",
         }
@@ -4083,6 +6176,7 @@ class CloudApi:
             '401': "Problem",
             '403': "PermissionDenied",
             '404': "Problem",
+            '409': "Problem",
             '413': "Problem",
             '500': "Problem",
         }
@@ -4160,6 +6254,7 @@ class CloudApi:
             '401': "Problem",
             '403': "PermissionDenied",
             '404': "Problem",
+            '409': "Problem",
             '413': "Problem",
             '500': "Problem",
         }
@@ -4253,9 +6348,321 @@ class CloudApi:
 
 
     @validate_call
+    def patch_provider_bundle(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        provider_bundle_patch_request: ProviderBundlePatchRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProviderBundleResponse:
+        """Patch mutable fields on a provider bundle.
+
+        Patches the `ProviderBundle` identified by `{id}`. The body MUST set at least one of `display_name`, `provider_packages`, or `provider_config_api_version` — an empty body surfaces as `400 empty_patch`. A `provider_packages` patch replaces the whole set: the packages the body names become the bundle's packages and every package it omits is dropped.  A content patch — one carrying `provider_packages` or `provider_config_api_version` — publishes a NEW immutable version of the bundle rather than rewriting the current one. The two content fields publish one version between them even when the body names both, and the response reports the number that version was published under in `latest_version`. A rename-only patch publishes nothing.  Publishing moves no Cloud. Every Cloud referencing the bundle keeps serving the version it pins and converges with that declaration until a Cloud write moves the pin — a `PATCH /v1/clouds/{id}` naming `provider_bundle_version`, which promotes that one Cloud. Read the published history at `GET /v1/provider-bundles/{id}/versions` to see which versions a Cloud can be promoted onto.  DECISION: BOTH `slug` and `provider` are intentionally NOT patchable fields. The slug is the URL handle an operator types to address the bundle, so re-slugging in place breaks every bookmarked URL. The provider is the compatibility key a bundle is checked against before a Cloud may reference it: every stored reference was admitted against the provider the bundle carried at the time, and nothing re-checks a reference once it is stored. The handler rejects any body that carries a `slug` key (even with the same value) with `400 slug_immutable`, and any body that carries a `provider` key with `400 provider_immutable`.  The read and the write are two transactions, so the merged aggregate can be stale by the time it is written. The write is gated on the version the read observed and a competing writer that got there first surfaces as `409 provider_bundle_stale`; nothing is written and no event is emitted in that case. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param provider_bundle_patch_request: (required)
+        :type provider_bundle_patch_request: ProviderBundlePatchRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._patch_provider_bundle_serialize(
+            id=id,
+            provider_bundle_patch_request=provider_bundle_patch_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def patch_provider_bundle_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        provider_bundle_patch_request: ProviderBundlePatchRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProviderBundleResponse]:
+        """Patch mutable fields on a provider bundle.
+
+        Patches the `ProviderBundle` identified by `{id}`. The body MUST set at least one of `display_name`, `provider_packages`, or `provider_config_api_version` — an empty body surfaces as `400 empty_patch`. A `provider_packages` patch replaces the whole set: the packages the body names become the bundle's packages and every package it omits is dropped.  A content patch — one carrying `provider_packages` or `provider_config_api_version` — publishes a NEW immutable version of the bundle rather than rewriting the current one. The two content fields publish one version between them even when the body names both, and the response reports the number that version was published under in `latest_version`. A rename-only patch publishes nothing.  Publishing moves no Cloud. Every Cloud referencing the bundle keeps serving the version it pins and converges with that declaration until a Cloud write moves the pin — a `PATCH /v1/clouds/{id}` naming `provider_bundle_version`, which promotes that one Cloud. Read the published history at `GET /v1/provider-bundles/{id}/versions` to see which versions a Cloud can be promoted onto.  DECISION: BOTH `slug` and `provider` are intentionally NOT patchable fields. The slug is the URL handle an operator types to address the bundle, so re-slugging in place breaks every bookmarked URL. The provider is the compatibility key a bundle is checked against before a Cloud may reference it: every stored reference was admitted against the provider the bundle carried at the time, and nothing re-checks a reference once it is stored. The handler rejects any body that carries a `slug` key (even with the same value) with `400 slug_immutable`, and any body that carries a `provider` key with `400 provider_immutable`.  The read and the write are two transactions, so the merged aggregate can be stale by the time it is written. The write is gated on the version the read observed and a competing writer that got there first surfaces as `409 provider_bundle_stale`; nothing is written and no event is emitted in that case. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param provider_bundle_patch_request: (required)
+        :type provider_bundle_patch_request: ProviderBundlePatchRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._patch_provider_bundle_serialize(
+            id=id,
+            provider_bundle_patch_request=provider_bundle_patch_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def patch_provider_bundle_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle. ")],
+        provider_bundle_patch_request: ProviderBundlePatchRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Patch mutable fields on a provider bundle.
+
+        Patches the `ProviderBundle` identified by `{id}`. The body MUST set at least one of `display_name`, `provider_packages`, or `provider_config_api_version` — an empty body surfaces as `400 empty_patch`. A `provider_packages` patch replaces the whole set: the packages the body names become the bundle's packages and every package it omits is dropped.  A content patch — one carrying `provider_packages` or `provider_config_api_version` — publishes a NEW immutable version of the bundle rather than rewriting the current one. The two content fields publish one version between them even when the body names both, and the response reports the number that version was published under in `latest_version`. A rename-only patch publishes nothing.  Publishing moves no Cloud. Every Cloud referencing the bundle keeps serving the version it pins and converges with that declaration until a Cloud write moves the pin — a `PATCH /v1/clouds/{id}` naming `provider_bundle_version`, which promotes that one Cloud. Read the published history at `GET /v1/provider-bundles/{id}/versions` to see which versions a Cloud can be promoted onto.  DECISION: BOTH `slug` and `provider` are intentionally NOT patchable fields. The slug is the URL handle an operator types to address the bundle, so re-slugging in place breaks every bookmarked URL. The provider is the compatibility key a bundle is checked against before a Cloud may reference it: every stored reference was admitted against the provider the bundle carried at the time, and nothing re-checks a reference once it is stored. The handler rejects any body that carries a `slug` key (even with the same value) with `400 slug_immutable`, and any body that carries a `provider` key with `400 provider_immutable`.  The read and the write are two transactions, so the merged aggregate can be stale by the time it is written. The write is gated on the version the read observed and a competing writer that got there first surfaces as `409 provider_bundle_stale`; nothing is written and no event is emitted in that case. 
+
+        :param id: Provider bundle identifier (UUIDv7). Bound on `/v1/provider-bundles/{id}` for the Cloud Inventory provider-bundle CRUD surface, and on `/v1/provider-bundles/{id}/clouds` for the roster of Clouds that reference the bundle.  (required)
+        :type id: UUID
+        :param provider_bundle_patch_request: (required)
+        :type provider_bundle_patch_request: ProviderBundlePatchRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._patch_provider_bundle_serialize(
+            id=id,
+            provider_bundle_patch_request=provider_bundle_patch_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProviderBundleResponse",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "PermissionDenied",
+            '404': "Problem",
+            '409': "Problem",
+            '413': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _patch_provider_bundle_serialize(
+        self,
+        id,
+        provider_bundle_patch_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if provider_bundle_patch_request is not None:
+            _body_params = provider_bundle_patch_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/v1/provider-bundles/{id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def request_cloud_assignment(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cloud_assignment_request_body: CloudAssignmentRequestBody,
         _request_timeout: Union[
             None,
@@ -4274,7 +6681,7 @@ class CloudApi:
 
         Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cloud_assignment_request_body: (required)
         :type cloud_assignment_request_body: CloudAssignmentRequestBody
@@ -4332,7 +6739,7 @@ class CloudApi:
     @validate_call
     def request_cloud_assignment_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cloud_assignment_request_body: CloudAssignmentRequestBody,
         _request_timeout: Union[
             None,
@@ -4351,7 +6758,7 @@ class CloudApi:
 
         Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cloud_assignment_request_body: (required)
         :type cloud_assignment_request_body: CloudAssignmentRequestBody
@@ -4409,7 +6816,7 @@ class CloudApi:
     @validate_call
     def request_cloud_assignment_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         cloud_assignment_request_body: CloudAssignmentRequestBody,
         _request_timeout: Union[
             None,
@@ -4428,7 +6835,7 @@ class CloudApi:
 
         Opens a Cloud Assignment request that asks for the Cloud named in the body to be made usable in the Project identified by `{id}`. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Cloud Assignment application service which records the request in the `requested` state and appends a `CloudAssignmentRequested` outbox event in a single transaction.  The request is not yet usable — the Cloud only becomes usable in the Project once an operator approves it. A second open request for the same (Project, Cloud) pair while an earlier one is still live is rejected with `409 duplicate_live_cloud_assignment`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param cloud_assignment_request_body: (required)
         :type cloud_assignment_request_body: CloudAssignmentRequestBody
@@ -4564,7 +6971,7 @@ class CloudApi:
     @validate_call
     def request_credential_assignment(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         credential_assignment_request: CredentialAssignmentRequest,
         _request_timeout: Union[
             None,
@@ -4581,9 +6988,9 @@ class CloudApi:
     ) -> CredentialAssignmentResponse:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  Either form requires the Cloud the credential belongs to to be usable in the Project — an approved Cloud Assignment — otherwise the request is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a request opened without the Cloud Assignment would be approved and still refused at deploy time. The `cloud_id` form checks the Cloud it names before auto-selecting, and both forms then check the Cloud the selected credential actually belongs to — which the credential-to-Cloud usage join may make a different one.  For the `cloud_id` form additionally: at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param credential_assignment_request: (required)
         :type credential_assignment_request: CredentialAssignmentRequest
@@ -4642,7 +7049,7 @@ class CloudApi:
     @validate_call
     def request_credential_assignment_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         credential_assignment_request: CredentialAssignmentRequest,
         _request_timeout: Union[
             None,
@@ -4659,9 +7066,9 @@ class CloudApi:
     ) -> ApiResponse[CredentialAssignmentResponse]:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  Either form requires the Cloud the credential belongs to to be usable in the Project — an approved Cloud Assignment — otherwise the request is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a request opened without the Cloud Assignment would be approved and still refused at deploy time. The `cloud_id` form checks the Cloud it names before auto-selecting, and both forms then check the Cloud the selected credential actually belongs to — which the credential-to-Cloud usage join may make a different one.  For the `cloud_id` form additionally: at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param credential_assignment_request: (required)
         :type credential_assignment_request: CredentialAssignmentRequest
@@ -4720,7 +7127,7 @@ class CloudApi:
     @validate_call
     def request_credential_assignment_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces. ")],
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
         credential_assignment_request: CredentialAssignmentRequest,
         _request_timeout: Union[
             None,
@@ -4737,9 +7144,9 @@ class CloudApi:
     ) -> RESTResponseType:
         """Request a Credential Assignment for a Project.
 
-        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  For the `cloud_id` form: the Cloud must be usable in the Project (an approved Cloud Assignment) — otherwise `422 cloud_not_usable_in_project` — and at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
+        Opens a Credential Assignment request that binds a Cloud Credential to the Project identified by `{id}`. The body names the credential either directly (`cloud_credential_id`) or indirectly by Cloud (`cloud_id`), in which case the system auto-selects the most recently issued eligible credential serving that Cloud. The handler runs a `deploy` ReBAC check on the parent Project BEFORE the persistence write, then delegates to the Credential Assignment application service which records the request in the `requested` state and appends a `CredentialAssignmentRequested` outbox event in a single transaction.  The newly opened assignment is not yet materialised — the binding only becomes live once an approver moves it to the `approved` state. A second open request for the same (Project, Cloud Credential) pair while an earlier one is still live is rejected with `409 duplicate_live_assignment`. A Cloud Credential that is not in an assignable lifecycle state is rejected with `422 credential_not_assignable`.  Either form requires the Cloud the credential belongs to to be usable in the Project — an approved Cloud Assignment — otherwise the request is rejected with `422 cloud_not_usable_in_project`. A credential is only usable where both assignments are in place, so a request opened without the Cloud Assignment would be approved and still refused at deploy time. The `cloud_id` form checks the Cloud it names before auto-selecting, and both forms then check the Cloud the selected credential actually belongs to — which the credential-to-Cloud usage join may make a different one.  For the `cloud_id` form additionally: at least one eligible credential must serve the Cloud — otherwise `422 no_eligible_credential_for_cloud`. 
 
-        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, and on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces.  (required)
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
         :type id: UUID
         :param credential_assignment_request: (required)
         :type credential_assignment_request: CredentialAssignmentRequest
@@ -5188,7 +7595,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_credential(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_revoke_request: CloudCredentialRevokeRequest,
         _request_timeout: Union[
             None,
@@ -5207,7 +7614,7 @@ class CloudApi:
 
         Revokes the Cloud Credential identified by `{id}`. The handler reads the row to resolve the parent Cloud, runs the `manage` ReBAC check on that Cloud, then delegates to the Cloud Credentials Custodian which stamps `revoked_at`, soft-deletes the underlying secret, and appends a `CloudCredentialRevoked` outbox event in a single transaction.  Revocation is idempotent: revoking an already-revoked credential returns `200` with the unchanged metadata rather than an error. The response carries the metadata-only projection showing the populated `revoked_at`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_revoke_request: (required)
         :type cloud_credential_revoke_request: CloudCredentialRevokeRequest
@@ -5265,7 +7672,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_credential_with_http_info(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_revoke_request: CloudCredentialRevokeRequest,
         _request_timeout: Union[
             None,
@@ -5284,7 +7691,7 @@ class CloudApi:
 
         Revokes the Cloud Credential identified by `{id}`. The handler reads the row to resolve the parent Cloud, runs the `manage` ReBAC check on that Cloud, then delegates to the Cloud Credentials Custodian which stamps `revoked_at`, soft-deletes the underlying secret, and appends a `CloudCredentialRevoked` outbox event in a single transaction.  Revocation is idempotent: revoking an already-revoked credential returns `200` with the unchanged metadata rather than an error. The response carries the metadata-only projection showing the populated `revoked_at`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_revoke_request: (required)
         :type cloud_credential_revoke_request: CloudCredentialRevokeRequest
@@ -5342,7 +7749,7 @@ class CloudApi:
     @validate_call
     def revoke_cloud_credential_without_preload_content(
         self,
-        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
+        id: Annotated[UUID, Field(description="Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface. ")],
         cloud_credential_revoke_request: CloudCredentialRevokeRequest,
         _request_timeout: Union[
             None,
@@ -5361,7 +7768,7 @@ class CloudApi:
 
         Revokes the Cloud Credential identified by `{id}`. The handler reads the row to resolve the parent Cloud, runs the `manage` ReBAC check on that Cloud, then delegates to the Cloud Credentials Custodian which stamps `revoked_at`, soft-deletes the underlying secret, and appends a `CloudCredentialRevoked` outbox event in a single transaction.  Revocation is idempotent: revoking an already-revoked credential returns `200` with the unchanged metadata rather than an error. The response carries the metadata-only projection showing the populated `revoked_at`. 
 
-        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
+        :param id: Cloud Credential identifier (UUIDv7). Bound on `/v1/cloud-credentials/{id}`, `/v1/cloud-credentials/{id}/revoke`, `/v1/cloud-credentials/{id}/clouds`, `/v1/cloud-credentials/{id}/credential-assignments`, and `/v1/cloud-credentials/{id}/clouds/{cloud_id}` for the operator-facing Cloud Credentials read, revoke, and usage-Cloud attach/detach surface.  (required)
         :type id: UUID
         :param cloud_credential_revoke_request: (required)
         :type cloud_credential_revoke_request: CloudCredentialRevokeRequest

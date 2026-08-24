@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | The alert rule was stored. The body carries the stored rule.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | The alert rule was stored. The body carries the stored rule.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | The body failed validation. The Problem body&#39;s &#x60;code&#x60; field is &#x60;alert_rule_invalid&#x60; — an empty or oversized name or signal, a non-finite threshold, an unknown comparator, or an unknown severity.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |
@@ -799,7 +799,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | The incident was opened. The body carries the opened incident with its empty timeline.  |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | The incident was opened. The body carries the opened incident with its empty timeline.  |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | The body failed validation. The Problem body&#39;s &#x60;code&#x60; field is &#x60;incident_invalid&#x60; — an empty or oversized title or an unknown severity.  |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller lacks the &#x60;domain-edit&#x60; ReBAC relation on the addressed Domain.  |  -  |

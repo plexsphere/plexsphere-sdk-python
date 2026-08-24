@@ -24,6 +24,7 @@ from plexsphere.models.blueprint_list import BlueprintList
 from plexsphere.models.blueprint_response import BlueprintResponse
 from plexsphere.models.blueprint_version_create_request import BlueprintVersionCreateRequest
 from plexsphere.models.blueprint_version_response import BlueprintVersionResponse
+from plexsphere.models.project_blueprint_list import ProjectBlueprintList
 
 from plexsphere.api_client import ApiClient, RequestSerialized
 from plexsphere.api_response import ApiResponse
@@ -597,6 +598,315 @@ class BlueprintApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/blueprints',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_project_blueprints(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ProjectBlueprintList:
+        """List the Blueprint Catalog with this Project's provisioning verdict.
+
+        Returns a slug-ordered page of the Blueprint Catalog, each entry carrying a `provisionable` verdict for the Project identified by `{id}` plus the provider kinds its published versions accept. The response also names `reachable_provider_kinds`: the provider kinds the Project's Clouds reach.  A Blueprint is `provisionable` when the union of `provider_kinds` across its published versions intersects that reachable set. The reachable set is derived from the Clouds the Project holds an `approved` Cloud Assignment for; `requested`, `rejected` and `revoked` assignments contribute nothing, and the Cloud-provider-to-Blueprint-kind correspondence is applied server-side rather than by comparing the two taxonomies as strings. A Cloud on a provider the correspondence does not know contributes nothing, so the verdict fails closed.  Blueprints that are not provisionable stay in the response marked `provisionable: false` on purpose: the two kind sets in the same body name the exact gap, so an operator reads which Cloud to request next instead of a template that appears not to exist. A `true` verdict is assignment-level and does not promise an assigned credential; `CreateResource` still refuses an incompatible pairing with `422 blueprint_provider_mismatch`.  Per-row visibility is layered on top of the page: rows whose `blueprint#user` ReBAC relation the caller does not hold are filtered out, so the response items are a subset of the persistence-level page. The whole surface is gated by a top-level `read` check on the Project, run BEFORE any persistence read.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_project_blueprints_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProjectBlueprintList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_project_blueprints_with_http_info(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ProjectBlueprintList]:
+        """List the Blueprint Catalog with this Project's provisioning verdict.
+
+        Returns a slug-ordered page of the Blueprint Catalog, each entry carrying a `provisionable` verdict for the Project identified by `{id}` plus the provider kinds its published versions accept. The response also names `reachable_provider_kinds`: the provider kinds the Project's Clouds reach.  A Blueprint is `provisionable` when the union of `provider_kinds` across its published versions intersects that reachable set. The reachable set is derived from the Clouds the Project holds an `approved` Cloud Assignment for; `requested`, `rejected` and `revoked` assignments contribute nothing, and the Cloud-provider-to-Blueprint-kind correspondence is applied server-side rather than by comparing the two taxonomies as strings. A Cloud on a provider the correspondence does not know contributes nothing, so the verdict fails closed.  Blueprints that are not provisionable stay in the response marked `provisionable: false` on purpose: the two kind sets in the same body name the exact gap, so an operator reads which Cloud to request next instead of a template that appears not to exist. A `true` verdict is assignment-level and does not promise an assigned credential; `CreateResource` still refuses an incompatible pairing with `422 blueprint_provider_mismatch`.  Per-row visibility is layered on top of the page: rows whose `blueprint#user` ReBAC relation the caller does not hold are filtered out, so the response items are a subset of the persistence-level page. The whole surface is gated by a top-level `read` check on the Project, run BEFORE any persistence read.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_project_blueprints_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProjectBlueprintList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_project_blueprints_without_preload_content(
+        self,
+        id: Annotated[UUID, Field(description="Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces. ")],
+        cursor: Annotated[Optional[StrictStr], Field(description="Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. ")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=200, strict=True, ge=1)]], Field(description="Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List the Blueprint Catalog with this Project's provisioning verdict.
+
+        Returns a slug-ordered page of the Blueprint Catalog, each entry carrying a `provisionable` verdict for the Project identified by `{id}` plus the provider kinds its published versions accept. The response also names `reachable_provider_kinds`: the provider kinds the Project's Clouds reach.  A Blueprint is `provisionable` when the union of `provider_kinds` across its published versions intersects that reachable set. The reachable set is derived from the Clouds the Project holds an `approved` Cloud Assignment for; `requested`, `rejected` and `revoked` assignments contribute nothing, and the Cloud-provider-to-Blueprint-kind correspondence is applied server-side rather than by comparing the two taxonomies as strings. A Cloud on a provider the correspondence does not know contributes nothing, so the verdict fails closed.  Blueprints that are not provisionable stay in the response marked `provisionable: false` on purpose: the two kind sets in the same body name the exact gap, so an operator reads which Cloud to request next instead of a template that appears not to exist. A `true` verdict is assignment-level and does not promise an assigned credential; `CreateResource` still refuses an incompatible pairing with `422 blueprint_provider_mismatch`.  Per-row visibility is layered on top of the page: rows whose `blueprint#user` ReBAC relation the caller does not hold are filtered out, so the response items are a subset of the persistence-level page. The whole surface is gated by a top-level `read` check on the Project, run BEFORE any persistence read.  The pagination cursor is HMAC-signed and bound to the per-(caller, pepper) pseudonym, so a cursor minted by one principal cannot be replayed by another — the cross-caller replay surfaces as `403 cursor_binding_mismatch`. A tampered envelope or unknown version byte stays on `400 invalid_cursor`. 
+
+        :param id: Project identifier (UUIDv7). Bound on `/v1/projects/{id}` for the tenancy CRUD surface, on `/v1/projects/{id}/credentials` for the operator-facing OpenBao Credential Broker inventory list, on `/v1/projects/{id}/credential-assignments` and `/v1/projects/{id}/cloud-assignments` for the assignment request/list surfaces, on `/v1/projects/{id}/blueprints` for the project-scoped Blueprint offer list, and on `/v1/projects/{id}/sink-enablements` and `/v1/projects/{id}/telemetry-routes` for the sink-enablement and Telemetry Route surfaces.  (required)
+        :type id: UUID
+        :param cursor: Opaque continuation token returned by a previous call's `next_cursor`. The encoding is HMAC-signed by the server so a tampered cursor surfaces as `400`. 
+        :type cursor: str
+        :param limit: Maximum number of items to return in a single page. A value outside [1, 200] is rejected with a `400` Problem rather than silently clamped. 
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_project_blueprints_serialize(
+            id=id,
+            cursor=cursor,
+            limit=limit,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ProjectBlueprintList",
+            '400': "Problem",
+            '401': "Problem",
+            '403': "Problem",
+            '500': "Problem",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_project_blueprints_serialize(
+        self,
+        id,
+        cursor,
+        limit,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json', 
+                    'application/problem+json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'operatorBearer', 
+            'sessionCookie'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/projects/{id}/blueprints',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

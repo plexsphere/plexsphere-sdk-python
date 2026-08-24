@@ -1408,7 +1408,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Group created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Group created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Invalid Group body or source/idp invariant violated. |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage Groups. Body is a &#x60;PermissionDenied&#x60; problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; that pairs with the audit entry.  |  -  |
@@ -1602,7 +1602,7 @@ Name | Type | Description  | Notes
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**201** | Binding created. |  * Location - Canonical read URL of the created resource — &#x60;/v1/domains/{domain_id}/incidents/{incident_id}&#x60;.  <br>  |
+**201** | Binding created. |  * Location - Canonical read URL of the created route — &#x60;/v1/telemetry-routes/{id}&#x60;.  <br>  |
 **400** | Invalid binding body. |  -  |
 **401** | Caller is not authenticated. |  -  |
 **403** | Caller is not authorized to manage IdP bindings. Body is a &#x60;PermissionDenied&#x60; RFC 9457 problem carrying the ReBAC denial &#x60;reason&#x60;, traversed &#x60;relation_path&#x60;, and the &#x60;correlation_id&#x60; that pairs the response with the audit entry emitted by &#x60;internal/audit&#x60;.  |  -  |
